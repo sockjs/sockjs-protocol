@@ -1,0 +1,4 @@
+*.pyc
+venv
+distribute-*.tar.gz
+docs
