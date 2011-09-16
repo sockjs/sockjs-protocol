@@ -2,7 +2,7 @@ import urlparse
 import httplib
 
 class HttpResponse:
-    def __init__(self, method, url):
+    def __init__(self, method, url, headers):
         u = urlparse.urlparse(url)
         if u.scheme == 'http':
             conn = httplib.HTTPConnection(u.netloc)
@@ -13,7 +13,7 @@ class HttpResponse:
         assert u.fragment == ''
         path = u.path + ('?' + u.query if u.query else '')
         self.conn = conn
-        conn.request(method, path)
+        conn.request(method, path, headers=headers)
         self.res = conn.getresponse()
         self.headers = dict( (k.lower(), v) for k, v in self.res.getheaders() )
 
@@ -26,7 +26,12 @@ class HttpResponse:
 
     def load(self):
         self.body = self.res.read()
+        self.conn.close()
         return self
 
-def GET(url):
-    return HttpResponse('GET', url)
+def GET(url, headers={}):
+    return HttpResponse('GET', url, headers)
+
+def POST(url, headers={}):
+    return HttpResponse('POST', url, headers)
+

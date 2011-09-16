@@ -9,13 +9,14 @@ help others to write alternative server implementations.
 
 
 This protocol definition is also a runnable test suite, do run it
-against your server implementation.
-
+against your server implementation. Supporting all the tests doesn't
+guarantee that SockJS client will work flawlessly, end-to-end tests
+using real browsers are always required.
 """
 import re
 import sys
 import unittest2 as unittest
-from utils import GET
+from utils import GET, POST
 
 
 # Base URL
@@ -36,6 +37,12 @@ All paths under base url are controlled by SockJS server and are
 defined by SockJS protocol.
 
 SockJS protocol can be using either http or https.
+
+To run this tests server pointed by `base_url` needs to support
+following services:
+
+ - `echo` - responds with identical data as received
+ - `disabled_websocket_echo` - identical to `echo`, but with websockets disabled
 """
 base_url = sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:8080/echo'
 
@@ -43,25 +50,43 @@ base_url = sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:8080/echo'
 # Static URLs
 # ===========
 
+class Test(unittest.TestCase):
+    # We are going to test several `404/not found` pages. They should
+    # have no body and no content-type.
+    def verify404(self, r):
+        self.assertEqual(r.status, 404)
+        self.assertFalse(r['content-type'])
+        self.assertFalse(r.body)
+
+    # In some cases `405/method not allowed` is more appropriate.
+    def verify405(self, r):
+        self.assertEqual(r.status, 405)
+        self.assertFalse(r['content-type'])
+        self.assertFalse(r.body)
+
 # Greeting url: `/`
 # ----------------
-class BaseUrlGreeting(unittest.TestCase):
-    """
-    The most important part of the url scheme, is without doubt, the top
-    url. Make sure the greeting is valid.
-    """
-    def runTest(self):
+class BaseUrlGreeting(Test):
+    # The most important part of the url scheme, is without doubt, the
+    # top url. Make sure the greeting is valid.
+    def test_greeting(self):
         r = GET(base_url).load()
         self.assertEqual(r.status, 200)
         self.assertEqual(r['content-type'], 'text/plain')
         self.assertEqual(r.body, 'Welcome to SockJS!\n')
+
+    # Other simple requests should return 404.
+    def test_notFound(self):
+        for suffix in ['/a', '/a.html', '//', '///', '/a/a', '/a/a/', '/a',
+                       '/a/']:
+            self.verify404(GET(base_url + suffix).load())
 
 
 """
 IFrame page: `/iframe*.html`
 ----------------------------
 """
-class IframePage(unittest.TestCase):
+class IframePage(Test):
     """
     Some transports don't support cross domain communication
     (CORS). In order to support them we need to do a cross-domain
@@ -114,24 +139,91 @@ class IframePage(unittest.TestCase):
         for suffix in ['/iframe.htm', '/iframe', '/IFRAME.HTML', '/IFRAME',
                        '/iframe.HTML', '/iframe.xml']:
             r = GET(base_url + suffix).load()
-            self.assertEqual(r.status, 404)
-            self.assertEqual(r['content-type'], None)
-            self.assertEqual(r.body, '')
+            self.verify404(r)
 
-    # The '/iframe.html' page and its variants must give 200/ok and be
+    # The '/iframe.html' page and its variants must give `200/ok` and be
     # served with 'text/html' content type.
     def verify(self, url):
         r = GET(url).load()
         self.assertEqual(r.status, 200)
         self.assertEqual(r['content-type'], 'text/html')
+        # The iframe page must be strongly cacheable, supply
+        # Cache-Control, Expires and Etag headers and avoid
+        # Last-Modified header.
+        self.assertEqual(r['Cache-Control'], 'public, max-age=31536000')
+        self.assertTrue(r['Expires'])
+        self.assertTrue(r['ETag'])
+        self.assertFalse(r['last-modified'])
+
         # Body must be exactly as specified, with the exception of
         # `sockjs_url`, which should be configurable.
         match = self.iframe_body.match(r.body.strip())
         self.assertTrue(match)
-        # `Sockjs_url` must look like a valid url.
+        # `Sockjs_url` must be a valid url and should utilize caching.
         sockjs_url = match.group('sockjs_url')
         self.assertTrue(sockjs_url.startswith('/') or
                         sockjs_url.startswith('http'))
+        return r
+
+
+    # The iframe page must be strongly cacheable.
+    def test_cacheability(self):
+        # ETag headers must not change too often.
+        r1 = GET(base_url + '/iframe.html').load()
+        r2 = GET(base_url + '/iframe.html').load()
+        self.assertEqual(r1['etag'], r2['etag'])
+
+        # Server must support 'if-none-match' requests.
+        r = GET(base_url + '/iframe.html', {'If-None-Match': r1['etag']}).load()
+        self.assertEqual(r.status, 304)
+        self.assertFalse(r['content-type'])
+        self.assertFalse(r.body)
+
+
+# Session URLs
+# ============
+
+# Top session URL: `/<server>/<session>`
+# --------------------------------------
+#
+# The session between the client and the server is always initialized
+# by the client. The client chooses `server_id`, which should be a
+# three digit number, like 000 or 999. It can be supplied by user or
+# randomly generated. The main reason for this parameter is to make it
+# easier to configure load balancer - and enable sticky sessions based
+# on first part of the url.
+#
+# Second parameter `session_id` must be a random string, unique for
+# every session.
+#
+# A session is identified by only `session_id`. `server_id` is a
+# parameter for load balancer and can be safely ignored by the server.
+#
+# It is undefined what happens when two clients share the same
+# `session_id`. It is a client responsibility to choose identifier
+# with enough entropy.
+class SessionURLs(Test):
+
+    # The server must accept any value in `server` and `session` fields.
+    def test_anyValue(self):
+        self.verify('/a/a')
+        for session_part in ['/_/_', '/1/1', '/abcdefgh_i-j%20/abcdefg_i-j%20']:
+            self.verify(session_part)
+
+    # To test session URLs we're going to use `xhr-polling` transport
+    # facilitites.
+    def verify(self, session_part):
+        r = POST(base_url + session_part + '/xhr').load()
+        self.assertEqual(r.body, 'o\n')
+        self.assertEqual(r.status, 200)
+
+
+    # But not an empty string, anything containing dots or paths with
+    # less or more parts.
+    def test_invalidPaths(self):
+        for suffix in ['//', '/a./a', '/a/a.', '/./.' ,'/', '///']:
+            self.verify404(GET(base_url + suffix + '/xhr').load())
+            self.verify405(POST(base_url + suffix + '/xhr').load())
 
 
 
@@ -176,3 +268,4 @@ Make this script runnable.
 """
 if __name__ == '__main__':
     unittest.main()
+
