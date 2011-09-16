@@ -29,5 +29,6 @@ upload: build
 	cp docs/* ../sockjs-protocol-gh-pages
 	(cd ../sockjs-protocol-gh-pages; git add sockjs*html; git commit sockjs*html -m "Content regenerated";)
 	(cd ../sockjs-protocol-gh-pages; node generate_index.js > index.html;)
+	(cd ../sockjs-protocol-gh-pages; git add index.html; git commit index.html -m "Index regenerated";)
 	@echo ' [*] Now run:'
 	@echo '(cd ../sockjs-protocol-gh-pages; git push;)'
