@@ -7,6 +7,7 @@ venv/.ok:
 	virtualenv venv
 	./venv/bin/pip install pycco
 	./venv/bin/pip install unittest2
+	./venv/bin/pip install -e git+https://github.com/liris/websocket-client.git#egg=websocket
 	-rm distribute-*.tar.gz
 	touch venv/.ok
 

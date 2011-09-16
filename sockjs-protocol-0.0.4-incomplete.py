@@ -135,6 +135,38 @@ class IframePage(unittest.TestCase):
 
 
 
+# WebSocket protocols: `/*/*/websocket`
+# -------------------------------------
+import websocket
+
+# The most important feature of SockJS is to support native WebSocket
+# protocol. A decent SockJS server should support at least the
+# following variants:
+#
+#   - hixie-75 (Chrome 4, Safari 5.0.0)
+#   - hixie-76/hybi-00 (Chrome 6, Safari 5.0.1)
+#   - hybi-07 (Firefox 6)
+#   - hybi-10 (Firefox 7, Chrome 14)
+#
+# This tests only check hybi-76.
+class Websockets(Test):
+    # The web socket...
+    def test_httpMethod(self):
+        pass
+
+    def test_disabledTransport(self):
+        # User should be able to disable websocket transport
+        # alltogether. This is useful when load balancer doesn't
+        # support websocket protocol and we need to be able to reject
+        # the transport immediately. This is achieved by returning 404
+        # response on websocket transport url.
+        pass
+
+    def test_invaildConnectionHeader(self):
+        # Some proxies and load balancers can rewrite 'Connection'
+        # header, in such case websocket handshake should be treated
+        # as invalid.
+        pass
 
 # Footnote
 # ========
