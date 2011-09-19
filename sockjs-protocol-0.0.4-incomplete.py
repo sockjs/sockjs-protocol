@@ -16,7 +16,8 @@ using real browsers are always required.
 import re
 import sys
 import unittest2 as unittest
-from utils import GET, POST
+from utils import GET, POST, POST_async
+import uuid
 
 
 # Base URL
@@ -43,8 +44,15 @@ following services:
 
  - `echo` - responds with identical data as received
  - `disabled_websocket_echo` - identical to `echo`, but with websockets disabled
+ - `close` - server immediately closes the session
+
+This tests should not be run more often than once in five seconds -
+many tests operate on the same (named) sessions and they need to have
+enough time to timeout.
 """
-base_url = sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:8080/echo'
+test_top_url = sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:8080'
+base_url = test_top_url + '/echo'
+close_base_url = test_top_url + '/close'
 
 
 # Static URLs
@@ -70,7 +78,7 @@ class BaseUrlGreeting(Test):
     # The most important part of the url scheme, is without doubt, the
     # top url. Make sure the greeting is valid.
     def test_greeting(self):
-        r = GET(base_url).load()
+        r = GET(base_url)
         self.assertEqual(r.status, 200)
         self.assertEqual(r['content-type'], 'text/plain')
         self.assertEqual(r.body, 'Welcome to SockJS!\n')
@@ -79,7 +87,7 @@ class BaseUrlGreeting(Test):
     def test_notFound(self):
         for suffix in ['/a', '/a.html', '//', '///', '/a/a', '/a/a/', '/a',
                        '/a/']:
-            self.verify404(GET(base_url + suffix).load())
+            self.verify404(GET(base_url + suffix))
 
 
 """
@@ -137,14 +145,14 @@ class IframePage(Test):
     # Malformed urls must give 404 answer.
     def test_invalidUrl(self):
         for suffix in ['/iframe.htm', '/iframe', '/IFRAME.HTML', '/IFRAME',
-                       '/iframe.HTML', '/iframe.xml']:
-            r = GET(base_url + suffix).load()
+                       '/iframe.HTML', '/iframe.xml', '/iframe-/.html']:
+            r = GET(base_url + suffix)
             self.verify404(r)
 
     # The '/iframe.html' page and its variants must give `200/ok` and be
     # served with 'text/html' content type.
     def verify(self, url):
-        r = GET(url).load()
+        r = GET(url)
         self.assertEqual(r.status, 200)
         self.assertEqual(r['content-type'], 'text/html')
         # The iframe page must be strongly cacheable, supply
@@ -166,15 +174,15 @@ class IframePage(Test):
         return r
 
 
-    # The iframe page must be strongly cacheable.
+    # The iframe page must be strongly cacheable. ETag headers must
+    # not change too often. Server must support 'if-none-match'
+    # requests.
     def test_cacheability(self):
-        # ETag headers must not change too often.
-        r1 = GET(base_url + '/iframe.html').load()
-        r2 = GET(base_url + '/iframe.html').load()
+        r1 = GET(base_url + '/iframe.html')
+        r2 = GET(base_url + '/iframe.html')
         self.assertEqual(r1['etag'], r2['etag'])
 
-        # Server must support 'if-none-match' requests.
-        r = GET(base_url + '/iframe.html', {'If-None-Match': r1['etag']}).load()
+        r = GET(base_url + '/iframe.html', {'If-None-Match': r1['etag']})
         self.assertEqual(r.status, 304)
         self.assertFalse(r['content-type'])
         self.assertFalse(r.body)
@@ -188,7 +196,7 @@ class IframePage(Test):
 #
 # The session between the client and the server is always initialized
 # by the client. The client chooses `server_id`, which should be a
-# three digit number, like 000 or 999. It can be supplied by user or
+# three digit number: 000 to 999. It can be supplied by user or
 # randomly generated. The main reason for this parameter is to make it
 # easier to configure load balancer - and enable sticky sessions based
 # on first part of the url.
@@ -213,7 +221,7 @@ class SessionURLs(Test):
     # To test session URLs we're going to use `xhr-polling` transport
     # facilitites.
     def verify(self, session_part):
-        r = POST(base_url + session_part + '/xhr').load()
+        r = POST(base_url + session_part + '/xhr')
         self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
 
@@ -222,9 +230,77 @@ class SessionURLs(Test):
     # less or more parts.
     def test_invalidPaths(self):
         for suffix in ['//', '/a./a', '/a/a.', '/./.' ,'/', '///']:
-            self.verify404(GET(base_url + suffix + '/xhr').load())
-            self.verify405(POST(base_url + suffix + '/xhr').load())
+            self.verify404(GET(base_url + suffix + '/xhr'))
+            self.verify405(POST(base_url + suffix + '/xhr'))
 
+# Protocol and framing
+# --------------------
+#
+# SockJS tries to stay API-compatible with WebSockets, but not on the
+# network layer. For technical reasons SockJS must introduce custom
+# framing and simple custom protocol.
+#
+# To explain the protocol we'll use `xhr-polling` transport
+# facilitites.
+class Protocol(Test):
+    # When server receives a request with unknown `session_id` it must
+    # recognize that as request for a new session. When server opens a
+    # new sesion it must immediately send an frame containing a letter
+    # `o`.
+    def test_simpleSession(self):
+        trans_url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(trans_url + '/xhr')
+        "New line is a frame delimiter specific for xhr-polling"
+        self.assertEqual(r.body, 'o\n')
+        self.assertEqual(r.status, 200)
+
+        # After a session was established the server needs to accept
+        # requests for sending messages.
+        "Xhr-polling accepts messages as a list of JSON-encoded strings."
+        payload = '["a"]'
+        r = POST(trans_url + '/xhr_send', body=payload)
+        self.assertFalse(r.body)
+        self.assertEqual(r.status, 204)
+
+        "We're using echo service - we can receive our message"
+        r = POST(trans_url + '/xhr')
+        self.assertEqual(r.body, 'm"a"\n')
+        self.assertEqual(r.status, 200)
+
+        # Sending messages to not existing sessions is invalid.
+        payload = '["a"]'
+        r = POST(base_url + '/000/bad_session/xhr_send', body=payload)
+        self.assertFalse(r.body)
+        self.assertEqual(r.status, 404)
+
+        # The session must time out after 5 seconds of not having a
+        # receiving connection. The server must send a heartbeat frame
+        # every 25 seconds. The heartbeat frame contains a single `h`
+        # character. This delays may be configurable.
+        pass
+        # The server may not allow two receiving connections to wait
+        # on a single session. In such case the server must send a
+        # close frame to the new connection.
+        r1 = POST_async(trans_url + '/xhr')
+        r2 = POST(trans_url + '/xhr')
+        r1.close()
+        self.assertEqual(r2.body, 'c[2010,"Another connection still open"]\n')
+        self.assertEqual(r2.status, 200)
+
+    # The server may terminate the connection, passing error code and
+    # message.
+    def test_closeSession(self):
+        trans_url = close_base_url + '/000/' + str(uuid.uuid4())
+        POST(trans_url + '/xhr')
+        r = POST(trans_url + '/xhr')
+        self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
+        self.assertEqual(r.status, 200)
+
+        # Until the timeout occurs, the server must constantly serve
+        # the close message.
+        r = POST(trans_url + '/xhr')
+        self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
+        self.assertEqual(r.status, 200)
 
 
 # WebSocket protocols: `/*/*/websocket`
@@ -259,6 +335,7 @@ class Websockets(Test):
         # header, in such case websocket handshake should be treated
         # as invalid.
         pass
+
 
 # Footnote
 # ========
