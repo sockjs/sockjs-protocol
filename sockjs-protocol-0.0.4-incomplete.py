@@ -157,7 +157,9 @@ class IframePage(Test):
         # The iframe page must be strongly cacheable, supply
         # Cache-Control, Expires and Etag headers and avoid
         # Last-Modified header.
-        self.assertEqual(r['Cache-Control'], 'public, max-age=31536000')
+        self.assertTrue(re.search('public', r['Cache-Control']))
+        self.assertTrue(re.search('max-age=[1-9][0-9]{6}', r['Cache-Control']),
+                        "max-age must be large, one year (31536000) is best")
         self.assertTrue(r['Expires'])
         self.assertTrue(r['ETag'])
         self.assertFalse(r['last-modified'])
