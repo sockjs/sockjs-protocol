@@ -1,4 +1,12 @@
+SockJS family:
 
+  * [SockJS-client](https://github.com/majek/sockjs-client) JavaScript client library
+  * [SockJS-node](https://github.com/majek/sockjs-node) Node.js server
+  * [SockJS-protocol](https://github.com/majek/sockjs-protocol) protocol documentation
+
+
+SockJS-protocol
+===============
 
 To generate literate-programming html, type:
 
