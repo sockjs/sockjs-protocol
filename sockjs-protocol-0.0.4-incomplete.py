@@ -50,7 +50,7 @@ This tests should not be run more often than once in five seconds -
 many tests operate on the same (named) sessions and they need to have
 enough time to timeout.
 """
-test_top_url = sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:8080'
+test_top_url = 'http://localhost:8080'
 base_url = test_top_url + '/echo'
 close_base_url = test_top_url + '/close'
 
