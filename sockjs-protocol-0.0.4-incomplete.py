@@ -14,7 +14,6 @@ guarantee that SockJS client will work flawlessly, end-to-end tests
 using real browsers are always required.
 """
 import re
-import sys
 import unittest2 as unittest
 from utils import GET, POST, POST_async
 import uuid
