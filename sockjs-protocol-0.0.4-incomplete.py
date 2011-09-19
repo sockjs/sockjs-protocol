@@ -263,9 +263,11 @@ class Protocol(Test):
         self.assertFalse(r.body)
         self.assertEqual(r.status, 204)
 
-        "We're using echo service - we can receive our message"
+        '''We're using echo service - we can receive our message. There are
+        two valid encodings: single message 'm' and array 'a'. It's currently
+        undefined when the server shoul use which.'''
         r = POST(trans_url + '/xhr')
-        self.assertEqual(r.body, 'm"a"\n')
+        self.assertTrue(r.body in ['m"a"\n', 'a["a"]\n'])
         self.assertEqual(r.status, 200)
 
         # Sending messages to not existing sessions is invalid.
