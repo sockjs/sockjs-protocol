@@ -79,7 +79,7 @@ class BaseUrlGreeting(Test):
     def test_greeting(self):
         r = GET(base_url)
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['content-type'], 'text/plain')
+        self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
         self.assertEqual(r.body, 'Welcome to SockJS!\n')
 
     # Other simple requests should return 404.
@@ -153,7 +153,7 @@ class IframePage(Test):
     def verify(self, url):
         r = GET(url)
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['content-type'], 'text/html')
+        self.assertEqual(r['content-type'], 'text/html; charset=UTF-8')
         # The iframe page must be strongly cacheable, supply
         # Cache-Control, Expires and Etag headers and avoid
         # Last-Modified header.
