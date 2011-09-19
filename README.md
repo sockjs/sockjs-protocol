@@ -8,7 +8,16 @@ SockJS family:
 SockJS-protocol
 ===============
 
-To generate literate-programming html, type:
+This project attempts to provide a definition of SockJS protocol. The
+documentation is in a form of a Python test suite decorated with some
+prose in literate-programming style. You can see current documentation
+here:
+
+ * [sockjs-protocol-0.0.4-incomplete.html](http://majek.github.com/sockjs-protocol/sockjs-protocol-0.0.4-incomplete.html)
+
+
+
+To generate the html type:
 
     make
 
