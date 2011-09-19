@@ -29,13 +29,16 @@ server-side counterparts, like
 <a href="https://github.com/majek/sockjs-client">SockJS-node</a>. This should
 help others to write alternative server implementations.</p>
 <p>This protocol definition is also a runnable test suite, do run it
-against your server implementation.</p>
+against your server implementation. Supporting all the tests doesn't
+guarantee that SockJS client will work flawlessly, end-to-end tests
+using real browsers are always required.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">unittest2</span> <span class="kn">as</span> <span class="nn">unittest</span>
-<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">GET</span></pre></div></pre></div>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">GET</span><span class="p">,</span> <span class="n">POST</span><span class="p">,</span> <span class="n">POST_async</span>
+<span class="kn">import</span> <span class="nn">uuid</span></pre></div></pre></div>
       </td>
     </tr><tr id='section-1'>
       <td class=docs>
@@ -63,9 +66,21 @@ never end with a slash.</p>
 <p>All paths under base url are controlled by SockJS server and are
 defined by SockJS protocol.</p>
 <p>SockJS protocol can be using either http or https.</p>
+<p>To run this tests server pointed by <code>base_url</code> needs to support
+following services:</p>
+<ul>
+<li><code>echo</code> - responds with identical data as received</li>
+<li><code>disabled_websocket_echo</code> - identical to <code>echo</code>, but with websockets disabled</li>
+<li><code>close</code> - server immediately closes the session</li>
+</ul>
+<p>This tests should not be run more often than once in five seconds -
+many tests operate on the same (named) sessions and they need to have
+enough time to timeout.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre><span class="n">base_url</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">&#39;http://localhost:8080/echo&#39;</span></pre></div></pre></div>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="n">test_top_url</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">&#39;http://localhost:8080&#39;</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="n">test_top_url</span> <span class="o">+</span> <span class="s">&#39;/echo&#39;</span>
+<span class="n">close_base_url</span> <span class="o">=</span> <span class="n">test_top_url</span> <span class="o">+</span> <span class="s">&#39;/close&#39;</span></pre></div></pre></div>
       </td>
     </tr><tr id='section-3'>
       <td class=docs>
@@ -82,40 +97,90 @@ defined by SockJS protocol.</p>
         <div class="octowrap">
           <a class="octothorpe" href="#section-4">#</a>
         </div>
-        <h2>Greeting url: <code>/</code></h2>
+        
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">BaseUrlGreeting</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span></pre></div></pre></div>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">Test</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span></pre></div></pre></div>
       </td>
     </tr><tr id='section-5'>
       <td class=docs>
         <div class="octowrap">
           <a class="octothorpe" href="#section-5">#</a>
         </div>
-        <p>The most important part of the url scheme, is without doubt, the top
-url. Make sure the greeting is valid.</p>
+        <p>We are going to test several <code>404/not found</code> pages. They should
+have no body and no content-type.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">runTest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">],</span> <span class="s">&#39;text/plain&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;Welcome to SockJS!</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">verify404</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span></pre></div></pre></div>
       </td>
     </tr><tr id='section-6'>
       <td class=docs>
         <div class="octowrap">
           <a class="octothorpe" href="#section-6">#</a>
         </div>
-        <h2>IFrame page: <code>/iframe*.html</code></h2>
+        <p>In some cases <code>405/method not allowed</code> is more appropriate.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">IframePage</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span></pre></div></pre></div>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">verify405</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">405</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span></pre></div></pre></div>
       </td>
     </tr><tr id='section-7'>
       <td class=docs>
         <div class="octowrap">
           <a class="octothorpe" href="#section-7">#</a>
+        </div>
+        <h2>Greeting url: <code>/</code></h2>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">BaseUrlGreeting</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-8'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-8">#</a>
+        </div>
+        <p>The most important part of the url scheme, is without doubt, the
+top url. Make sure the greeting is valid.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_greeting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">],</span> <span class="s">&#39;text/plain&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;Welcome to SockJS!</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-9'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-9">#</a>
+        </div>
+        <p>Other simple requests should return 404.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_notFound</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;/a&#39;</span><span class="p">,</span> <span class="s">&#39;/a.html&#39;</span><span class="p">,</span> <span class="s">&#39;//&#39;</span><span class="p">,</span> <span class="s">&#39;///&#39;</span><span class="p">,</span> <span class="s">&#39;/a/a&#39;</span><span class="p">,</span> <span class="s">&#39;/a/a/&#39;</span><span class="p">,</span> <span class="s">&#39;/a&#39;</span><span class="p">,</span>
+                       <span class="s">&#39;/a/&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">))</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-10'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-10">#</a>
+        </div>
+        <h2>IFrame page: <code>/iframe*.html</code></h2>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">IframePage</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-11'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-11">#</a>
         </div>
         <p>Some transports don't support cross domain communication
 (CORS). In order to support them we need to do a cross-domain
@@ -143,10 +208,10 @@ communicate with the server withing the same domain.</p>
 <span class="s">&lt;html&gt;$</span>
 <span class="s">&#39;&#39;&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-8'>
+    </tr><tr id='section-12'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-8">#</a>
+          <a class="octothorpe" href="#section-12">#</a>
         </div>
         <p>SockJS server must provide this html page.</p>
       </td>
@@ -154,10 +219,10 @@ communicate with the server withing the same domain.</p>
         <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_simpleUrl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/iframe.html&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-9'>
+    </tr><tr id='section-13'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-9">#</a>
+          <a class="octothorpe" href="#section-13">#</a>
         </div>
         <p>To properly utilize caching, the same content must be served
 for request which try to version the iframe. The server may want
@@ -170,10 +235,10 @@ revision.</p>
                        <span class="s">&#39;/iframe-0.1.2abc-dirty.2144.html&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-10'>
+    </tr><tr id='section-14'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-10">#</a>
+          <a class="octothorpe" href="#section-14">#</a>
         </div>
         <p>In some circumstances (<code>devel</code> set to true) client library
 wants to skip caching altogether. That is achieved by
@@ -185,40 +250,53 @@ supplying a random query string.</p>
                        <span class="s">&#39;/iframe-0.1.2abc-dirty.2144.html?t=qweqweq123&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-11'>
+    </tr><tr id='section-15'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-11">#</a>
+          <a class="octothorpe" href="#section-15">#</a>
         </div>
         <p>Malformed urls must give 404 answer.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_invalidUrl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;/iframe.htm&#39;</span><span class="p">,</span> <span class="s">&#39;/iframe&#39;</span><span class="p">,</span> <span class="s">&#39;/IFRAME.HTML&#39;</span><span class="p">,</span> <span class="s">&#39;/IFRAME&#39;</span><span class="p">,</span>
-                       <span class="s">&#39;/iframe.HTML&#39;</span><span class="p">,</span> <span class="s">&#39;/iframe.xml&#39;</span><span class="p">]:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span></pre></div></pre></div>
+                       <span class="s">&#39;/iframe.HTML&#39;</span><span class="p">,</span> <span class="s">&#39;/iframe.xml&#39;</span><span class="p">,</span> <span class="s">&#39;/iframe-/.html&#39;</span><span class="p">]:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-12'>
+    </tr><tr id='section-16'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-12">#</a>
+          <a class="octothorpe" href="#section-16">#</a>
         </div>
-        <p>The '/iframe.html' page and its variants must give 200/ok and be
+        <p>The '/iframe.html' page and its variants must give <code>200/ok</code> and be
 served with 'text/html' content type.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">],</span> <span class="s">&#39;text/html&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-13'>
+    </tr><tr id='section-17'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-13">#</a>
+          <a class="octothorpe" href="#section-17">#</a>
+        </div>
+        <p>The iframe page must be strongly cacheable, supply
+Cache-Control, Expires and Etag headers and avoid
+Last-Modified header.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Cache-Control&#39;</span><span class="p">],</span> <span class="s">&#39;public, max-age=31536000&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Expires&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;ETag&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;last-modified&#39;</span><span class="p">])</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-18'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-18">#</a>
         </div>
         <p>Body must be exactly as specified, with the exception of
 <code>sockjs_url</code>, which should be configurable.</p>
@@ -227,32 +305,337 @@ served with 'text/html' content type.</p>
         <div class='highlight'><pre><div class="highlight"><pre>        <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iframe_body</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">match</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-14'>
+    </tr><tr id='section-19'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-14">#</a>
+          <a class="octothorpe" href="#section-19">#</a>
         </div>
-        <p><code>Sockjs_url</code> must look like a valid url.</p>
+        <p><code>Sockjs_url</code> must be a valid url and should utilize caching.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre>        <span class="n">sockjs_url</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s">&#39;sockjs_url&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">sockjs_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="ow">or</span>
-                        <span class="n">sockjs_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;http&#39;</span><span class="p">))</span></pre></div></pre></div>
+                        <span class="n">sockjs_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;http&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">r</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-15'>
+    </tr><tr id='section-20'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-15">#</a>
+          <a class="octothorpe" href="#section-20">#</a>
+        </div>
+        <p>The iframe page must be strongly cacheable. ETag headers must
+not change too often. Server must support 'if-none-match'
+requests.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_cacheability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/iframe.html&#39;</span><span class="p">)</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/iframe.html&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r1</span><span class="p">[</span><span class="s">&#39;etag&#39;</span><span class="p">],</span> <span class="n">r2</span><span class="p">[</span><span class="s">&#39;etag&#39;</span><span class="p">])</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/iframe.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;If-None-Match&#39;</span><span class="p">:</span> <span class="n">r1</span><span class="p">[</span><span class="s">&#39;etag&#39;</span><span class="p">]})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">304</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-21'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-21">#</a>
+        </div>
+        <h1>Session URLs</h1>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-22'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-22">#</a>
+        </div>
+        <h2>Top session URL: <code>/&lt;server&gt;/&lt;session&gt;</code></h2>
+<p>The session between the client and the server is always initialized
+by the client. The client chooses <code>server_id</code>, which should be a
+three digit number: 000 to 999. It can be supplied by user or
+randomly generated. The main reason for this parameter is to make it
+easier to configure load balancer - and enable sticky sessions based
+on first part of the url.</p>
+<p>Second parameter <code>session_id</code> must be a random string, unique for
+every session.</p>
+<p>A session is identified by only <code>session_id</code>. <code>server_id</code> is a
+parameter for load balancer and can be safely ignored by the server.</p>
+<p>It is undefined what happens when two clients share the same
+<code>session_id</code>. It is a client responsibility to choose identifier
+with enough entropy.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">SessionURLs</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-23'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-23">#</a>
+        </div>
+        <p>The server must accept any value in <code>server</code> and <code>session</code> fields.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_anyValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="s">&#39;/a/a&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">session_part</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;/_/_&#39;</span><span class="p">,</span> <span class="s">&#39;/1/1&#39;</span><span class="p">,</span> <span class="s">&#39;/abcdefgh_i-j%20/abcdefg_i-j%20&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">session_part</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-24'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-24">#</a>
+        </div>
+        <p>To test session URLs we're going to use <code>xhr-polling</code> transport
+facilitites.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_part</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">session_part</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-25'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-25">#</a>
+        </div>
+        <p>But not an empty string, anything containing dots or paths with
+less or more parts.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_invalidPaths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;//&#39;</span><span class="p">,</span> <span class="s">&#39;/a./a&#39;</span><span class="p">,</span> <span class="s">&#39;/a/a.&#39;</span><span class="p">,</span> <span class="s">&#39;/./.&#39;</span> <span class="p">,</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="s">&#39;///&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify405</span><span class="p">(</span><span class="n">POST</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">))</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-26'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-26">#</a>
+        </div>
+        <h2>Protocol and framing</h2>
+<p>SockJS tries to stay API-compatible with WebSockets, but not on the
+network layer. For technical reasons SockJS must introduce custom
+framing and simple custom protocol.</p>
+<p>To explain the protocol we'll use <code>xhr-polling</code> transport
+facilitites.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">Protocol</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-27'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-27">#</a>
+        </div>
+        <p>When server receives a request with unknown <code>session_id</code> it must
+recognize that as request for a new session. When server opens a
+new sesion it must immediately send an frame containing a letter
+<code>o</code>.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_simpleSession</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">trans_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/000/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
+        <span class="s">&quot;New line is a frame delimiter specific for xhr-polling&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-28'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-28">#</a>
+        </div>
+        <p>After a session was established the server needs to accept
+requests for sending messages.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="s">&quot;Xhr-polling accepts messages as a list of JSON-encoded strings.&quot;</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="s">&#39;[&quot;a&quot;]&#39;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr_send&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">204</span><span class="p">)</span>
+
+        <span class="s">&quot;We&#39;re using echo service - we can receive our message&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;m&quot;a&quot;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-29'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-29">#</a>
+        </div>
+        <p>Sending messages to not existing sessions is invalid.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="n">payload</span> <span class="o">=</span> <span class="s">&#39;[&quot;a&quot;]&#39;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/000/bad_session/xhr_send&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-30'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-30">#</a>
+        </div>
+        <p>The session must time out after 5 seconds of not having a
+receiving connection. The server must send a heartbeat frame
+every 25 seconds. The heartbeat frame contains a single <code>h</code>
+character. This delays may be configurable.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="k">pass</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-31'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-31">#</a>
+        </div>
+        <p>The server may not allow two receiving connections to wait
+on a single session. In such case the server must send a
+close frame to the new connection.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="n">r1</span> <span class="o">=</span> <span class="n">POST_async</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
+        <span class="n">r1</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;c[2010,&quot;Another connection still open&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-32'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-32">#</a>
+        </div>
+        <p>The server may terminate the connection, passing error code and
+message.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_closeSession</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">trans_url</span> <span class="o">=</span> <span class="n">close_base_url</span> <span class="o">+</span> <span class="s">&#39;/000/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="n">POST</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;c[3000,&quot;Go away!&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-33'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-33">#</a>
+        </div>
+        <p>Until the timeout occurs, the server must constantly serve
+the close message.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;c[3000,&quot;Go away!&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-34'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-34">#</a>
+        </div>
+        <h2>WebSocket protocols: <code>/*/*/websocket</code></h2>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="kn">import</span> <span class="nn">websocket</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-35'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-35">#</a>
+        </div>
+        <p>The most important feature of SockJS is to support native WebSocket
+protocol. A decent SockJS server should support at least the
+following variants:</p>
+<ul>
+<li>hixie-75 (Chrome 4, Safari 5.0.0)</li>
+<li>hixie-76/hybi-00 (Chrome 6, Safari 5.0.1)</li>
+<li>hybi-07 (Firefox 6)</li>
+<li>hybi-10 (Firefox 7, Chrome 14)</li>
+</ul>
+<p>This tests only check hybi-76.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">Websockets</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-36'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-36">#</a>
+        </div>
+        <p>The web socket...</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_httpMethod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-37'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-37">#</a>
+        </div>
+        
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_disabledTransport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-38'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-38">#</a>
+        </div>
+        <p>User should be able to disable websocket transport
+alltogether. This is useful when load balancer doesn't
+support websocket protocol and we need to be able to reject
+the transport immediately. This is achieved by returning 404
+response on websocket transport url.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="k">pass</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-39'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-39">#</a>
+        </div>
+        
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_invaildConnectionHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-40'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-40">#</a>
+        </div>
+        <p>Some proxies and load balancers can rewrite 'Connection'
+header, in such case websocket handshake should be treated
+as invalid.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="k">pass</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-41'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-41">#</a>
         </div>
         <h1>Footnote</h1>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre></pre></div></pre></div>
       </td>
-    </tr><tr id='section-16'>
+    </tr><tr id='section-42'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-16">#</a>
+          <a class="octothorpe" href="#section-42">#</a>
         </div>
         <p>Make this script runnable.</p>
       </td>
