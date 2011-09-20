@@ -3,6 +3,7 @@ import httplib
 
 class HttpResponse:
     def __init__(self, method, url, headers, body=None, async=False):
+        headers = headers.copy()
         u = urlparse.urlparse(url)
         kwargs = {'timeout': None if async else 1.0}
         if u.scheme == 'http':
@@ -15,6 +16,14 @@ class HttpResponse:
         path = u.path + ('?' + u.query if u.query else '')
         self.conn = conn
         if not body:
+            if method is 'POST':
+                # The spec says: "Applications SHOULD use this field
+                # to indicate the transfer-length of the message-body,
+                # unless this is prohibited by the rules in section
+                # 4.4."
+                # http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.13
+                # While httplib sets it only if there is body.
+                headers['Content-Length'] = 0
             conn.request(method, path, headers=headers)
         else:
             conn.request(method, path, headers=headers, body=body)

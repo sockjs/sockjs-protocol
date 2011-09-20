@@ -30,6 +30,10 @@ You can run specific tests like that:
 
     ./venv/bin/python sockjs-protocol-0.0.4-incomplete.py Protocol
 
+To run the http-quirks tests:
+
+    ./venv/bin/python http-quirks.py -v
+
 
 If you see `pygments.util.ClassNotFound`, take a look
 [here](https://github.com/fitzgen/pycco/issues/39).
