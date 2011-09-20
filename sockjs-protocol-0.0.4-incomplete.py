@@ -232,7 +232,7 @@ class SessionURLs(Test):
     def test_invalidPaths(self):
         for suffix in ['//', '/a./a', '/a/a.', '/./.' ,'/', '///']:
             self.verify404(GET(base_url + suffix + '/xhr'))
-            self.verify405(POST(base_url + suffix + '/xhr'))
+            self.verify404(POST(base_url + suffix + '/xhr'))
 
     # A session is identified by only `session_id`. `server_id` is a
     # parameter for load balancer and must be ignored by the server.
