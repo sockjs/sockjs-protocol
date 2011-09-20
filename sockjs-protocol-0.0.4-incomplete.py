@@ -211,6 +211,9 @@ class IframePage(Test):
 # It is undefined what happens when two clients share the same
 # `session_id`. It is a client responsibility to choose identifier
 # with enough entropy.
+#
+# Neither server nor client API's can expose `session_id` to the
+# application. This field must be protected from the app.
 class SessionURLs(Test):
 
     # The server must accept any value in `server` and `session` fields.
