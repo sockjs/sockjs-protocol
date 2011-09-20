@@ -117,7 +117,7 @@ class IframePage(Test):
   <h2>Don't panic!</h2>
   <p>This is a SockJS hidden iframe. It's used for cross domain magic.</p>
 </body>
-<html>$
+</html>$
 '''.strip())
 
     # SockJS server must provide this html page.
