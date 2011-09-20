@@ -205,9 +205,6 @@ class IframePage(Test):
 # Second parameter `session_id` must be a random string, unique for
 # every session.
 #
-# A session is identified by only `session_id`. `server_id` is a
-# parameter for load balancer and can be safely ignored by the server.
-#
 # It is undefined what happens when two clients share the same
 # `session_id`. It is a client responsibility to choose identifier
 # with enough entropy.
@@ -236,6 +233,24 @@ class SessionURLs(Test):
         for suffix in ['//', '/a./a', '/a/a.', '/./.' ,'/', '///']:
             self.verify404(GET(base_url + suffix + '/xhr'))
             self.verify405(POST(base_url + suffix + '/xhr'))
+
+    # A session is identified by only `session_id`. `server_id` is a
+    # parameter for load balancer and must be ignored by the server.
+    def test_ignoringServerId(self):
+        ''' See Protocol.test_simpleSession for explanation. '''
+        session_id = str(uuid.uuid4())
+        r = POST(base_url + '/000/' + session_id + '/xhr')
+        self.assertEqual(r.body, 'o\n')
+        self.assertEqual(r.status, 200)
+
+        payload = '["a"]'
+        r = POST(base_url + '/000/' + session_id + '/xhr_send', body=payload)
+        self.assertFalse(r.body)
+        self.assertEqual(r.status, 204)
+
+        r = POST(base_url + '/999/' + session_id + '/xhr')
+        self.assertTrue(r.body in ['m"a"\n', 'a["a"]\n'])
+        self.assertEqual(r.status, 200)
 
 # Protocol and framing
 # --------------------
