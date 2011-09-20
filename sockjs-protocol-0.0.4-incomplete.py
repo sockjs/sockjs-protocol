@@ -244,6 +244,18 @@ class SessionURLs(Test):
 # network layer. For technical reasons SockJS must introduce custom
 # framing and simple custom protocol.
 #
+# SockJS client accepts following frames:
+#
+# * `o` - open frame
+# * `h` - heartbeat frame
+# * `m` - single message
+# * `a` - array of messages
+# * `c` - close frame
+#
+# SockJS server does not have any framing defined. All incoming data
+# is treated as incoming messages, either single messages or an array
+# of messages, depending on transport.
+#
 # To explain the protocol we'll use `xhr-polling` transport
 # facilitites.
 class Protocol(Test):
