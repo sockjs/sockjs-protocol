@@ -1,8 +1,8 @@
 SockJS family:
 
-  * [SockJS-client](https://github.com/majek/sockjs-client) JavaScript client library
-  * [SockJS-node](https://github.com/majek/sockjs-node) Node.js server
-  * [SockJS-protocol](https://github.com/majek/sockjs-protocol) protocol documentation
+  * [SockJS-client](https://github.com/sockjs/sockjs-client) JavaScript client library
+  * [SockJS-node](https://github.com/sockjs/sockjs-node) Node.js server
+  * [SockJS-protocol](https://github.com/sockjs/sockjs-protocol) protocol documentation
 
 
 SockJS-protocol
@@ -13,7 +13,7 @@ documentation is in a form of a Python test suite decorated with some
 prose in literate-programming style. You can see current documentation
 here:
 
- * [sockjs-protocol-0.0.4-incomplete.html](http://majek.github.com/sockjs-protocol/sockjs-protocol-0.0.4-incomplete.html)
+ * [sockjs-protocol-0.0.4-incomplete.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.0.4-incomplete.html)
 
 
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-[**SockJS-protocol**](https://github.com/majek/sockjs-protocol) is an
+[**SockJS-protocol**](https://github.com/sockjs/sockjs-protocol) is an
 effort to define a protocol between in-browser
-[SockJS-client](https://github.com/majek/sockjs-client) and its
+[SockJS-client](https://github.com/sockjs/sockjs-client) and its
 server-side counterparts, like
-[SockJS-node](https://github.com/majek/sockjs-client). This should
+[SockJS-node](https://github.com/sockjs/sockjs-client). This should
 help others to write alternative server implementations.
 
 
