@@ -2,7 +2,7 @@ var fs = require('fs');
 var spawn = require('child_process').spawn;
 
 var title = "SockJS protocol";
-var url = 'https://github.com/majek/sockjs-protocol';
+var url = 'https://github.com/sockjs/sockjs-protocol';
 
 var p = console.log;
 
