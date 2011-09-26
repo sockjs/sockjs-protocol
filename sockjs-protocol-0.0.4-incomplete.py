@@ -52,6 +52,7 @@ enough time to timeout.
 test_top_url = 'http://localhost:8080'
 base_url = test_top_url + '/echo'
 close_base_url = test_top_url + '/close'
+wsoff_base_url = test_top_url + '/disabled_websocket_echo'
 
 
 # Static URLs
@@ -374,25 +375,102 @@ import websocket
 #   - hybi-07 (Firefox 6)
 #   - hybi-10 (Firefox 7, Chrome 14)
 #
-# This tests only check hybi-76.
-class Websockets(Test):
-    # The web socket...
-    def test_httpMethod(self):
-        pass
-
+class WebsocketHttpErrors(Test):
+    # User should be able to disable websocket transport
+    # alltogether. This is useful when load balancer doesn't
+    # support websocket protocol and we need to be able to reject
+    # the transport immediately. This is achieved by returning 404
+    # response on websocket transport url.
     def test_disabledTransport(self):
-        # User should be able to disable websocket transport
-        # alltogether. This is useful when load balancer doesn't
-        # support websocket protocol and we need to be able to reject
-        # the transport immediately. This is achieved by returning 404
-        # response on websocket transport url.
+        r = GET(wsoff_base_url + '/0/0/websocket')
+        self.verify404(r)
+
+    # Normal requests to websocket should not succeed.
+    def test_httpMethod(self):
+        r = GET(base_url + '/0/0/websocket')
+        self.assertEqual(r.status, 400)
+        self.assertEqual(r.body, 'Can "Upgrade" only to "WebSocket".')
+
+    # Server should be able to reject connections if origin is
+    # invalid.
+    def test_verifyOrigin(self):
+        '''
+        r = GET(base_url + '/0/0/websocket', {'Upgrade': 'WebSocket',
+                                              'Origin': 'VeryWrongOrigin'})
+        self.assertEqual(r.status, 400)
+        self.assertEqual(r.body, 'Unverified origin.')
+        '''
         pass
 
+    # Some proxies and load balancers can rewrite 'Connection' header,
+    # in such case we must refuse connection.
     def test_invaildConnectionHeader(self):
-        # Some proxies and load balancers can rewrite 'Connection'
-        # header, in such case websocket handshake should be treated
-        # as invalid.
-        pass
+        r = GET(base_url + '/0/0/websocket', {'Upgrade': 'WebSocket',
+                                              'Connection': 'close'})
+        self.assertEqual(r.status, 400)
+        self.assertEqual(r.body, '"Connection" must be "Upgrade".')
+
+    # WebSocket should only accept GET
+    def test_invalidMethod(self):
+        for h in [{'Upgrade': 'WebSocket', 'Connection': 'Upgrade'},
+                  {}]:
+            r = POST(base_url + '/0/0/websocket', h)
+            self.assertEqual(r.status, 405)
+            self.assertFalse(r.body)
+
+
+# Support WebSocket Hixie-76 protocol
+class WebsocketHixie76(Test):
+    def test_transport(self):
+        ws_url = 'ws:' + base_url.split(':',1)[1] + \
+                 '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws = websocket.create_connection(ws_url)
+        self.assertEqual(ws.recv(), u'o')
+        ws.send(u'["a"]')
+        self.assertEqual(ws.recv(), u'm["a"]')
+        ws.close()
+
+    def test_close(self):
+        ws_url = 'ws:' + close_base_url.split(':',1)[1] + \
+                 '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws = websocket.create_connection(ws_url)
+        self.assertEqual(ws.recv(), u'o')
+        self.assertEqual(ws.recv(), u'c[3000,"Go away!"]')
+        ws.close()
+
+    # For WebSockets, as opposed to other transports, it is valid to
+    # reuse `session_id`. The lifetime of SockJS WebSocket session is
+    # defined by a lifetime of underlying WebSocket connection. It is
+    # correct to have two separate sessions sharing the same
+    # `session_id` at the same time.
+    def test_reuseSessionId(self):
+        def on_close(ws):
+            self.assertFalse(True)
+
+        ws_url = 'ws:' + base_url.split(':',1)[1] + \
+                 '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws1 = websocket.create_connection(ws_url)
+        self.assertEqual(ws1.recv(), u'o')
+
+        ws2 = websocket.create_connection(ws_url)
+        self.assertEqual(ws2.recv(), u'o')
+
+        ws1.send(u'["a"]')
+        self.assertEqual(ws1.recv(), u'm["a"]')
+
+        ws2.send(u'["b"]')
+        self.assertEqual(ws2.recv(), u'm["b"]')
+
+        ws1.close()
+        ws2.close()
+
+        # It is correct to reuse the same `session_id` after closing a
+        # previous connection.
+        ws1 = websocket.create_connection(ws_url)
+        self.assertEqual(ws1.recv(), u'o')
+        ws1.send(u'["a"]')
+        self.assertEqual(ws1.recv(), u'm["a"]')
+        ws1.close()
 
 
 # Footnote
@@ -403,4 +481,3 @@ Make this script runnable.
 """
 if __name__ == '__main__':
     unittest.main()
-
