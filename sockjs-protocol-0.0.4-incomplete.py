@@ -77,10 +77,11 @@ class BaseUrlGreeting(Test):
     # The most important part of the url scheme, is without doubt, the
     # top url. Make sure the greeting is valid.
     def test_greeting(self):
-        r = GET(base_url)
-        self.assertEqual(r.status, 200)
-        self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
-        self.assertEqual(r.body, 'Welcome to SockJS!\n')
+        for url in [base_url, base_url + '/']:
+            r = GET(url)
+            self.assertEqual(r.status, 200)
+            self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
+            self.assertEqual(r.body, 'Welcome to SockJS!\n')
 
     # Other simple requests should return 404.
     def test_notFound(self):
