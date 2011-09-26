@@ -259,20 +259,44 @@ class SessionURLs(Test):
 # network layer. For technical reasons SockJS must introduce custom
 # framing and simple custom protocol.
 #
+# ### Framing accepted by the client
+#
 # SockJS client accepts following frames:
 #
-# * `o` - open frame
-# * `h` - heartbeat frame
-# * `m` - single message
-# * `a` - array of messages
-# * `c` - close frame
+# * `o` - Open frame. Every time a new session is established, the
+#   server must immediately send the open frame. This is required, as
+#   some protocols (mostly polling) can't distinguish between a
+#   properly established connection and a broken one - we must
+#   convince the client that it is indeed a valid url and it can be
+#   expecting further messages in the future on that url.
+#
+# * `h` - Heartbeat frame. Most loadbalancers have arbitrary timeouts
+#   on connections. In order to keep connections from breaking, the
+#   server must send a heartbeat frame every now and then. The typical
+#   delay is 25 seconds and should be configurable.
+#
+# * `m` - A single json-encoded message - from server to browser. The
+#    message - for example `m"message"`.
+#
+# * `a` - Array of json-encoded messages. For example: `a["message"]`.
+#   Current version of the protocol gives the server a freedom to
+#   choose either 'm' or 'a'.
+#
+# * `c` - Close frame. This frame is send to the browser every time
+#   the client asks for data on closed connection. This may happen
+#   multiple times. Close frame contains a code and a string explaining
+#   a reason of closure, like: `c[3000,"Go away!"]`.
+#
+# ### Framing accepted by the server
 #
 # SockJS server does not have any framing defined. All incoming data
-# is treated as incoming messages, either single messages or an array
-# of messages, depending on transport.
+# is treated as incoming messages, either single json-encoded messages
+# or an array of json-encoded messages, depending on transport.
+#
+# ### Tests
 #
 # To explain the protocol we'll use `xhr-polling` transport
-# facilitites.
+# facilities.
 class Protocol(Test):
     # When server receives a request with unknown `session_id` it must
     # recognize that as request for a new session. When server opens a
