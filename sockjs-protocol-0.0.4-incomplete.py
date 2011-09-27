@@ -444,6 +444,7 @@ class WebsocketHixie76(Test):
                  '/000/' + str(uuid.uuid4()) + '/websocket'
         ws = websocket.create_connection(ws_url)
         self.assertEqual(ws.recv(), u'o')
+        # Server must ignore empty messages.
         ws.send(u'')
         ws.send(u'["a"]')
         self.assertEqual(ws.recv(), u'm["a"]')
@@ -518,6 +519,8 @@ class WebsocketHybi10(Test):
         ws = WebSocket8Client(trans_url)
 
         self.assertEqual(ws.recv(), 'o')
+        # Server must ignore empty messages.
+        ws.send(u'')
         ws.send(u'["a"]')
         self.assertEqual(ws.recv(), 'm["a"]')
         ws.close()
