@@ -529,6 +529,27 @@ class WebsocketHybi10(Test):
         self.assertEqual(ws.recv(), u'c[3000,"Go away!"]')
         ws.close()
 
+    # Verify WebSocket headers sanity. Server must support both
+    # Hybi-07 and Hybi-10.
+    def test_headersSanity(self):
+        for version in ['7', '8']:
+            url = base_url.split(':',1)[1] + \
+                '/000/' + str(uuid.uuid4()) + '/websocket'
+            ws_url = 'ws:' + url
+            http_url = 'http:' + url
+            origin = '/'.join(http_url.split('/')[:3])
+            h = {'Upgrade': 'WebSocket',
+                 'Connection': 'Upgrade',
+                 'Sec-WebSocket-Version': version,
+                 'Sec-WebSocket-Key': 'x3JJHMbDL1EzLkh9GBhXDw==',
+                 }
+
+            r = GET_async(http_url, h).iter().next()
+            self.assertEqual(r.headers['sec-websocket-accept'], 'HSmrc0sMlYUkAGmm5OPpG2HaGWk=')
+            self.assertEqual(r.headers['connection'], 'Upgrade')
+            self.assertEqual(r.headers['upgrade'], 'WebSocket')
+            r.close()
+
 
 # Footnote
 # ========
