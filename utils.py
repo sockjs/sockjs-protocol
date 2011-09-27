@@ -1,5 +1,7 @@
 import urlparse
 import httplib
+from ws4py.client.threadedclient import WebSocketClient
+import Queue
 
 class HttpResponse:
     def __init__(self, method, url, headers, body=None, async=False):
@@ -42,16 +44,63 @@ class HttpResponse:
         self.headers = dict( (k.lower(), v) for k, v in self.res.getheaders() )
         self.body = self.res.read()
         self.conn.close()
+        return self
 
     def close(self):
         self.conn.close()
 
+    def __iter__(self):
+        self.res = self.conn.getresponse()
+        self.headers = dict( (k.lower(), v) for k, v in self.res.getheaders() )
+        yield self
+        while True:
+             data =  self.res.read()
+             if data:
+                 yield data
+             else:
+                 break
+        self.conn.close()
+
+    def iter(self):
+        return iter(self)
+
 def GET(url, headers={}):
     return HttpResponse('GET', url, headers)
+
+def GET_async(url, headers={}):
+    return HttpResponse('GET', url, headers, async=True)
 
 def POST(url, headers={}, body=None):
     return HttpResponse('POST', url, headers, body)
 
 def POST_async(url, headers={}, body=None):
     return HttpResponse('POST', url, headers, body, async=True)
+
+
+class WebSocket8Client(object):
+    def __init__(self, url):
+        queue = Queue.Queue()
+        self.queue = queue
+        class IntWebSocketClient(WebSocketClient):
+            def received_message(self, m):
+                queue.put(str(m))
+        self.client = IntWebSocketClient(url)
+        self.client.connect()
+
+    def close(self):
+        if self.client:
+            self.client.running = False
+            self.client.close()
+            self.client._th.join()
+            self.client = None
+
+    def send(self, data):
+        self.client.send(data)
+
+    def recv(self):
+        try:
+            return self.queue.get(timeout=1.0)
+        except:
+            self.close()
+            raise
 

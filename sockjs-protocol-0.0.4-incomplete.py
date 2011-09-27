@@ -15,7 +15,7 @@ using real browsers are always required.
 """
 import re
 import unittest2 as unittest
-from utils import GET, POST, POST_async
+from utils import GET, GET_async, POST, POST_async, WebSocket8Client
 import uuid
 
 
@@ -438,21 +438,31 @@ class WebsocketHixie76(Test):
         self.assertEqual(ws.recv(), u'c[3000,"Go away!"]')
         ws.close()
 
+    # Empty frames must be ignored by the server side.
+    def test_transport(self):
+        ws_url = 'ws:' + base_url.split(':',1)[1] + \
+                 '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws = websocket.create_connection(ws_url)
+        self.assertEqual(ws.recv(), u'o')
+        ws.send(u'')
+        ws.send(u'["a"]')
+        self.assertEqual(ws.recv(), u'm["a"]')
+        ws.close()
+
     # For WebSockets, as opposed to other transports, it is valid to
     # reuse `session_id`. The lifetime of SockJS WebSocket session is
     # defined by a lifetime of underlying WebSocket connection. It is
     # correct to have two separate sessions sharing the same
     # `session_id` at the same time.
     def test_reuseSessionId(self):
-        def on_close(ws):
-            self.assertFalse(True)
+        on_close = lambda(ws): self.assertFalse(True)
 
         ws_url = 'ws:' + base_url.split(':',1)[1] + \
                  '/000/' + str(uuid.uuid4()) + '/websocket'
-        ws1 = websocket.create_connection(ws_url)
+        ws1 = websocket.create_connection(ws_url, on_close=on_close)
         self.assertEqual(ws1.recv(), u'o')
 
-        ws2 = websocket.create_connection(ws_url)
+        ws2 = websocket.create_connection(ws_url, on_close=on_close)
         self.assertEqual(ws2.recv(), u'o')
 
         ws1.send(u'["a"]')
@@ -472,12 +482,57 @@ class WebsocketHixie76(Test):
         self.assertEqual(ws1.recv(), u'm["a"]')
         ws1.close()
 
+    # Verify WebSocket headers sanity. Due to HAProxy design the
+    # websocket server must support writing response headers *before*
+    # receiving -76 nonce. In other words, the websocket code must
+    # work like that:
+    #
+    # * Receive request headers.
+    # * Write response headers.
+    # * Receive request nonce.
+    # * Write response nonce.
+    def test_headersSanity(self):
+        url = base_url.split(':',1)[1] + \
+                 '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws_url = 'ws:' + url
+        http_url = 'http:' + url
+        origin = '/'.join(http_url.split('/')[:3])
+        h = {'Upgrade': 'WebSocket',
+             'Connection': 'Upgrade',
+             'Origin': origin,
+             'Sec-WebSocket-Key1': '4 @1  46546xW%0l 1 5',
+             'Sec-WebSocket-Key2': '12998 5 Y3 1  .P00'
+            }
+
+        r = GET_async(http_url, h).iter().next()
+        self.assertEqual(r.headers['sec-websocket-location'], ws_url)
+        self.assertEqual(r.headers['connection'], 'Upgrade')
+        self.assertEqual(r.headers['upgrade'], 'WebSocket')
+        self.assertEqual(r.headers['sec-websocket-origin'], origin)
+        r.close()
+
+# The server must support Hybi-10 protocol
+class WebsocketHybi10(Test):
+    def test_transport(self):
+        trans_url = base_url + '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws = WebSocket8Client(trans_url)
+
+        self.assertEqual(ws.recv(), 'o')
+        ws.send(u'["a"]')
+        self.assertEqual(ws.recv(), 'm["a"]')
+        ws.close()
+
+    def test_close(self):
+        trans_url = close_base_url + '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws = WebSocket8Client(trans_url)
+        self.assertEqual(ws.recv(), u'o')
+        self.assertEqual(ws.recv(), u'c[3000,"Go away!"]')
+        ws.close()
+
 
 # Footnote
 # ========
 
-"""
-Make this script runnable.
-"""
+# Make this script runnable.
 if __name__ == '__main__':
     unittest.main()

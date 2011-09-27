@@ -8,7 +8,10 @@ venv/.ok:
 	./venv/bin/pip install pycco
 	./venv/bin/pip install unittest2
 	./venv/bin/pip install -e git+https://github.com/liris/websocket-client.git#egg=websocket
-	-rm distribute-*.tar.gz
+	# My fork is better - fixes bug #7:
+	#     https://github.com/Lawouach/WebSocket-for-Python/pull/7
+	./venv/bin/pip install git+git://github.com/majek/WebSocket-for-Python.git
+	-rm distribute-*.tar.gz || true
 	touch venv/.ok
 
 clean:
