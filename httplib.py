@@ -604,6 +604,7 @@ class HTTPResponse:
             # we read the whole chunk, get another
             self._safe_read(2)      # toss the CRLF at the end of the chunk
             chunk_left = None
+            return ''.join(value)
 
         # read and discard trailer up to the CRLF terminator
         ### note: we shouldn't have any trailers!
