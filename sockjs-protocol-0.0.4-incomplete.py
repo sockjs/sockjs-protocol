@@ -114,6 +114,16 @@ class Test(unittest.TestCase):
         # need to set `allow-credentials` header to true.
         self.assertEqual(r['access-control-allow-credentials'], 'true')
 
+    # Sometimes, due to transports limitations we need to request
+    # private data using GET method. In such case it's very important
+    # to disallow any caching.
+    def verify_not_cached(self, r, origin=None):
+        self.assertEqual(r['Cache-Control'],
+                         'no-store, no-cache, must-revalidate, max-age=0')
+        self.assertFalse(r['Expires'])
+        self.assertFalse(r['ETag'])
+        self.assertFalse(r['Last-Modified'])
+
 
 # Greeting url: `/`
 # ----------------
@@ -721,8 +731,7 @@ class EventSource(Test):
                          'text/event-stream; charset=UTF-8')
         # As EventSource is requested using GET we must be very
         # carefull not to allow it being cached.
-        self.assertEqual(r['Cache-Control'],
-                         'no-store, no-cache, must-revalidate, max-age=0')
+        self.verify_not_cached(r)
         self.verify_cookie(r)
 
         # The transport must first send two new lines prelude, due to
@@ -777,8 +786,7 @@ class HtmlFile(Test):
                          'text/html; charset=UTF-8')
         # As HtmlFile is requested using GET we must be very carefull
         # not to allow it being cached.
-        self.assertEqual(r['Cache-Control'],
-                         'no-store, no-cache, must-revalidate, max-age=0')
+        self.verify_not_cached(r)
         self.verify_cookie(r)
 
         d = r.read()
@@ -795,6 +803,44 @@ class HtmlFile(Test):
                          '<script>\np("a[\\"x\\"]");\n</script>\r\n')
         r.close()
 
+    def test_no_callback(self):
+        r = GET(base_url + '/a/a/htmlfile')
+        self.assertEqual(r.status, 500)
+        self.assertEqual(r.body.strip(), '"callback" parameter required')
+
+# JsonpPolling: `/*/*/htmlfile`
+# -------------------------
+class JsonPolling(Test):
+    def test_transport(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = GET(url + '/jsonp?c=%63allback')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r['Content-Type'],
+                         'application/javascript; charset=UTF-8')
+        # As JsonPolling is requested using GET we must be very
+        # carefull not to allow it being cached.
+        self.verify_not_cached(r)
+        self.verify_cookie(r)
+
+        self.assertEqual(r.body, 'callback("o");\r\n')
+
+        r = POST(url + '/jsonp_send', body='d=%5B%22x%22%5D',
+                 headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        # Konqueror does weird things on 204. As a workaround we need
+        # to respond with something - let it be the string `ok`.
+        self.assertEqual(r.body, 'ok')
+        self.assertEqual(r.status, 200)
+        self.verify_cookie(r)
+
+        r = GET(url + '/jsonp?c=%63allback')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'callback("a[\\"x\\"]");\r\n')
+
+
+    def test_no_callback(self):
+        r = GET(base_url + '/a/a/jsonp')
+        self.assertEqual(r.status, 500)
+        self.assertEqual(r.body.strip(), '"callback" parameter required')
 
 # Footnote
 # ========
