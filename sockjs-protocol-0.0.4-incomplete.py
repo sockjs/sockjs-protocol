@@ -13,6 +13,7 @@ against your server implementation. Supporting all the tests doesn't
 guarantee that SockJS client will work flawlessly, end-to-end tests
 using real browsers are always required.
 """
+import time
 import re
 import unittest2 as unittest
 from utils import GET, GET_async, POST, POST_async, OPTIONS
@@ -66,12 +67,14 @@ class Test(unittest.TestCase):
         self.assertEqual(r.status, 404)
         self.assertFalse(r['content-type'])
         self.assertFalse(r.body)
+        self.verify_no_cookie(r)
 
     # In some cases `405/method not allowed` is more appropriate.
     def verify405(self, r):
         self.assertEqual(r.status, 405)
         self.assertFalse(r['content-type'])
         self.assertFalse(r.body)
+        self.verify_no_cookie(r)
 
     # Multiple transport protocols need to support OPTIONS method. All
     # responses to OPTIONS requests must be cacheable and contain
@@ -83,8 +86,6 @@ class Test(unittest.TestCase):
                 h['Origin'] = origin
             r = OPTIONS(url, headers=h)
             self.assertEqual(r.status, 204)
-            self.assertEqual(r['access-control-allow-origin'], origin or '*')
-            self.assertEqual(r['access-control-allow-credentials'], 'true')
             self.assertTrue(re.search('public', r['Cache-Control']))
             self.assertTrue(re.search('max-age=[1-9][0-9]{6}', r['Cache-Control']),
                             "max-age must be large, one year (31536000) is best")
@@ -92,8 +93,28 @@ class Test(unittest.TestCase):
             self.assertTrue(int(r['access-control-max-age']) > 1000000)
             self.assertEqual(r['Allow'], allowed_methods)
             self.assertFalse(r.body)
+            self.verify_cors(r, origin)
+            self.verify_cookie(r)
 
-    # Verify sticky cookie
+    # All transports except WebSockets need sticky session support
+    # from the load balancer. Some load balancers enable that only
+    # when they see `JSESSIONID` cookie. For all the session urls we
+    # must set this cookie.
+    def verify_cookie(self, r):
+        self.assertEqual(r['Set-Cookie'], 'JSESSIONID=dummy; path=/')
+
+    def verify_no_cookie(self, r):
+        self.assertFalse(r['Set-Cookie'])
+
+    # Most of the XHR/Ajax based transports do work CORS if proper
+    # headers are set.
+    def verify_cors(self, r, origin=None):
+        self.assertEqual(r['access-control-allow-origin'], origin or '*')
+        # In order to get cookies (`JSESSIONID` mostly) flying, we
+        # need to set `allow-credentials` header to true.
+        self.assertEqual(r['access-control-allow-credentials'], 'true')
+
+
 # Greeting url: `/`
 # ----------------
 class BaseUrlGreeting(Test):
@@ -105,6 +126,7 @@ class BaseUrlGreeting(Test):
             self.assertEqual(r.status, 200)
             self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
             self.assertEqual(r.body, 'Welcome to SockJS!\n')
+            self.verify_no_cookie(r)
 
     # Other simple requests should return 404.
     def test_notFound(self):
@@ -113,10 +135,8 @@ class BaseUrlGreeting(Test):
             self.verify404(GET(base_url + suffix))
 
 
-"""
-IFrame page: `/iframe*.html`
-----------------------------
-"""
+# IFrame page: `/iframe*.html`
+# ----------------------------
 class IframePage(Test):
     """
     Some transports don't support cross domain communication
@@ -196,6 +216,7 @@ class IframePage(Test):
         sockjs_url = match.group('sockjs_url')
         self.assertTrue(sockjs_url.startswith('/') or
                         sockjs_url.startswith('http'))
+        self.verify_no_cookie(r)
         return r
 
 
@@ -211,6 +232,55 @@ class IframePage(Test):
         self.assertEqual(r.status, 304)
         self.assertFalse(r['content-type'])
         self.assertFalse(r.body)
+
+# Chunking test: `/chunking_test`
+# -------------------------------
+#
+# Warning: this feature is going to be removed.
+#
+# This feature is used in order to check if the client and
+# intermediate proxies support http chunking.
+#
+# The chunking test requires the server to send six http chunks
+# containing a `h` byte delayed by varying timeouts.
+#
+# First, the server must send 2047 bytes of ` ` (space), as a
+# prelude. That should be followed by `h` frames with following
+# delays between them:
+#  * 5 ms
+#  * 25 ms
+#  * 125 ms
+#  * 625 ms
+#  * 3125 ms
+#
+# At that point the server should close the request. The client will
+# brake the connection as soon as it detects that chunking is indeed
+# working.
+class ChunkingTest(Test):
+    def test_basic(self):
+        t0 = time.time()
+        r = POST_async(base_url + '/chunking_test')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r['content-type'],
+                         'application/javascript; charset=UTF-8')
+        self.verify_no_cookie(r)
+        self.verify_cors(r)
+
+        # In first chunk the server must send 2KiB prelude.
+        self.assertEqual(r.read(), ' '*2047 + '\n')
+        # In second chunk the server must send a `h` byte.
+        self.assertEqual(r.read(), 'h\n')
+        # In third chunk the server must send a `h` byte.
+        self.assertEqual(r.read(), 'h\n')
+
+        # At least 30 ms must have passed since the request.
+        t1 = time.time()
+        self.assertGreater((t1-t0) * 1000., 30.)
+        r.close()
+
+    # Chunking test must support CORS.
+    def test_options(self):
+        self.verify_options(base_url + '/chunking_test', 'OPTIONS, POST')
 
 
 # Session URLs
@@ -249,7 +319,6 @@ class SessionURLs(Test):
         r = POST(base_url + session_part + '/xhr')
         self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
-
 
     # But not an empty string, anything containing dots or paths with
     # less or more parts.
@@ -597,11 +666,15 @@ class XhrPolling(Test):
         r = POST(url + '/xhr')
         self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r['content-type'],
+                         'application/javascript; charset=UTF-8')
+        self.verify_cookie(r)
 
         # Xhr transports receive json-encoded array of messages.
         r = POST(url + '/xhr_send', body='["x"]')
         self.assertFalse(r.body)
         self.assertEqual(r.status, 204)
+        self.verify_cookie(r)
 
         r = POST(url + '/xhr')
         self.assertTrue(r.body in ['m"x"\n', 'a["x"]\n'])
@@ -620,20 +693,22 @@ class XhrStreaming(Test):
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = POST_async(url + '/xhr_streaming')
+        self.assertEqual(r.status, 200)
+        self.verify_cookie(r)
+
         # The transport must first send 2KiB of `h` bytes as prelude.
         self.assertEqual(r.read(), 'h' *  2047 + '\n')
 
         self.assertEqual(r.read(), 'o\n')
-        self.assertEqual(r.status, 200)
 
         r1 = POST(url + '/xhr_send', body='["x"]')
         self.assertFalse(r1.body)
         self.assertEqual(r1.status, 204)
 
         self.assertTrue(r.read() in ['m"x"\n', 'a["x"]\n'])
+        r.close()
 
 
-    # 
     def test_(self):
             pass
 

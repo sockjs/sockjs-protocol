@@ -109,4 +109,3 @@ class WebSocket8Client(object):
         except:
             self.close()
             raise
-
