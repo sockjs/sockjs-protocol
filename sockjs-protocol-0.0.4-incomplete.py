@@ -236,27 +236,27 @@ class IframePage(Test):
 # Chunking test: `/chunking_test`
 # -------------------------------
 #
-# Warning: this feature is going to be removed.
-#
-# This feature is used in order to check if the client and
-# intermediate proxies support http chunking.
-#
-# The chunking test requires the server to send six http chunks
-# containing a `h` byte delayed by varying timeouts.
-#
-# First, the server must send 2047 bytes of ` ` (space), as a
-# prelude. That should be followed by `h` frames with following
-# delays between them:
-#  * 5 ms
-#  * 25 ms
-#  * 125 ms
-#  * 625 ms
-#  * 3125 ms
-#
-# At that point the server should close the request. The client will
-# brake the connection as soon as it detects that chunking is indeed
-# working.
+# Warning: this functionality is going to be removed.
 class ChunkingTest(Test):
+    # This feature is used in order to check if the client and
+    # intermediate proxies support http chunking.
+    #
+    # The chunking test requires the server to send six http chunks
+    # containing a `h` byte delayed by varying timeouts.
+    #
+    # First, the server must send 2047 bytes of `%20` character
+    # (space), as a prelude. That should be followed by `h` frames
+    # with following delays between them:
+    #
+    #  * 5 ms
+    #  * 25 ms
+    #  * 125 ms
+    #  * 625 ms
+    #  * 3125 ms
+    #
+    # At that point the server should close the request. The client
+    # will brake the connection as soon as it detects that chunking is
+    # indeed working.
     def test_basic(self):
         t0 = time.time()
         r = POST_async(base_url + '/chunking_test')
