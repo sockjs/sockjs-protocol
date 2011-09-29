@@ -342,7 +342,7 @@ class SessionURLs(Test):
         self.assertEqual(r.status, 204)
 
         r = POST(base_url + '/999/' + session_id + '/xhr')
-        self.assertTrue(r.body in ['m"a"\n', 'a["a"]\n'])
+        self.assertEqual(r.body, 'a["a"]\n')
         self.assertEqual(r.status, 200)
 
 # Protocol and framing
@@ -368,12 +368,7 @@ class SessionURLs(Test):
 #   server must send a heartbeat frame every now and then. The typical
 #   delay is 25 seconds and should be configurable.
 #
-# * `m` - A single json-encoded message - from server to browser. The
-#    message - for example `m"message"`.
-#
 # * `a` - Array of json-encoded messages. For example: `a["message"]`.
-#   Current version of the protocol gives the server a freedom to
-#   choose either 'm' or 'a'.
 #
 # * `c` - Close frame. This frame is send to the browser every time
 #   the client asks for data on closed connection. This may happen
@@ -414,7 +409,7 @@ class Protocol(Test):
         two valid encodings: single message 'm' and array 'a'. It's currently
         undefined when the server shoul use which.'''
         r = POST(trans_url + '/xhr')
-        self.assertTrue(r.body in ['m"a"\n', 'a["a"]\n'])
+        self.assertEqual(r.body, 'a["a"]\n')
         self.assertEqual(r.status, 200)
 
         # Sending messages to not existing sessions is invalid.
@@ -537,8 +532,8 @@ class WebsocketHixie76(Test):
         self.assertEqual(ws.recv(), u'o')
         # Server must ignore empty messages.
         ws.send(u'')
-        ws.send(u'["a"]')
-        self.assertEqual(ws.recv(), u'm["a"]')
+        ws.send(u'"a"')
+        self.assertEqual(ws.recv(), u'a["a"]')
         ''' TODO: should ws connection be automatically closed after
         sending a close frame?'''
         ws.close()
@@ -559,11 +554,11 @@ class WebsocketHixie76(Test):
         ws2 = websocket.create_connection(ws_url, on_close=on_close)
         self.assertEqual(ws2.recv(), u'o')
 
-        ws1.send(u'["a"]')
-        self.assertEqual(ws1.recv(), u'm["a"]')
+        ws1.send(u'"a"')
+        self.assertEqual(ws1.recv(), u'a["a"]')
 
-        ws2.send(u'["b"]')
-        self.assertEqual(ws2.recv(), u'm["b"]')
+        ws2.send(u'"b"')
+        self.assertEqual(ws2.recv(), u'a["b"]')
 
         ws1.close()
         ws2.close()
@@ -572,8 +567,8 @@ class WebsocketHixie76(Test):
         # previous connection.
         ws1 = websocket.create_connection(ws_url)
         self.assertEqual(ws1.recv(), u'o')
-        ws1.send(u'["a"]')
-        self.assertEqual(ws1.recv(), u'm["a"]')
+        ws1.send(u'"a"')
+        self.assertEqual(ws1.recv(), u'a["a"]')
         ws1.close()
 
     # Verify WebSocket headers sanity. Due to HAProxy design the
@@ -614,8 +609,8 @@ class WebsocketHybi10(Test):
         self.assertEqual(ws.recv(), 'o')
         # Server must ignore empty messages.
         ws.send(u'')
-        ws.send(u'["a"]')
-        self.assertEqual(ws.recv(), 'm["a"]')
+        ws.send(u'"a"')
+        self.assertEqual(ws.recv(), 'a["a"]')
         ''' TODO: should ws connection be automatically closed after
         sending a close frame?'''
         ws.close()
@@ -677,13 +672,12 @@ class XhrPolling(Test):
         self.verify_cookie(r)
 
         r = POST(url + '/xhr')
-        self.assertTrue(r.body in ['m"x"\n', 'a["x"]\n'])
+        self.assertEqual(r.body, 'a["x"]\n')
         self.assertEqual(r.status, 200)
 
 
 # XhrStreaming: `/*/*/xhr_streaming`
 # ----------------------------------
-#
 class XhrStreaming(Test):
     def test_options(self):
         self.verify_options(base_url + '/abc/abc/xhr_streaming',
@@ -705,9 +699,8 @@ class XhrStreaming(Test):
         self.assertFalse(r1.body)
         self.assertEqual(r1.status, 204)
 
-        self.assertTrue(r.read() in ['m"x"\n', 'a["x"]\n'])
+        self.assertEqual(r.read(), 'a["x"]\n')
         r.close()
-
 
     def test_(self):
             pass
