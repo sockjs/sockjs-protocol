@@ -4,7 +4,8 @@ from ws4py.client.threadedclient import WebSocketClient
 import Queue
 
 class HttpResponse:
-    def __init__(self, method, url, headers, body=None, async=False):
+    def __init__(self, method, url,
+                 headers={}, body=None, async=False, load=True):
         headers = headers.copy()
         u = urlparse.urlparse(url)
         kwargs = {'timeout': None if async else 1.0}
@@ -29,8 +30,12 @@ class HttpResponse:
             conn.request(method, path, headers=headers)
         else:
             conn.request(method, path, headers=headers, body=body)
-        if not async:
-            self.load()
+
+        if load:
+            if not async:
+                self._load()
+            else:
+                self._async_load()
 
     def _get_status(self):
         return self.res.status
@@ -39,42 +44,43 @@ class HttpResponse:
     def __getitem__(self, key):
         return self.headers.get(key.lower())
 
-    def load(self):
+    def _load(self):
         self.res = self.conn.getresponse()
         self.headers = dict( (k.lower(), v) for k, v in self.res.getheaders() )
         self.body = self.res.read()
-        self.conn.close()
-        return self
+        self.close()
 
     def close(self):
-        self.conn.close()
+        if self.conn:
+            self.conn.close()
+            self.conn = None
 
-    def __iter__(self):
+    def _async_load(self):
         self.res = self.conn.getresponse()
         self.headers = dict( (k.lower(), v) for k, v in self.res.getheaders() )
-        yield self
-        while True:
-             data =  self.res.read()
-             if data:
-                 yield data
-             else:
-                 break
-        self.conn.close()
 
-    def iter(self):
-        return iter(self)
+    def read(self):
+        data =  self.res.read(10240)
+        if data:
+            return data
+        else:
+            self.close()
+            return None
 
-def GET(url, headers={}):
-    return HttpResponse('GET', url, headers)
+def GET(url, **kwargs):
+    return HttpResponse('GET', url, **kwargs)
 
-def GET_async(url, headers={}):
-    return HttpResponse('GET', url, headers, async=True)
+def GET_async(url, **kwargs):
+    return HttpResponse('GET', url, async=True, **kwargs)
 
-def POST(url, headers={}, body=None):
-    return HttpResponse('POST', url, headers, body)
+def POST(url, **kwargs):
+    return HttpResponse('POST', url, **kwargs)
 
-def POST_async(url, headers={}, body=None):
-    return HttpResponse('POST', url, headers, body, async=True)
+def POST_async(url, **kwargs):
+    return HttpResponse('POST', url, async=True, **kwargs)
+
+def OPTIONS(url, **kwargs):
+    return HttpResponse('OPTIONS', url, **kwargs)
 
 
 class WebSocket8Client(object):

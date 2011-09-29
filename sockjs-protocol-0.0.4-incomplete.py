@@ -15,7 +15,8 @@ using real browsers are always required.
 """
 import re
 import unittest2 as unittest
-from utils import GET, GET_async, POST, POST_async, WebSocket8Client
+from utils import GET, GET_async, POST, POST_async, OPTIONS
+from utils import WebSocket8Client
 import uuid
 
 
@@ -72,6 +73,27 @@ class Test(unittest.TestCase):
         self.assertFalse(r['content-type'])
         self.assertFalse(r.body)
 
+    # Multiple transport protocols need to support OPTIONS method. All
+    # responses to OPTIONS requests must be cacheable and contain
+    # appropriate headers.
+    def verify_options(self, url, allowed_methods):
+        for origin in [None, 'test']:
+            h = {}
+            if origin:
+                h['Origin'] = origin
+            r = OPTIONS(url, headers=h)
+            self.assertEqual(r.status, 204)
+            self.assertEqual(r['access-control-allow-origin'], origin or '*')
+            self.assertEqual(r['access-control-allow-credentials'], 'true')
+            self.assertTrue(re.search('public', r['Cache-Control']))
+            self.assertTrue(re.search('max-age=[1-9][0-9]{6}', r['Cache-Control']),
+                            "max-age must be large, one year (31536000) is best")
+            self.assertTrue(r['Expires'])
+            self.assertTrue(int(r['access-control-max-age']) > 1000000)
+            self.assertEqual(r['Allow'], allowed_methods)
+            self.assertFalse(r.body)
+
+    # Verify sticky cookie
 # Greeting url: `/`
 # ----------------
 class BaseUrlGreeting(Test):
@@ -185,7 +207,7 @@ class IframePage(Test):
         r2 = GET(base_url + '/iframe.html')
         self.assertEqual(r1['etag'], r2['etag'])
 
-        r = GET(base_url + '/iframe.html', {'If-None-Match': r1['etag']})
+        r = GET(base_url + '/iframe.html', headers={'If-None-Match': r1['etag']})
         self.assertEqual(r.status, 304)
         self.assertFalse(r['content-type'])
         self.assertFalse(r.body)
@@ -340,7 +362,7 @@ class Protocol(Test):
         # The server may not allow two receiving connections to wait
         # on a single session. In such case the server must send a
         # close frame to the new connection.
-        r1 = POST_async(trans_url + '/xhr')
+        r1 = POST_async(trans_url + '/xhr', load=False)
         r2 = POST(trans_url + '/xhr')
         r1.close()
         self.assertEqual(r2.body, 'c[2010,"Another connection still open"]\n')
@@ -405,8 +427,8 @@ class WebsocketHttpErrors(Test):
     # Some proxies and load balancers can rewrite 'Connection' header,
     # in such case we must refuse connection.
     def test_invaildConnectionHeader(self):
-        r = GET(base_url + '/0/0/websocket', {'Upgrade': 'WebSocket',
-                                              'Connection': 'close'})
+        r = GET(base_url + '/0/0/websocket', headers={'Upgrade': 'WebSocket',
+                                                      'Connection': 'close'})
         self.assertEqual(r.status, 400)
         self.assertEqual(r.body, '"Connection" must be "Upgrade".')
 
@@ -414,7 +436,7 @@ class WebsocketHttpErrors(Test):
     def test_invalidMethod(self):
         for h in [{'Upgrade': 'WebSocket', 'Connection': 'Upgrade'},
                   {}]:
-            r = POST(base_url + '/0/0/websocket', h)
+            r = POST(base_url + '/0/0/websocket', headers=h)
             self.assertEqual(r.status, 405)
             self.assertFalse(r.body)
 
@@ -448,6 +470,8 @@ class WebsocketHixie76(Test):
         ws.send(u'')
         ws.send(u'["a"]')
         self.assertEqual(ws.recv(), u'm["a"]')
+        ''' TODO: should ws connection be automatically closed after
+        sending a close frame?'''
         ws.close()
 
     # For WebSockets, as opposed to other transports, it is valid to
@@ -505,11 +529,11 @@ class WebsocketHixie76(Test):
              'Sec-WebSocket-Key2': '12998 5 Y3 1  .P00'
             }
 
-        r = GET_async(http_url, h).iter().next()
-        self.assertEqual(r.headers['sec-websocket-location'], ws_url)
-        self.assertEqual(r.headers['connection'], 'Upgrade')
-        self.assertEqual(r.headers['upgrade'], 'WebSocket')
-        self.assertEqual(r.headers['sec-websocket-origin'], origin)
+        r = GET_async(http_url, headers=h)
+        self.assertEqual(r['sec-websocket-location'], ws_url)
+        self.assertEqual(r['connection'], 'Upgrade')
+        self.assertEqual(r['upgrade'], 'WebSocket')
+        self.assertEqual(r['sec-websocket-origin'], origin)
         r.close()
 
 # The server must support Hybi-10 protocol
@@ -523,6 +547,8 @@ class WebsocketHybi10(Test):
         ws.send(u'')
         ws.send(u'["a"]')
         self.assertEqual(ws.recv(), 'm["a"]')
+        ''' TODO: should ws connection be automatically closed after
+        sending a close frame?'''
         ws.close()
 
     def test_close(self):
@@ -547,12 +573,69 @@ class WebsocketHybi10(Test):
                  'Sec-WebSocket-Key': 'x3JJHMbDL1EzLkh9GBhXDw==',
                  }
 
-            r = GET_async(http_url, h).iter().next()
-            self.assertEqual(r.headers['sec-websocket-accept'], 'HSmrc0sMlYUkAGmm5OPpG2HaGWk=')
-            self.assertEqual(r.headers['connection'], 'Upgrade')
-            self.assertEqual(r.headers['upgrade'], 'WebSocket')
+            r = GET_async(http_url, headers=h)
+            self.assertEqual(r['sec-websocket-accept'], 'HSmrc0sMlYUkAGmm5OPpG2HaGWk=')
+            self.assertEqual(r['connection'], 'Upgrade')
+            self.assertEqual(r['upgrade'], 'WebSocket')
             r.close()
 
+# XhrPolling: `/*/*/xhr`, `/*/*/xhr_send`
+# ---------------------------------------
+#
+# The server must support xhr-polling.
+class XhrPolling(Test):
+    # The transport must support CORS requests, and answer correctly
+    # to OPTIONS requests.
+    def test_options(self):
+        for suffix in ['/xhr', '/xhr_send']:
+            self.verify_options(base_url + '/abc/abc' + suffix,
+                                'OPTIONS, POST')
+
+    # Test the transport itself.
+    def test_transport(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr')
+        self.assertEqual(r.body, 'o\n')
+        self.assertEqual(r.status, 200)
+
+        # Xhr transports receive json-encoded array of messages.
+        r = POST(url + '/xhr_send', body='["x"]')
+        self.assertFalse(r.body)
+        self.assertEqual(r.status, 204)
+
+        r = POST(url + '/xhr')
+        self.assertTrue(r.body in ['m"x"\n', 'a["x"]\n'])
+        self.assertEqual(r.status, 200)
+
+
+# XhrStreaming: `/*/*/xhr_streaming`
+# ----------------------------------
+#
+class XhrStreaming(Test):
+    def test_options(self):
+        self.verify_options(base_url + '/abc/abc/xhr_streaming',
+                            'OPTIONS, POST')
+
+    # Test the transport itself.
+    def test_transport(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST_async(url + '/xhr_streaming')
+        # The transport must first send 2KiB of `h` bytes as prelude.
+        self.assertEqual(r.read(), 'h' *  2047 + '\n')
+
+        self.assertEqual(r.read(), 'o\n')
+        self.assertEqual(r.status, 200)
+
+        r1 = POST(url + '/xhr_send', body='["x"]')
+        self.assertFalse(r1.body)
+        self.assertEqual(r1.status, 204)
+
+        self.assertTrue(r.read() in ['m"x"\n', 'a["x"]\n'])
+
+
+    # 
+    def test_(self):
+            pass
 
 # Footnote
 # ========
