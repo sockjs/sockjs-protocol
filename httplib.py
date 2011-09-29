@@ -751,7 +751,7 @@ class HTTPConnection:
     def connect(self):
         """Connect to the host and port specified in __init__."""
         self.sock = socket.create_connection((self.host,self.port),
-                                             self.timeout, self.source_address)
+                                             self.timeout)
 
         if self._tunnel_host:
             self._tunnel()
