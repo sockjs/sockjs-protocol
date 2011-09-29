@@ -683,11 +683,12 @@ class XhrStreaming(Test):
         self.verify_options(base_url + '/abc/abc/xhr_streaming',
                             'OPTIONS, POST')
 
-    # Test the transport itself.
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = POST_async(url + '/xhr_streaming')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r['Content-Type'],
+                         'application/javascript; charset=UTF-8')
         self.verify_cookie(r)
 
         # The transport must first send 2KiB of `h` bytes as prelude.
@@ -702,8 +703,53 @@ class XhrStreaming(Test):
         self.assertEqual(r.read(), 'a["x"]\n')
         r.close()
 
-    def test_(self):
-            pass
+
+# EventSource: `/*/*/eventsource`
+# -------------------------------
+#
+# For details of this protocol framing read the spec:
+#
+# * http://dev.w3.org/html5/eventsource/
+#
+# Beware leading spaces.
+class EventSource(Test):
+    def test_transport(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = GET_async(url + '/eventsource')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r['Content-Type'],
+                         'text/event-stream; charset=UTF-8')
+        # As EventSource is requested using GET we must be very
+        # carefull not to allow it being cached.
+        self.assertEqual(r['Cache-Control'],
+                         'no-store, no-cache, must-revalidate, max-age=0')
+        self.verify_cookie(r)
+
+        # The transport must first send two new lines prelude, due to
+        # a bug in Opera.
+        self.assertEqual(r.read(), '\r\n')
+
+        self.assertEqual(r.read(), 'data: o\r\n\r\n')
+
+        r1 = POST(url + '/xhr_send', body='["x"]')
+        self.assertFalse(r1.body)
+        self.assertEqual(r1.status, 204)
+
+        self.assertEqual(r.read(), 'data: a["x"]\r\n\r\n')
+
+        # This protocol doesn't allow binary data and we need to
+        # specially treat leading space, new lines and things like
+        # \x00. But, now the protocol json-encodes everything,
+        # so there is no way to trigger this case.
+        r1 = POST(url + '/xhr_send', body=r'["  \u0000\n\r "]')
+        self.assertFalse(r1.body)
+        self.assertEqual(r1.status, 204)
+
+        self.assertEqual(r.read(),
+                         'data: a["  \\u0000\\n\\r "]\r\n\r\n')
+
+        r.close()
+
 
 # Footnote
 # ========
