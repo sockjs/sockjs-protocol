@@ -781,7 +781,9 @@ class HtmlFile(Test):
                          'no-store, no-cache, must-revalidate, max-age=0')
         self.verify_cookie(r)
 
-        self.assertEqual(r.read().strip(), self.head % ('callback',))
+        d = r.read()
+        self.assertEqual(d.strip(), self.head % ('callback',))
+        self.assertGreater(len(d), 1024)
         self.assertEqual(r.read(),
                          '<script>\np("o");\n</script>\r\n')
 
