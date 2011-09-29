@@ -739,8 +739,8 @@ class EventSource(Test):
 
         # This protocol doesn't allow binary data and we need to
         # specially treat leading space, new lines and things like
-        # \x00. But, now the protocol json-encodes everything,
-        # so there is no way to trigger this case.
+        # \x00. But, now the protocol json-encodes everything, so
+        # there is no way to trigger this case.
         r1 = POST(url + '/xhr_send', body=r'["  \u0000\n\r "]')
         self.assertFalse(r1.body)
         self.assertEqual(r1.status, 204)
@@ -748,6 +748,49 @@ class EventSource(Test):
         self.assertEqual(r.read(),
                          'data: a["  \\u0000\\n\\r "]\r\n\r\n')
 
+        r.close()
+
+
+# HtmlFile: `/*/*/htmlfile`
+# -------------------------
+class HtmlFile(Test):
+    head = r'''
+<!doctype html>
+<html><head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head><body><h2>Don't panic!</h2>
+  <script>
+    document.domain = document.domain;
+    var c = parent.%s;
+    c.start();
+    function p(d) {c.message(d);};
+    window.onload = function() {c.stop();};
+  </script>
+'''.strip()
+
+    def test_transport(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = GET_async(url + '/htmlfile?c=%63allback')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r['Content-Type'],
+                         'text/html; charset=UTF-8')
+        # As HtmlFile is requested using GET we must be very carefull
+        # not to allow it being cached.
+        self.assertEqual(r['Cache-Control'],
+                         'no-store, no-cache, must-revalidate, max-age=0')
+        self.verify_cookie(r)
+
+        self.assertEqual(r.read().strip(), self.head % ('callback',))
+        self.assertEqual(r.read(),
+                         '<script>\np("o");\n</script>\r\n')
+
+        r1 = POST(url + '/xhr_send', body='["x"]')
+        self.assertFalse(r1.body)
+        self.assertEqual(r1.status, 204)
+
+        self.assertEqual(r.read(),
+                         '<script>\np("a[\\"x\\"]");\n</script>\r\n')
         r.close()
 
 
