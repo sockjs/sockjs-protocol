@@ -808,8 +808,8 @@ class HtmlFile(Test):
         self.assertEqual(r.status, 500)
         self.assertEqual(r.body.strip(), '"callback" parameter required')
 
-# JsonpPolling: `/*/*/htmlfile`
-# -------------------------
+# JsonpPolling: `/*/*/jsonp`, `/*/*/jsonp_send`
+# ---------------------------------------------
 class JsonPolling(Test):
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
