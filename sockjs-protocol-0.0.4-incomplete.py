@@ -63,11 +63,14 @@ wsoff_base_url = test_top_url + '/disabled_websocket_echo'
 class Test(unittest.TestCase):
     # We are going to test several `404/not found` pages. They should
     # have no body and no content-type.
-    def verify404(self, r):
+    def verify404(self, r, cookie=False):
         self.assertEqual(r.status, 404)
         self.assertFalse(r['content-type'])
         self.assertFalse(r.body)
-        self.verify_no_cookie(r)
+        if cookie is False:
+            self.verify_no_cookie(r)
+        elif cookie is True:
+            self.verify_cookie(r)
 
     # In some cases `405/method not allowed` is more appropriate.
     def verify405(self, r):
@@ -674,16 +677,54 @@ class XhrPolling(Test):
         self.assertEqual(r['content-type'],
                          'application/javascript; charset=UTF-8')
         self.verify_cookie(r)
+        self.verify_cors(r)
 
         # Xhr transports receive json-encoded array of messages.
         r = POST(url + '/xhr_send', body='["x"]')
         self.assertFalse(r.body)
         self.assertEqual(r.status, 204)
+        # The content type of `xhr_send` must be set to `text/plain`,
+        # even though the response code is `204`. This is due to
+        # Firefox/Firebug behaviour - it assumes that the content type
+        # is xml and shouts about it.
+        self.assertEqual(r['content-type'], 'text/plain')
         self.verify_cookie(r)
+        self.verify_cors(r)
 
         r = POST(url + '/xhr')
         self.assertEqual(r.body, 'a["x"]\n')
         self.assertEqual(r.status, 200)
+
+    # Publishing messages to a non-existing session must result in
+    # a 404 error.
+    def test_invalid_session(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr_send', body='["x"]')
+        self.verify404(r, cookie=None)
+
+    # The server must behave when invalid json data is send or when no
+    # json data is sent at all.
+    def test_invalid_json(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr')
+        self.assertEqual(r.body, 'o\n')
+
+        r = POST(url + '/xhr_send', body='["x')
+        self.assertEqual(r.body.strip(), "Broken JSON encoding.")
+        self.assertEqual(r.status, 500)
+
+        r = POST(url + '/xhr_send', body='')
+        self.assertEqual(r.body.strip(), "Payload expected.")
+        self.assertEqual(r.status, 500)
+
+        r = POST(url + '/xhr_send', body='["a"]')
+        self.assertFalse(r.body)
+        self.assertEqual(r.status, 204)
+
+        r = POST(url + '/xhr')
+        self.assertEqual(r.body, 'a["a"]\n')
+        self.assertEqual(r.status, 200)
+
 
 
 # XhrStreaming: `/*/*/xhr_streaming`
@@ -700,6 +741,7 @@ class XhrStreaming(Test):
         self.assertEqual(r['Content-Type'],
                          'application/javascript; charset=UTF-8')
         self.verify_cookie(r)
+        self.verify_cors(r)
 
         # The transport must first send 2KiB of `h` bytes as prelude.
         self.assertEqual(r.read(), 'h' *  2047 + '\n')
@@ -830,6 +872,7 @@ class JsonPolling(Test):
         # to respond with something - let it be the string `ok`.
         self.assertEqual(r.body, 'ok')
         self.assertEqual(r.status, 200)
+        self.assertFalse(r['Content-Type'])
         self.verify_cookie(r)
 
         r = GET(url + '/jsonp?c=%63allback')
@@ -841,6 +884,32 @@ class JsonPolling(Test):
         r = GET(base_url + '/a/a/jsonp')
         self.assertEqual(r.status, 500)
         self.assertEqual(r.body.strip(), '"callback" parameter required')
+
+    # The server must behave when invalid json data is send or when no
+    # json data is sent at all.
+    def test_invalid_json(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.body, 'x("o");\r\n')
+
+        r = POST(url + '/jsonp_send', body='d=%5B%22x',
+                 headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        self.assertEqual(r.body.strip(), "Broken JSON encoding.")
+        self.assertEqual(r.status, 500)
+
+        for data in ['', 'd=', 'p=p']:
+            r = POST(url + '/jsonp_send', body=data,
+                     headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            self.assertEqual(r.body.strip(), "Payload expected.")
+            self.assertEqual(r.status, 500)
+
+        r = POST(url + '/jsonp_send', body='d=%5B%22b%22%5D',
+                 headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        self.assertEqual(r.body, 'ok')
+
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'x("a[\\"b\\"]");\r\n')
 
 # Footnote
 # ========
