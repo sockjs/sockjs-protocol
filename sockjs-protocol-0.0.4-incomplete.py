@@ -613,6 +613,17 @@ class WebsocketHixie76(Test):
         self.assertEqual(r['sec-websocket-origin'], origin)
         r.close()
 
+    # When user sends broken data - broken JSON for example, the
+    # server must terminate the ws connection.
+    def test_broken_json(self):
+        ws_url = 'ws:' + base_url.split(':',1)[1] + \
+                 '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws = websocket.create_connection(ws_url)
+        self.assertEqual(ws.recv(), u'o')
+        ws.send(u'"a')
+        self.assertRaises(websocket.ConnectionClosedException, ws.recv)
+
+
 # The server must support Hybi-10 protocol
 class WebsocketHybi10(Test):
     def test_transport(self):
@@ -655,6 +666,17 @@ class WebsocketHybi10(Test):
             self.assertEqual(r['connection'], 'Upgrade')
             self.assertEqual(r['upgrade'], 'WebSocket')
             r.close()
+
+    # When user sends broken data - broken JSON for example, the
+    # server must terminate the ws connection.
+    def test_broken_json(self):
+        ws_url = 'ws:' + base_url.split(':',1)[1] + \
+                 '/000/' + str(uuid.uuid4()) + '/websocket'
+        ws = WebSocket8Client(ws_url)
+        self.assertEqual(ws.recv(), u'o')
+        ws.send(u'"a')
+        self.assertRaises(WebSocket8Client.ConnectionClosedException, ws.recv)
+
 
 # XhrPolling: `/*/*/xhr`, `/*/*/xhr_send`
 # ---------------------------------------

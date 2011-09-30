@@ -84,12 +84,19 @@ def OPTIONS(url, **kwargs):
 
 
 class WebSocket8Client(object):
+    class ConnectionClosedException(Exception): pass
+
     def __init__(self, url):
         queue = Queue.Queue()
         self.queue = queue
         class IntWebSocketClient(WebSocketClient):
             def received_message(self, m):
                 queue.put(str(m))
+            def read_from_connection(self, amount):
+                r = super(IntWebSocketClient, self).read_from_connection(amount)
+                if not r:
+                    queue.put(Ellipsis)
+                return r
         self.client = IntWebSocketClient(url)
         self.client.connect()
 
@@ -105,7 +112,10 @@ class WebSocket8Client(object):
 
     def recv(self):
         try:
-            return self.queue.get(timeout=1.0)
+            r = self.queue.get(timeout=1.0)
+            if r is Ellipsis:
+                raise self.ConnectionClosedException()
+            return r
         except:
             self.close()
             raise
