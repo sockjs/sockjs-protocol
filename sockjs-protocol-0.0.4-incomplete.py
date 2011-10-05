@@ -747,6 +747,22 @@ class XhrPolling(Test):
         self.assertEqual(r.body, 'a["a"]\n')
         self.assertEqual(r.status, 200)
 
+    # The server must accept messages send with different content
+    # types.
+    def test_content_types(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr')
+        self.assertEqual(r.body, 'o\n')
+
+        ctypes = ['text/plain', 'T', 'application/json', 'application/xml', '']
+        for ct in ctypes:
+            r = POST(url + '/xhr_send', body='["a"]', headers={'Content-Type': ct})
+            self.assertFalse(r.body)
+            self.assertEqual(r.status, 204)
+
+        r = POST(url + '/xhr')
+        self.assertEqual(r.body, 'a["a","a","a","a","a"]\n')
+        self.assertEqual(r.status, 200)
 
 
 # XhrStreaming: `/*/*/xhr_streaming`
@@ -932,6 +948,25 @@ class JsonPolling(Test):
         r = GET(url + '/jsonp?c=x')
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'x("a[\\"b\\"]");\r\n')
+
+    # The server must accept messages send with different content
+    # types.
+    def test_content_types(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.body, 'x("o");\r\n')
+
+        r = POST(url + '/jsonp_send', body='d=%5B%22abc%22%5D',
+                 headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        self.assertEqual(r.body, 'ok')
+        r = POST(url + '/jsonp_send', body='["%61bc"]',
+                 headers={'Content-Type': 'text/plain'})
+        self.assertEqual(r.body, 'ok')
+
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'x("a[\\"abc\\",\\"%61bc\\"]");\r\n')
+
 
 # Footnote
 # ========
