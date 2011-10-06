@@ -799,7 +799,7 @@ class XhrStreaming(Test):
 #
 # For details of this protocol framing read the spec:
 #
-# * http://dev.w3.org/html5/eventsource/
+# * [http://dev.w3.org/html5/eventsource/](http://dev.w3.org/html5/eventsource/)
 #
 # Beware leading spaces.
 class EventSource(Test):
