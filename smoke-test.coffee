@@ -64,15 +64,24 @@ class XhrPollingClient extends GenericClient
                 @_kick_recv()
 
 
+extend = (dst, src) ->
+    for k of src
+        if src.hasOwnProperty(k)
+            dst[k] = src[k]
+    return dst
+
 class HttpRequest extends events.EventEmitter
-    constructor: (method, url, headers, body) ->
+    constructor: (method, url, user_headers, body) ->
         u = urlparse(url)
+        headers = {}
+        extend(headers, user_headers)
+        headers['Content-Length'] = (body or '').length
         options =
           host: u.hostname
           port: Number(u.port) or (if u.protocol is 'http:' then 80 else 443)
           path: u.pathname + (if u.query then '?' + u.query else '')
           method: method
-          headers: (if headers then headers else {})
+          headers: headers
           agent: false
 
         @chunks = []
@@ -92,9 +101,10 @@ class HttpRequest extends events.EventEmitter
 
         @req.on 'error', (e) =>
             console.log('error!',e)
-        if body
-            @req.write(body, 'utf-8')
-        @req.end()
+        if (body or '').length > 0
+            @req.end(body, 'utf-8')
+        else
+            @req.end()
 
     _on_response: (@res) =>
 
