@@ -764,6 +764,19 @@ class XhrPolling(Test):
         self.assertEqual(r.body, 'a["a","a","a","a","a"]\n')
         self.assertEqual(r.status, 200)
 
+    # JSESSIONID cookie must be set by default.
+    def test_jsessionid(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr')
+        self.assertEqual(r.body, 'o\n')
+        self.verify_cookie(r)
+
+        # And must be echoed back if it's already set.
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr', headers={'Cookie': 'JSESSIONID=abcdef'})
+        self.assertEqual(r.body, 'o\n')
+        self.assertEqual(r['Set-Cookie'], 'JSESSIONID=abcdef; path=/')
+
 
 # XhrStreaming: `/*/*/xhr_streaming`
 # ----------------------------------
