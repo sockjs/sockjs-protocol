@@ -257,7 +257,7 @@ class ChunkingTest(Test):
     # The chunking test requires the server to send six http chunks
     # containing a `h` byte delayed by varying timeouts.
     #
-    # First, the server must send 2047 bytes of `%20` character
+    # First, the server must send 2048 bytes of `%20` character
     # (space), as a prelude. That should be followed by `h` frames
     # with following delays between them:
     #
@@ -280,7 +280,7 @@ class ChunkingTest(Test):
         self.verify_cors(r)
 
         # In first chunk the server must send 2KiB prelude.
-        self.assertEqual(r.read(), ' '*2047 + '\n')
+        self.assertEqual(r.read(), ' ' * 2048 + '\n')
         # In second chunk the server must send a `h` byte.
         self.assertEqual(r.read(), 'h\n')
         # In third chunk the server must send a `h` byte.
@@ -782,7 +782,7 @@ class XhrStreaming(Test):
         self.verify_cors(r)
 
         # The transport must first send 2KiB of `h` bytes as prelude.
-        self.assertEqual(r.read(), 'h' *  2047 + '\n')
+        self.assertEqual(r.read(), 'h' *  2048 + '\n')
 
         self.assertEqual(r.read(), 'o\n')
 
@@ -814,8 +814,8 @@ class EventSource(Test):
         self.verify_not_cached(r)
         self.verify_cookie(r)
 
-        # The transport must first send two new lines prelude, due to
-        # a bug in Opera.
+        # The transport must first send a new line prelude, due to a
+        # bug in Opera.
         self.assertEqual(r.read(), '\r\n')
 
         self.assertEqual(r.read(), 'data: o\r\n\r\n')
