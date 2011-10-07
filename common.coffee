@@ -21,6 +21,7 @@ exports.HttpRequest = class HttpRequest extends events.EventEmitter
             @req.socket.setTimeout(60000)
             @status = @res.statusCode
             @headers = @res.headers
+            @emit('start')
             @res.on 'data', (chunk) =>
                 chunk = chunk.toString('utf-8')
                 @chunks.push(chunk)
@@ -33,6 +34,7 @@ exports.HttpRequest = class HttpRequest extends events.EventEmitter
 
         @req.on 'error', (e) =>
             console.log('error!',e)
+            process.exit(1)
         if (body or '').length > 0
             @req.end(body, 'utf-8')
         else
@@ -74,3 +76,6 @@ exports.StdDev = class StdDev
         avg = @avg()
         variance = (@sum_sq / @count) - (avg * avg)
         return Math.sqrt(variance)
+
+exports.now = ->
+    (new Date()).getTime()

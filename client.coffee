@@ -3,7 +3,7 @@ common = require('./common')
 
 exports.GenericClient = class GenericClient extends events.EventEmitter
     constructor: (url) ->
-        @id = ('' + Math.random()).slice(2)
+        @id = ('' + Math.random()).slice(2, 16)
         @url = url + '/0/' + @id
         @buffer = []
         @is_opened = false
@@ -19,9 +19,8 @@ exports.GenericClient = class GenericClient extends events.EventEmitter
                     @is_opened = true
                     @emit('open')
                 else
-                    console.log('Already open')
                     @is_closed = true
-                    @emit('close', 1000, 'error')
+                    @emit('close', 1000, 'Connection prematurely closed!')
             when 'h' then null
             when 'a'
                 for m in JSON.parse(payload)

@@ -7,15 +7,13 @@ common = require('./common')
 
 
 url = 'http://localhost:8080/echo'
-count = 200
-hz = 5
-seconds = 5
-test = 'idle'
-transport = 'xhr_polling'
+count = 500
+hz = 1
+seconds = 20
 
 console.log(' [*] Connecting to ' + url +
-            ' (connections:' + count +
-            ', test:' + test + ', transport:' + transport + ')')
+            ' (count:' + count +
+            ', hz:' + hz + ', seconds:' + seconds + ')')
 
 connected_counter = 0
 connected = ->
@@ -33,8 +31,6 @@ closed = ->
                     ' dev=', stats.dev(),
                     ' (' + stats.count + ' data points)')
 
-now = ->
-    (new Date()).getTime()
 
 stats = new common.StdDev()
 
@@ -45,16 +41,17 @@ conns = for i in [0...count]
         conn.on('open', connected)
         conn.on 'message', (t0) ->
             c -= 1
-            delay = now() - Number(t0)
+            delay = common.now() - Number(t0)
             stats.add(delay)
             if c > 0
-                go = -> conn.send('' + now())
+                go = -> conn.send('' + common.now())
                 setTimeout(go, 1000/hz)
             else
                 closed()
                 conn.close()
-        conn.on 'close', -> console.log('ERROR')
+        conn.on 'close', (_, reason) ->
+            closed()
+            console.log('ERROR', reason)
         return ->
-            conn.send('' + now())
-
+            conn.send('' + common.now())
 
