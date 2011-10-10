@@ -280,7 +280,7 @@ class ChunkingTest(Test):
         self.verify_cors(r)
 
         # In first chunk the server must send 2KiB prelude.
-        self.assertEqual(r.read(), ' ' * 2048 + '\n')
+        self.assertEqual(r.read(), ' ' * 2048 + 'h\n')
         # In second chunk the server must send a `h` byte.
         self.assertEqual(r.read(), 'h\n')
         # In third chunk the server must send a `h` byte.
