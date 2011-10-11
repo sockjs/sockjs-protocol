@@ -156,7 +156,7 @@ class IframePage(Test):
     (CORS). In order to support them we need to do a cross-domain
     trick: on remote (server) domain we serve an simple html page,
     that loads back SockJS client javascript and is able to
-    communicate with the server withing the same domain.
+    communicate with the server within the same domain.
     """
     iframe_body = re.compile('''
 ^<!DOCTYPE html>
