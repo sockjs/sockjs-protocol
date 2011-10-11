@@ -855,6 +855,13 @@ class EventSource(Test):
 
 # HtmlFile: `/*/*/htmlfile`
 # -------------------------
+#
+# Htmlfile transport is based on research done by Michael Carter. It
+# requires a famous `document.domain` trick. Read on:
+#
+# * [http://stackoverflow.com/questions/1481251/what-does-document-domain-document-domain-do](http://stackoverflow.com/questions/1481251/what-does-document-domain-document-domain-do)
+# * [http://cometdaily.com/2007/11/18/ie-activexhtmlfile-transport-part-ii/](http://cometdaily.com/2007/11/18/ie-activexhtmlfile-transport-part-ii/)
+#
 class HtmlFile(Test):
     head = r'''
 <!doctype html>
