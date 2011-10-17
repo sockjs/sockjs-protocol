@@ -104,7 +104,10 @@ class Test(unittest.TestCase):
     # when they see `JSESSIONID` cookie. For all the session urls we
     # must set this cookie.
     def verify_cookie(self, r):
-        self.assertEqual(r['Set-Cookie'], 'JSESSIONID=dummy; path=/')
+        self.assertEqual(r['Set-Cookie'].split(';')[0].strip(),
+                         'JSESSIONID=dummy')
+        self.assertEqual(r['Set-Cookie'].split(';')[1].lower().strip(),
+                         'path=/')
 
     def verify_no_cookie(self, r):
         self.assertFalse(r['Set-Cookie'])
@@ -775,7 +778,10 @@ class XhrPolling(Test):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = POST(url + '/xhr', headers={'Cookie': 'JSESSIONID=abcdef'})
         self.assertEqual(r.body, 'o\n')
-        self.assertEqual(r['Set-Cookie'], 'JSESSIONID=abcdef; path=/')
+        self.assertEqual(r['Set-Cookie'].split(';')[0].strip(),
+                         'JSESSIONID=abcdef')
+        self.assertEqual(r['Set-Cookie'].split(';')[1].lower().strip(),
+                         'path=/')
 
 
 # XhrStreaming: `/*/*/xhr_streaming`
