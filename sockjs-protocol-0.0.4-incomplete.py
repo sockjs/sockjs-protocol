@@ -610,6 +610,7 @@ class WebsocketHixie76(Test):
             }
 
         r = GET_async(http_url, headers=h)
+        self.assertEqual(r.status, 101)
         self.assertEqual(r['sec-websocket-location'], ws_url)
         self.assertEqual(r['connection'].lower(), 'upgrade')
         self.assertEqual(r['upgrade'].lower(), 'websocket')
@@ -670,6 +671,7 @@ class WebsocketHybi10(Test):
                  }
 
             r = GET_async(http_url, headers=h)
+            self.assertEqual(r.status, 101)
             self.assertEqual(r['sec-websocket-accept'], 'HSmrc0sMlYUkAGmm5OPpG2HaGWk=')
             self.assertEqual(r['connection'].lower(), 'upgrade')
             self.assertEqual(r['upgrade'].lower(), 'websocket')
