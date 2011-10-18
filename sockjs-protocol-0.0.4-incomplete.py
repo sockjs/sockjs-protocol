@@ -614,6 +614,7 @@ class WebsocketHixie76(Test):
         self.assertEqual(r['connection'], 'Upgrade')
         self.assertEqual(r['upgrade'], 'WebSocket')
         self.assertEqual(r['sec-websocket-origin'], origin)
+        self.assertFalse(r['content-length'])
         r.close()
 
     # When user sends broken data - broken JSON for example, the
@@ -668,6 +669,7 @@ class WebsocketHybi10(Test):
             self.assertEqual(r['sec-websocket-accept'], 'HSmrc0sMlYUkAGmm5OPpG2HaGWk=')
             self.assertEqual(r['connection'], 'Upgrade')
             self.assertEqual(r['upgrade'], 'WebSocket')
+            self.assertFalse(r['content-length'])
             r.close()
 
     # When user sends broken data - broken JSON for example, the
