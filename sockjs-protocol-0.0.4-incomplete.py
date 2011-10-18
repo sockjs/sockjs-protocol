@@ -625,7 +625,10 @@ class WebsocketHixie76(Test):
         ws = websocket.create_connection(ws_url)
         self.assertEqual(ws.recv(), u'o')
         ws.send(u'"a')
-        self.assertRaises(websocket.ConnectionClosedException, ws.recv)
+        with self.assertRaises(websocket.ConnectionClosedException):
+            # Raises on error, returns None on valid closure.
+            if ws.recv() is None:
+                raise websocket.ConnectionClosedException()
 
 
 # The server must support Hybi-10 protocol
