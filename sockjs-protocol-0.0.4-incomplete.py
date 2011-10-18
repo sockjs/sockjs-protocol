@@ -665,6 +665,7 @@ class WebsocketHybi10(Test):
             h = {'Upgrade': 'WebSockeT',
                  'Connection': 'UpgradE',
                  'Sec-WebSocket-Version': version,
+                 'Sec-WebSocket-Origin': 'http://asd',
                  'Sec-WebSocket-Key': 'x3JJHMbDL1EzLkh9GBhXDw==',
                  }
 
