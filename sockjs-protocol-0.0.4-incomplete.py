@@ -602,8 +602,8 @@ class WebsocketHixie76(Test):
         ws_url = 'ws:' + url
         http_url = 'http:' + url
         origin = '/'.join(http_url.split('/')[:3])
-        h = {'Upgrade': 'WebSocket',
-             'Connection': 'Upgrade',
+        h = {'Upgrade': 'WebSockeT',
+             'Connection': 'UpgradE',
              'Origin': origin,
              'Sec-WebSocket-Key1': '4 @1  46546xW%0l 1 5',
              'Sec-WebSocket-Key2': '12998 5 Y3 1  .P00'
@@ -611,8 +611,8 @@ class WebsocketHixie76(Test):
 
         r = GET_async(http_url, headers=h)
         self.assertEqual(r['sec-websocket-location'], ws_url)
-        self.assertEqual(r['connection'], 'Upgrade')
-        self.assertEqual(r['upgrade'], 'WebSocket')
+        self.assertEqual(r['connection'].lower(), 'upgrade')
+        self.assertEqual(r['upgrade'].lower(), 'websocket')
         self.assertEqual(r['sec-websocket-origin'], origin)
         self.assertFalse(r['content-length'])
         r.close()
@@ -659,16 +659,16 @@ class WebsocketHybi10(Test):
             ws_url = 'ws:' + url
             http_url = 'http:' + url
             origin = '/'.join(http_url.split('/')[:3])
-            h = {'Upgrade': 'WebSocket',
-                 'Connection': 'Upgrade',
+            h = {'Upgrade': 'WebSockeT',
+                 'Connection': 'UpgradE',
                  'Sec-WebSocket-Version': version,
                  'Sec-WebSocket-Key': 'x3JJHMbDL1EzLkh9GBhXDw==',
                  }
 
             r = GET_async(http_url, headers=h)
             self.assertEqual(r['sec-websocket-accept'], 'HSmrc0sMlYUkAGmm5OPpG2HaGWk=')
-            self.assertEqual(r['connection'], 'Upgrade')
-            self.assertEqual(r['upgrade'], 'WebSocket')
+            self.assertEqual(r['connection'].lower(), 'upgrade')
+            self.assertEqual(r['upgrade'].lower(), 'websocket')
             self.assertFalse(r['content-length'])
             r.close()
 
