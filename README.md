@@ -30,9 +30,11 @@ your server (the source assumes your server is at
 
     ./venv/bin/python sockjs-protocol-0.0.4-incomplete.py -v
 
-You can run specific tests like that:
+You can run specific tests providing test class as an optional argument:
 
     ./venv/bin/python sockjs-protocol-0.0.4-incomplete.py Protocol
+
+The test class is one of the classes in `sockjs-protocol-0.0.4-incomplete.py` inherited from class `Test` (or `unittest.TestCase` in general).
 
 To run the http-quirks tests:
 
