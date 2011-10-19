@@ -65,8 +65,6 @@ class Test(unittest.TestCase):
     # have no body and no content-type.
     def verify404(self, r, cookie=False):
         self.assertEqual(r.status, 404)
-        self.assertFalse(r['content-type'])
-        self.assertFalse(r.body)
         if cookie is False:
             self.verify_no_cookie(r)
         elif cookie is True:
