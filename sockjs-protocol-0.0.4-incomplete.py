@@ -529,7 +529,7 @@ class WebsocketHixie76(Test):
         ws = websocket.create_connection(ws_url)
         self.assertEqual(ws.recv(), u'o')
         ws.send(u'["a"]')
-        self.assertEqual(ws.recv(), u'm["a"]')
+        self.assertEqual(ws.recv(), u'a["a"]')
         ws.close()
 
     def test_close(self):
@@ -541,7 +541,7 @@ class WebsocketHixie76(Test):
         ws.close()
 
     # Empty frames must be ignored by the server side.
-    def test_transport(self):
+    def test_empty_frame(self):
         ws_url = 'ws:' + base_url.split(':',1)[1] + \
                  '/000/' + str(uuid.uuid4()) + '/websocket'
         ws = websocket.create_connection(ws_url)
