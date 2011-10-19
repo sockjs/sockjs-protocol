@@ -21,8 +21,12 @@ To generate the html type:
 
     make
 
-To run the tests against your server (the source assumes your server
-is at [http://localhost:8080](http://localhost:8080)):
+This assumes you have Python package virtualenv. If not,
+you can install it via `pip install virtualenv`.
+
+Once you run make, you can also run the tests against
+your server (the source assumes your server is at
+[http://localhost:8080](http://localhost:8080)):
 
     ./venv/bin/python sockjs-protocol-0.0.4-incomplete.py -v
 
