@@ -2,3 +2,4 @@
 venv
 distribute-*.tar.gz
 docs
+node_modules/
