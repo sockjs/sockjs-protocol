@@ -258,9 +258,13 @@ class ChunkingTest(Test):
     # The chunking test requires the server to send six http chunks
     # containing a `h` byte delayed by varying timeouts.
     #
-    # First, the server must send 2048 bytes of `%20` character
-    # (space), as a prelude. That should be followed by `h` frames
-    # with following delays between them:
+    # First, the server must send a 'h' frame.
+    #
+    # Then, the server must send 2048 bytes of `%20` character
+    # (space), as a prelude, followed by a 'h' character.
+    #
+    # That should be followed by a series of `h` frames with following
+    # delays between them:
     #
     #  * 5 ms
     #  * 25 ms
@@ -280,9 +284,11 @@ class ChunkingTest(Test):
         self.verify_no_cookie(r)
         self.verify_cors(r)
 
-        # In first chunk the server must send 2KiB prelude.
+        # In first chunk the server must send a 'h' frame:
+        self.assertEqual(r.read(), 'h\n')
+        # As second chunk the server must send 2KiB prelude.
         self.assertEqual(r.read(), ' ' * 2048 + 'h\n')
-        # In second chunk the server must send a `h` byte.
+        # Later the server must send a `h` byte.
         self.assertEqual(r.read(), 'h\n')
         # In third chunk the server must send a `h` byte.
         self.assertEqual(r.read(), 'h\n')
