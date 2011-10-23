@@ -661,7 +661,7 @@ class WebsocketHybi10(Test):
     # Verify WebSocket headers sanity. Server must support both
     # Hybi-07 and Hybi-10.
     def test_headersSanity(self):
-        for version in ['7', '8']:
+        for version in ['7', '8', '13']:
             url = base_url.split(':',1)[1] + \
                 '/000/' + str(uuid.uuid4()) + '/websocket'
             ws_url = 'ws:' + url
