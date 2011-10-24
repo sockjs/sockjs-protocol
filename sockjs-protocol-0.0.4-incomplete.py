@@ -458,7 +458,9 @@ class Protocol(Test):
     # message.
     def test_closeSession(self):
         trans_url = close_base_url + '/000/' + str(uuid.uuid4())
-        POST(trans_url + '/xhr')
+        r = POST(trans_url + '/xhr')
+        self.assertEqual(r.body, 'o\n')
+
         r = POST(trans_url + '/xhr')
         self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
         self.assertEqual(r.status, 200)
