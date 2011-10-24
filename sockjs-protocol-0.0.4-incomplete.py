@@ -438,8 +438,7 @@ class Protocol(Test):
         # Sending messages to not existing sessions is invalid.
         payload = '["a"]'
         r = POST(base_url + '/000/bad_session/xhr_send', body=payload)
-        self.assertFalse(r.body)
-        self.assertEqual(r.status, 404)
+        self.verify404(r, cookie=True)
 
         # The session must time out after 5 seconds of not having a
         # receiving connection. The server must send a heartbeat frame
