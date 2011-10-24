@@ -241,6 +241,7 @@ class IframePage(Test):
         r1 = GET(base_url + '/iframe.html')
         r2 = GET(base_url + '/iframe.html')
         self.assertEqual(r1['etag'], r2['etag'])
+        self.assertTrue(r1['etag']) # Let's make sure ETag isn't None.
 
         r = GET(base_url + '/iframe.html', headers={'If-None-Match': r1['etag']})
         self.assertEqual(r.status, 304)
