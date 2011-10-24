@@ -62,9 +62,11 @@ wsoff_base_url = test_top_url + '/disabled_websocket_echo'
 
 class Test(unittest.TestCase):
     # We are going to test several `404/not found` pages. They should
-    # have no body and no content-type.
+    # have a predefined body and text/plain content-type.
     def verify404(self, r, cookie=False):
         self.assertEqual(r.status, 404)
+        self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
+        self.assertEqual(r.body.strip(), '404 Error: Page not found')
         if cookie is False:
             self.verify_no_cookie(r)
         elif cookie is True:
