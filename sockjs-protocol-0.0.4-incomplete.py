@@ -274,7 +274,7 @@ class ChunkingTest(Test):
     #  * 3125 ms
     #
     # At that point the server should close the request. The client
-    # will brake the connection as soon as it detects that chunking is
+    # will break the connection as soon as it detects that chunking is
     # indeed working.
     def test_basic(self):
         t0 = time.time()
