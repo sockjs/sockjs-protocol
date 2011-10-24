@@ -1028,6 +1028,37 @@ class JsonPolling(Test):
         self.assertEqual(r.body, 'x("a[\\"abc\\",\\"%61bc\\"]");\r\n')
 
 
+# Protocol Quirks
+# ===============
+#
+# Over the time there were various implementation quirks
+# found. Following tests go through the quirks and verify that the
+# server behaves itself.
+#
+# This is less about definig protocl and more about sanity checking
+# implementations.
+class ProtocolQuirks(Test):
+    def test_closeSession_another_connection(self):
+        # When server is closing session, it should unlink current
+        # request. That means, if a new request appears, it should
+        # receive an application close message rather than "Another
+        # connection still open" message.
+        url = close_base_url + '/000/' + str(uuid.uuid4())
+        r1 = POST_async(url + '/xhr_streaming')
+
+        r1.read() # prelude
+        self.assertEqual(r1.read(), 'o\n')
+        self.assertEqual(r1.read(), 'c[3000,"Go away!"]\n')
+
+        r2 = POST_async(url + '/xhr_streaming')
+        r2.read() # prelude
+        self.assertEqual(r2.read(), 'c[3000,"Go away!"]\n')
+
+        ''' TODO: should request be automatically closed after close?
+        self.assertEqual(r1.read(), None)
+        self.assertEqual(r2.read(), None)
+        '''
+
 # Footnote
 # ========
 
