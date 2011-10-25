@@ -61,12 +61,10 @@ wsoff_base_url = test_top_url + '/disabled_websocket_echo'
 # ===========
 
 class Test(unittest.TestCase):
-    # We are going to test several `404/not found` pages. They should
-    # have a predefined body and text/plain content-type.
+    # We are going to test several `404/not found` pages. We don't
+    # define a body or a content type.
     def verify404(self, r, cookie=False):
         self.assertEqual(r.status, 404)
-        self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
-        self.assertEqual(r.body.strip(), '404 Error: Page not found')
         if cookie is False:
             self.verify_no_cookie(r)
         elif cookie is True:
@@ -490,10 +488,13 @@ class WebsocketHttpErrors(Test):
     # alltogether. This is useful when load balancer doesn't
     # support websocket protocol and we need to be able to reject
     # the transport immediately. This is achieved by returning 404
-    # response on websocket transport url.
+    # response on websocket transport url. This particular 404 page
+    # must be small (less than 1KiB).
     def test_disabledTransport(self):
         r = GET(wsoff_base_url + '/0/0/websocket')
         self.verify404(r)
+        if r.body:
+            self.assertLess(len(r.body), 1025)
 
     # Normal requests to websocket should not succeed.
     def test_httpMethod(self):
