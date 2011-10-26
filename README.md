@@ -13,7 +13,7 @@ documentation is in a form of a Python test suite decorated with some
 prose in literate-programming style. You can see current documentation
 here:
 
- * [sockjs-protocol-0.0.4-incomplete.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.0.4-incomplete.html)
+ * [sockjs-protocol-0.1.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.1.html)
 
 
 
@@ -28,13 +28,13 @@ Once you run make, you can also run the tests against
 your server (the source assumes your server is at
 [http://localhost:8080](http://localhost:8080)):
 
-    ./venv/bin/python sockjs-protocol-0.0.4-incomplete.py -v
+    ./venv/bin/python sockjs-protocol-0.1.py -v
 
 You can run specific tests providing test class as an optional argument:
 
-    ./venv/bin/python sockjs-protocol-0.0.4-incomplete.py Protocol
+    ./venv/bin/python sockjs-protocol-0.1.py Protocol
 
-The test class is one of the classes in `sockjs-protocol-0.0.4-incomplete.py` inherited from class `Test` (or `unittest.TestCase` in general).
+The test class is one of the classes in `sockjs-protocol-0.1.py` inherited from class `Test` (or `unittest.TestCase` in general).
 
 To run the http-quirks tests:
 
