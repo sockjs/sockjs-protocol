@@ -61,8 +61,8 @@ wsoff_base_url = test_top_url + '/disabled_websocket_echo'
 # ===========
 
 class Test(unittest.TestCase):
-    # We are going to test several `404/not found` pages. They should
-    # have no body and no content-type.
+    # We are going to test several `404/not found` pages. We don't
+    # define a body or a content type.
     def verify404(self, r, cookie=False):
         self.assertEqual(r.status, 404)
         if cookie is False:
@@ -436,8 +436,7 @@ class Protocol(Test):
         # Sending messages to not existing sessions is invalid.
         payload = '["a"]'
         r = POST(base_url + '/000/bad_session/xhr_send', body=payload)
-        self.assertFalse(r.body)
-        self.assertEqual(r.status, 404)
+        self.verify404(r, cookie=True)
 
         # The session must time out after 5 seconds of not having a
         # receiving connection. The server must send a heartbeat frame
@@ -457,7 +456,9 @@ class Protocol(Test):
     # message.
     def test_closeSession(self):
         trans_url = close_base_url + '/000/' + str(uuid.uuid4())
-        POST(trans_url + '/xhr')
+        r = POST(trans_url + '/xhr')
+        self.assertEqual(r.body, 'o\n')
+
         r = POST(trans_url + '/xhr')
         self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
         self.assertEqual(r.status, 200)
@@ -487,10 +488,13 @@ class WebsocketHttpErrors(Test):
     # alltogether. This is useful when load balancer doesn't
     # support websocket protocol and we need to be able to reject
     # the transport immediately. This is achieved by returning 404
-    # response on websocket transport url.
+    # response on websocket transport url. This particular 404 page
+    # must be small (less than 1KiB).
     def test_disabledTransport(self):
         r = GET(wsoff_base_url + '/0/0/websocket')
         self.verify404(r)
+        if r.body:
+            self.assertLess(len(r.body), 1025)
 
     # Normal requests to websocket should not succeed.
     def test_httpMethod(self):
@@ -1024,6 +1028,37 @@ class JsonPolling(Test):
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'x("a[\\"abc\\",\\"%61bc\\"]");\r\n')
 
+
+# Protocol Quirks
+# ===============
+#
+# Over the time there were various implementation quirks
+# found. Following tests go through the quirks and verify that the
+# server behaves itself.
+#
+# This is less about definig protocl and more about sanity checking
+# implementations.
+class ProtocolQuirks(Test):
+    def test_closeSession_another_connection(self):
+        # When server is closing session, it should unlink current
+        # request. That means, if a new request appears, it should
+        # receive an application close message rather than "Another
+        # connection still open" message.
+        url = close_base_url + '/000/' + str(uuid.uuid4())
+        r1 = POST_async(url + '/xhr_streaming')
+
+        r1.read() # prelude
+        self.assertEqual(r1.read(), 'o\n')
+        self.assertEqual(r1.read(), 'c[3000,"Go away!"]\n')
+
+        r2 = POST_async(url + '/xhr_streaming')
+        r2.read() # prelude
+        self.assertEqual(r2.read(), 'c[3000,"Go away!"]\n')
+
+        ''' TODO: should request be automatically closed after close?
+        self.assertEqual(r1.read(), None)
+        self.assertEqual(r2.read(), None)
+        '''
 
 # Footnote
 # ========
