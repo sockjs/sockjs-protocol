@@ -925,7 +925,7 @@ class HtmlFile(Test):
         self.assertEqual(r.status, 200)
         self.assertEqual(r['Content-Type'],
                          'text/html; charset=UTF-8')
-        # As HtmlFile is requested using GET we must be very carefull
+        # As HtmlFile is requested using GET we must be very careful
         # not to allow it being cached.
         self.verify_not_cached(r)
         self.verify_cookie(r)
