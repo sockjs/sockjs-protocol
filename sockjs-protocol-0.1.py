@@ -1010,7 +1010,7 @@ class JsonPolling(Test):
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'x("a[\\"b\\"]");\r\n')
 
-    # The server must accept messages send with different content
+    # The server must accept messages sent with different content
     # types.
     def test_content_types(self):
         url = base_url + '/000/' + str(uuid.uuid4())
