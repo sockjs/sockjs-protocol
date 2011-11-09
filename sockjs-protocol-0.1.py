@@ -1036,7 +1036,7 @@ class JsonPolling(Test):
 # found. Following tests go through the quirks and verify that the
 # server behaves itself.
 #
-# This is less about definig protocol and more about sanity checking
+# This is less about defining the protocol and more about sanity checking
 # implementations.
 class ProtocolQuirks(Test):
     def test_closeSession_another_connection(self):
