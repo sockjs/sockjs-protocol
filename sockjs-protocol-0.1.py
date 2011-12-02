@@ -443,7 +443,7 @@ class Protocol(Test):
         # every 25 seconds. The heartbeat frame contains a single `h`
         # character. This delays may be configurable.
         pass
-        # The server may not allow two receiving connections to wait
+        # The server must not allow two receiving connections to wait
         # on a single session. In such case the server must send a
         # close frame to the new connection.
         r1 = POST_async(trans_url + '/xhr', load=False)
