@@ -426,9 +426,8 @@ class Protocol(Test):
         self.assertFalse(r.body)
         self.assertEqual(r.status, 204)
 
-        '''We're using echo service - we can receive our message. There are
-        two valid encodings: single message 'm' and array 'a'. It's currently
-        undefined when the server should use which.'''
+        '''We're using an echo service - we'll receive our message
+        back. The message is encoded as an array 'a'.'''
         r = POST(trans_url + '/xhr')
         self.assertEqual(r.body, 'a["a"]\n')
         self.assertEqual(r.status, 200)
