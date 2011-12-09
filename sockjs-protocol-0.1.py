@@ -484,7 +484,7 @@ import websocket
 #
 class WebsocketHttpErrors(Test):
     # User should be able to disable websocket transport
-    # alltogether. This is useful when load balancer doesn't
+    # altogether. This is useful when load balancer doesn't
     # support websocket protocol and we need to be able to reject
     # the transport immediately. This is achieved by returning 404
     # response on websocket transport url. This particular 404 page
