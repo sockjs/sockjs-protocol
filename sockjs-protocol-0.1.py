@@ -514,7 +514,7 @@ class WebsocketHttpErrors(Test):
 
     # Some proxies and load balancers can rewrite 'Connection' header,
     # in such case we must refuse connection.
-    def test_invaildConnectionHeader(self):
+    def test_invalidConnectionHeader(self):
         r = GET(base_url + '/0/0/websocket', headers={'Upgrade': 'WebSocket',
                                                       'Connection': 'close'})
         self.assertEqual(r.status, 400)
