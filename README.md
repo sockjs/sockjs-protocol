@@ -24,11 +24,15 @@ To generate the html type:
 This assumes you have Python package virtualenv. If not,
 you can install it via `pip install virtualenv`.
 
-Once you run make, you can also run the tests against
-your server (the source assumes your server is at
-[http://localhost:8080](http://localhost:8080)):
+Once you run make, you can also run the tests against your server (the
+source assumes your test server is at
+[http://localhost:8081](http://localhost:8081)):
 
     ./venv/bin/python sockjs-protocol-0.1.py -v
+
+You can set the test server URL.
+
+    SOCKJS_URL=http://localhost:1234 ./venv/bin/python sockjs-protocol-0.1.py -v
 
 You can run specific tests providing test class as an optional argument:
 

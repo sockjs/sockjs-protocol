@@ -13,6 +13,7 @@ against your server implementation. Supporting all the tests doesn't
 guarantee that SockJS client will work flawlessly, end-to-end tests
 using real browsers are always required.
 """
+import os
 import time
 import re
 import unittest2 as unittest
@@ -51,7 +52,7 @@ This tests should not be run more often than once in five seconds -
 many tests operate on the same (named) sessions and they need to have
 enough time to timeout.
 """
-test_top_url = 'http://localhost:8080'
+test_top_url = os.environ.get('SOCKJS_URL', 'http://localhost:8081')
 base_url = test_top_url + '/echo'
 close_base_url = test_top_url + '/close'
 wsoff_base_url = test_top_url + '/disabled_websocket_echo'
