@@ -1,28 +1,46 @@
 
-build: venv/.ok
-	./venv/bin/pycco sockjs-protocol*.py
 
-venv/.ok:
-	rm -rf venv
-	virtualenv venv
-	./venv/bin/pip install pycco
-	./venv/bin/pip install unittest2
-	./venv/bin/pip install -e git+https://github.com/liris/websocket-client.git#egg=websocket
-	# My fork is better - fixes bug #7:
-	#     https://github.com/Lawouach/WebSocket-for-Python/pull/7
-	./venv/bin/pip install git+https://github.com/majek/WebSocket-for-Python.git
-	-rm distribute-*.tar.gz || true
-	touch venv/.ok
+#### General
+
+all: pycco_deps test_deps build
+
+build: pycco_deps
+	./venv/bin/pycco sockjs-protocol*.py
 
 clean:
 	rm -rf venv *.pyc
 
-serve: venv/.ok
+
+#### Dependencies
+
+venv:
+	virtualenv venv
+	-rm distribute-*.tar.gz || true
+
+pycco_deps: venv/.pycco_deps
+venv/.pycco_deps: venv
+	./venv/bin/pip install pycco
+	touch venv/.pycco_deps
+
+test_deps: venv/.test_deps
+venv/.test_deps: venv
+	./venv/bin/pip install unittest2
+	./venv/bin/pip install -e git+https://github.com/liris/websocket-client.git#egg=websocket
+	./venv/bin/pip install git+https://github.com/Lawouach/WebSocket-for-Python.git
+	touch venv/.test_deps
+
+
+#### Development
+
+serve: pycco_deps
 	@while [ 1 ]; do			\
 		make build;			\
 		sleep 0.1;			\
 		inotifywait -r -q -e modify .;	\
 	done
+
+
+#### Deployment
 
 upload: build
 	@node -v > /dev/null

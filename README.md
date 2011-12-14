@@ -13,37 +13,51 @@ documentation is in a form of a Python test suite decorated with some
 prose in literate-programming style. You can see current documentation
 here:
 
- * [sockjs-protocol-0.1.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.1.html)
+ * Stable: [sockjs-protocol-0.1.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.1.html)
+ * Development: [sockjs-protocol-dev.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-dev.html)
 
 
+Running tests
+-------------
 
-To generate the html type:
+You must have Python 2.X and `virtualenv` installed. You can install
+it via `pip install virtualenv` or `sudo apt-get install
+python-virtualenv`.
 
-    make
+To run the test suite against your server, first checkout
+dependencies:
 
-This assumes you have Python package virtualenv. If not,
-you can install it via `pip install virtualenv`.
+    make test_deps
 
-Once you run make, you can also run the tests against your server (the
-source assumes your test server is at
-[http://localhost:8081](http://localhost:8081)):
+And you're ready to run the tests against your server. By default we
+assume that your test server is at
+[http://localhost:8081](http://localhost:8081):
 
-    ./venv/bin/python sockjs-protocol-0.1.py -v
+    ./venv/bin/python sockjs-protocol-0.1.py
 
-You can set the test server URL.
+You can specify the test server URL manually:
 
     SOCKJS_URL=http://localhost:1234 ./venv/bin/python sockjs-protocol-0.1.py -v
 
 You can run specific tests providing test class as an optional argument:
 
-    ./venv/bin/python sockjs-protocol-0.1.py Protocol
+    ./venv/bin/python sockjs-protocol-0.1.py Protocol.test_simpleSession
 
-The test class is one of the classes in `sockjs-protocol-0.1.py` inherited from class `Test` (or `unittest.TestCase` in general).
 
-To run the http-quirks tests:
+There is also another test, intended to look for some http quirks:
 
     ./venv/bin/python http-quirks.py -v
 
+
+Genrating literate html
+-----------------------
+
+If you edited `sockjs-protocol` files, you may want to see how it
+looks rendered to html. To generate the html type:
+
+    make build
+
+You should see generated html files in `docs` subdirectory.
 
 If you see `pygments.util.ClassNotFound`, take a look
 [here](https://github.com/fitzgen/pycco/issues/39).
