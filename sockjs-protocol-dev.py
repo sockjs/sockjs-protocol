@@ -94,7 +94,7 @@ class Test(unittest.TestCase):
                             "max-age must be large, one year (31536000) is best")
             self.assertTrue(r['Expires'])
             self.assertTrue(int(r['access-control-max-age']) > 1000000)
-            self.assertEqual(r['Allow'], allowed_methods)
+            self.assertEqual(r['Allow-Control-Allow-Methods'], allowed_methods)
             self.assertFalse(r.body)
             self.verify_cors(r, origin)
             self.verify_cookie(r)
