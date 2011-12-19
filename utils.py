@@ -29,6 +29,8 @@ class HttpResponse:
                 headers['Content-Length'] = 0
             conn.request(method, path, headers=headers)
         else:
+            if isinstance(body, unicode):
+                body = body.encode('utf-8')
             conn.request(method, path, headers=headers, body=body)
 
         if load:
