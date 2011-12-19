@@ -849,8 +849,8 @@ class XhrStreaming(Test):
         self.assertEqual(r.read(), 'o\n')
 
         r1 = POST(url + '/xhr_send', body='["x"]')
-        self.assertFalse(r1.body)
         self.assertEqual(r1.status, 204)
+        self.assertFalse(r1.body)
 
         self.assertEqual(r.read(), 'a["x"]\n')
         r.close()
