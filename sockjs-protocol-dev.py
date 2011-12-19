@@ -1032,28 +1032,38 @@ class JsonPolling(Test):
 # JSON Unicode Encoding
 # =====================
 #
-# SockJS takes the responsibility of encoding Unicode for the user.
-# The idea is that SockJS should properly deliver any valid string
-# from the browser to the server and back. This is actually quite
-# hard, as browsers do some magical character
-# translations. Additionally some valid characters from JavaScript
-# point of view are not valid Unicode (JavaScript uses UCS-2, which is
-# not really Unicode). We should make sure that server does escape
-# required characters and is able to decode various - in practice
-# invalid unicode - characters.
+# SockJS takes the responsibility of encoding Unicode strings for the
+# user.  The idea is that SockJS should properly deliver any valid
+# string from the browser to the server and back. This is actually
+# quite hard, as browsers do some magical character
+# translations. Additionally there are some valid characters from
+# JavaScript point of view that are not valid Unicode, called
+# surrogates (JavaScript uses UCS-2, which is not really Unicode).
+#
+# Dealing with unicode surrogates (0xD800-0xDFFF) is quite special. If
+# possible we should make sure that server does escape decode
+# them. This makes sense for SockJS servers that support UCS-2
+# (SockJS-node), but can't really work for servers supporting unicode
+# properly (Python).
 #
 # The browser must escape quite a list of chars, this is due to
 # browser mangling outgoing chars on transports like XHR.
 escapable_by_client = re.compile(u"[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u2000-\u20ff\ufeff\ufff0-\uffff\x00-\x1f\ud800-\udfff\ufffe\uffff\u0300-\u0333\u033d-\u0346\u034a-\u034c\u0350-\u0352\u0357-\u0358\u035c-\u0362\u0374\u037e\u0387\u0591-\u05af\u05c4\u0610-\u0617\u0653-\u0654\u0657-\u065b\u065d-\u065e\u06df-\u06e2\u06eb-\u06ec\u0730\u0732-\u0733\u0735-\u0736\u073a\u073d\u073f-\u0741\u0743\u0745\u0747\u07eb-\u07f1\u0951\u0958-\u095f\u09dc-\u09dd\u09df\u0a33\u0a36\u0a59-\u0a5b\u0a5e\u0b5c-\u0b5d\u0e38-\u0e39\u0f43\u0f4d\u0f52\u0f57\u0f5c\u0f69\u0f72-\u0f76\u0f78\u0f80-\u0f83\u0f93\u0f9d\u0fa2\u0fa7\u0fac\u0fb9\u1939-\u193a\u1a17\u1b6b\u1cda-\u1cdb\u1dc0-\u1dcf\u1dfc\u1dfe\u1f71\u1f73\u1f75\u1f77\u1f79\u1f7b\u1f7d\u1fbb\u1fbe\u1fc9\u1fcb\u1fd3\u1fdb\u1fe3\u1feb\u1fee-\u1fef\u1ff9\u1ffb\u1ffd\u2000-\u2001\u20d0-\u20d1\u20d4-\u20d7\u20e7-\u20e9\u2126\u212a-\u212b\u2329-\u232a\u2adc\u302b-\u302c\uaab2-\uaab3\uf900-\ufa0d\ufa10\ufa12\ufa15-\ufa1e\ufa20\ufa22\ufa25-\ufa26\ufa2a-\ufa2d\ufa30-\ufa6d\ufa70-\ufad9\ufb1d\ufb1f\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40-\ufb41\ufb43-\ufb44\ufb46-\ufb4e]")
-# The server is able to send much bigger variety of chars. But, it
-# can't send Unicode surrogates over websockets, also various \u2xxxx
-# chars get mangled.
-escapable_by_server = re.compile(u"[\x00-\x1f\ud800-\udfff\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufff0-\uffff]")
+#
+# The server is able to send much more chars verbatim. But, it can't
+# send Unicode surrogates over Websockets, also various \u2xxxx chars
+# get mangled. Additionally, if the server is capable of handling
+# UCS-2 (ie: 16 bit character size), it should be able to deal with
+# Unicode surrogates 0xD800-0xDFFF:
+# http://en.wikipedia.org/wiki/Mapping_of_Unicode_characters#Surrogates
+escapable_by_server = re.compile(u"[\x00-\x1f\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufff0-\uffff]")
 
-client_killer_string_esc = ''.join([r'\u%04x' % (i) for i in range(65536)
-                                    if escapable_by_client.match(unichr(i))])
-server_killer_string_esc = ''.join([r'\u%04x'% (i) for i in range(255, 65536)
-                                    if escapable_by_server.match(unichr(i))])
+client_killer_string_esc = '"' + ''.join([
+        r'\u%04x' % (i) for i in range(65536)
+            if escapable_by_client.match(unichr(i))]) + '"'
+server_killer_string_esc = '"' + ''.join([
+        r'\u%04x'% (i) for i in range(255, 65536)
+            if escapable_by_server.match(unichr(i))]) + '"'
 
 class JSONEncoding(Test):
     def test_xhr_server_encodes(self):
@@ -1064,19 +1074,17 @@ class JSONEncoding(Test):
         self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
 
-        # Sending escaped - python won't swallow it otherwise.
-        payload = '["' + server_killer_string_esc + '"]'
+        payload = '["' + json.loads(server_killer_string_esc) + '"]'
         r = POST(trans_url + '/xhr_send', body=payload)
         self.assertEqual(r.status, 204)
 
         r = POST(trans_url + '/xhr')
         self.assertEqual(r.status, 200)
         # skip framing, quotes and parenthesis
-        recv = r.body.strip()[3:-2]
+        recv = r.body.strip()[2:-1]
 
         # Received string is indeed what we send previously, aka - escaped.
         self.assertEqual(recv, server_killer_string_esc)
-
 
     def test_xhr_server_decodes(self):
         # Make sure that server decodes the chars we're customly
@@ -1086,19 +1094,19 @@ class JSONEncoding(Test):
         self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
 
-        payload = '["' + client_killer_string_esc + '"]' # Sending escaped
+        payload = '[' + client_killer_string_esc + ']' # Sending escaped
         r = POST(trans_url + '/xhr_send', body=payload)
         self.assertEqual(r.status, 204)
 
         r = POST(trans_url + '/xhr')
         self.assertEqual(r.status, 200)
         # skip framing, quotes and parenthesis
-        recv = r.body.strip()[3:-2]
+        recv = r.body.strip()[2:-1]
 
         # Received string is indeed what we send previously. We don't
         # really need to know what exactly got escaped and what not.
-        a = json.loads('"' + recv + '"')
-        b = json.loads('"' + client_killer_string_esc + '"')
+        a = json.loads(recv)
+        b = json.loads(client_killer_string_esc)
         self.assertEqual(a, b)
 
 
