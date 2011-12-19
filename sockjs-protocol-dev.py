@@ -855,6 +855,31 @@ class XhrStreaming(Test):
         self.assertEqual(r.read(), 'a["x"]\n')
         r.close()
 
+    def test_response_limit(self):
+        # Single streaming request will buffer all data until
+        # closed. In order to remove (garbage collect) old messages
+        # from the browser memory we should close the connection every
+        # now and then. By default we should close a streaming request
+        # every 128KiB messages was send. The test server should have
+        # this limit decreased to 4096B.
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST_async(url + '/xhr_streaming')
+        self.assertEqual(r.status, 200)
+        self.assertTrue(r.read()) # prelude
+        self.assertEqual(r.read(), 'o\n')
+
+        # Test server should gc streaming session after 4096 bytes
+        # were sent (including framing).
+        msg = '"' + ('x' * 128) + '"'
+        for i in range(31):
+            r1 = POST(url + '/xhr_send', body='[' + msg + ']')
+            self.assertEqual(r1.status, 204)
+            self.assertEqual(r.read(), 'a[' + msg + ']\n')
+
+        # The connection should be closed after enough data was
+        # delivered.
+        self.assertFalse(r.read())
+
 
 # EventSource: `/*/*/eventsource`
 # -------------------------------
@@ -900,6 +925,29 @@ class EventSource(Test):
                          'data: a["  \\u0000\\n\\r "]\r\n\r\n')
 
         r.close()
+
+    def test_response_limit(self):
+        # Single streaming request should be closed after enough data
+        # was delivered (by default 128KiB, but 4KiB for test server).
+        # Although EventSource transport is better, and in theory may
+        # not need this mechanism, there are some bugs in the browsers
+        # that actually prevent the automatic GC.
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = GET_async(url + '/eventsource')
+        self.assertEqual(r.status, 200)
+        self.assertTrue(r.read()) # prelude
+        self.assertEqual(r.read(), 'data: o\r\n\r\n')
+
+        # Test server should gc streaming session after 4096 bytes
+        # were sent (including framing).
+        msg = '"' + ('x' * 4096) + '"'
+        r1 = POST(url + '/xhr_send', body='[' + msg + ']')
+        self.assertEqual(r1.status, 204)
+        self.assertEqual(r.read(), 'data: a[' + msg + ']\r\n\r\n')
+
+        # The connection should be closed after enough data was
+        # delivered.
+        self.assertFalse(r.read())
 
 
 # HtmlFile: `/*/*/htmlfile`
@@ -956,6 +1004,28 @@ class HtmlFile(Test):
         r = GET(base_url + '/a/a/htmlfile')
         self.assertEqual(r.status, 500)
         self.assertTrue('"callback" parameter required' in r.body)
+
+    def test_response_limit(self):
+        # Single streaming request should be closed after enough data
+        # was delivered (by default 128KiB, but 4KiB for test server).
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = GET_async(url + '/htmlfile?c=callback')
+        self.assertEqual(r.status, 200)
+        self.assertTrue(r.read()) # prelude
+        self.assertEqual(r.read(),
+                         '<script>\np("o");\n</script>\r\n')
+
+        # Test server should gc streaming session after 4096 bytes
+        # were sent (including framing).
+        msg = ('x' * 4096)
+        r1 = POST(url + '/xhr_send', body='["' + msg + '"]')
+        self.assertEqual(r1.status, 204)
+        self.assertEqual(r.read(),
+                         '<script>\np("a[\\"' + msg + '\\"]");\n</script>\r\n')
+
+        # The connection should be closed after enough data was
+        # delivered.
+        self.assertFalse(r.read())
 
 # JsonpPolling: `/*/*/jsonp`, `/*/*/jsonp_send`
 # ---------------------------------------------
