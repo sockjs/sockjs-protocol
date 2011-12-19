@@ -547,6 +547,10 @@ class WebsocketHixie76(Test):
         ws = websocket.create_connection(ws_url)
         self.assertEqual(ws.recv(), u'o')
         self.assertEqual(ws.recv(), u'c[3000,"Go away!"]')
+
+        # The connection should be closed after the close frame.
+        with self.assertRaises(websocket.ConnectionClosedException):
+            ws.recv()
         ws.close()
 
     # Empty frames must be ignored by the server side.
@@ -634,9 +638,8 @@ class WebsocketHixie76(Test):
         self.assertEqual(ws.recv(), u'o')
         ws.send(u'"a')
         with self.assertRaises(websocket.ConnectionClosedException):
-            # Raises on error, returns None on valid closure.
-            if ws.recv() is None:
-                raise websocket.ConnectionClosedException()
+            ws.recv()
+        ws.close()
 
 
 # The server must support Hybi-10 protocol
@@ -659,6 +662,8 @@ class WebsocketHybi10(Test):
         ws = WebSocket8Client(trans_url)
         self.assertEqual(ws.recv(), u'o')
         self.assertEqual(ws.recv(), u'c[3000,"Go away!"]')
+        with self.assertRaises(ws.ConnectionClosedException):
+            ws.recv()
         ws.close()
 
     # Verify WebSocket headers sanity. Server must support both
@@ -1135,10 +1140,25 @@ class ProtocolQuirks(Test):
         r2.read() # prelude
         self.assertEqual(r2.read(), 'c[3000,"Go away!"]\n')
 
-        ''' TODO: should request be automatically closed after close?
+        # HTTP streaming requests should be automatically closed after
+        # close.
         self.assertEqual(r1.read(), None)
         self.assertEqual(r2.read(), None)
-        '''
+
+    def test_close_request(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r1 = POST_async(url + '/xhr_streaming')
+
+        r1.read() # prelude
+        self.assertEqual(r1.read(), 'o\n')
+
+        r2 = POST_async(url + '/xhr_streaming')
+        r2.read() # prelude
+        self.assertEqual(r2.read(), 'c[2010,"Another connection still open"]\n')
+
+        # HTTP streaming requests should be automatically closed after
+        # getting the close frame.
+        self.assertEqual(r2.read(), None)
 
 # Footnote
 # ========
