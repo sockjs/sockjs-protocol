@@ -127,7 +127,6 @@ class Test(unittest.TestCase):
         self.assertEqual(r['Cache-Control'],
                          'no-store, no-cache, must-revalidate, max-age=0')
         self.assertFalse(r['Expires'])
-        self.assertFalse(r['ETag'])
         self.assertFalse(r['Last-Modified'])
 
 
