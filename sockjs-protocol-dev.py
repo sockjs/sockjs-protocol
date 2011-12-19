@@ -559,8 +559,6 @@ class WebsocketHixie76(Test):
         ws.send(u'')
         ws.send(u'"a"')
         self.assertEqual(ws.recv(), u'a["a"]')
-        ''' TODO: should ws connection be automatically closed after
-        sending a close frame?'''
         ws.close()
 
     # For WebSockets, as opposed to other transports, it is valid to
@@ -695,7 +693,9 @@ class WebsocketHybi10(Test):
         ws = WebSocket8Client(ws_url)
         self.assertEqual(ws.recv(), u'o')
         ws.send(u'"a')
-        self.assertRaises(WebSocket8Client.ConnectionClosedException, ws.recv)
+        with self.assertRaises(ws.ConnectionClosedException):
+            ws.recv()
+        ws.close()
 
     # As a fun part, Firefox 6.0.2 supports Websockets protocol '7'. But,
     # it doesn't send a normal 'Connection: Upgrade' header. Instead it
@@ -1119,7 +1119,7 @@ class JSONEncoding(Test):
 # This is less about defining the protocol and more about sanity checking
 # implementations.
 class ProtocolQuirks(Test):
-    def test_closeSession_another_connection(self):
+    def test_close_frame(self):
         # When server is closing session, it should unlink current
         # request. That means, if a new request appears, it should
         # receive an application close message rather than "Another
