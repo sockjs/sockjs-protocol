@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html;charset=utf-8">
-  <title>sockjs-protocol-0.1.py</title>
+  <title>sockjs-protocol-0.2.py</title>
   <link rel="stylesheet" href="pycco.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
   <table cellspacing=0 cellpadding=0>
   <thead>
     <tr>
-      <th class=docs><h1>sockjs-protocol-0.1.py</h1></th>
+      <th class=docs><h1>sockjs-protocol-0.2.py</h1></th>
       <th class=code></th>
     </tr>
   </thead>
@@ -34,8 +34,7 @@ guarantee that SockJS client will work flawlessly, end-to-end tests
 using real browsers are always required.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">unittest2</span> <span class="kn">as</span> <span class="nn">unittest</span>
 <span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">GET</span><span class="p">,</span> <span class="n">GET_async</span><span class="p">,</span> <span class="n">POST</span><span class="p">,</span> <span class="n">POST_async</span><span class="p">,</span> <span class="n">OPTIONS</span>
@@ -80,7 +79,7 @@ many tests operate on the same (named) sessions and they need to have
 enough time to timeout.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre><span class="n">test_top_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOCKJS_URL&#39;</span><span class="p">,</span> <span class="s">&#39;http://localhost:8081&#39;</span><span class="p">)</span>
+        <div class='highlight'><pre><div class="highlight"><pre><span class="n">test_top_url</span> <span class="o">=</span> <span class="s">&#39;http://localhost:8080&#39;</span>
 <span class="n">base_url</span> <span class="o">=</span> <span class="n">test_top_url</span> <span class="o">+</span> <span class="s">&#39;/echo&#39;</span>
 <span class="n">close_base_url</span> <span class="o">=</span> <span class="n">test_top_url</span> <span class="o">+</span> <span class="s">&#39;/close&#39;</span>
 <span class="n">wsoff_base_url</span> <span class="o">=</span> <span class="n">test_top_url</span> <span class="o">+</span> <span class="s">&#39;/disabled_websocket_echo&#39;</span></pre></div></pre></div>
@@ -488,6 +487,7 @@ indeed working.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">],</span>
                          <span class="s">&#39;application/javascript; charset=UTF-8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Allow&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_no_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cors</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div></pre></div>
       </td>
@@ -733,8 +733,9 @@ requests for sending messages.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">204</span><span class="p">)</span>
 
-        <span class="sd">&#39;&#39;&#39;We&#39;re using an echo service - we&#39;ll receive our message</span>
-<span class="sd">        back. The message is encoded as an array &#39;a&#39;.&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;We&#39;re using echo service - we can receive our message. There are</span>
+<span class="sd">        two valid encodings: single message &#39;m&#39; and array &#39;a&#39;. It&#39;s currently</span>
+<span class="sd">        undefined when the server should use which.&#39;&#39;&#39;</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">trans_url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;a[&quot;a&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
@@ -769,7 +770,7 @@ character. This delays may be configurable.</p>
         <div class="octowrap">
           <a class="octothorpe" href="#section-46">#</a>
         </div>
-        <p>The server must not allow two receiving connections to wait
+        <p>The server may not allow two receiving connections to wait
 on a single session. In such case the server must send a
 close frame to the new connection.</p>
       </td>
@@ -845,7 +846,7 @@ following variants:</p>
           <a class="octothorpe" href="#section-51">#</a>
         </div>
         <p>User should be able to disable websocket transport
-altogether. This is useful when load balancer doesn't
+alltogether. This is useful when load balancer doesn't
 support websocket protocol and we need to be able to reject
 the transport immediately. This is achieved by returning 404
 response on websocket transport url. This particular 404 page
@@ -898,7 +899,7 @@ invalid.</p>
 in such case we must refuse connection.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_invalidConnectionHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_invaildConnectionHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/0/0/websocket&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Upgrade&#39;</span><span class="p">:</span> <span class="s">&#39;WebSocket&#39;</span><span class="p">,</span>
                                                       <span class="s">&#39;Connection&#39;</span><span class="p">:</span> <span class="s">&#39;close&#39;</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
