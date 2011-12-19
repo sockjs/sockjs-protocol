@@ -971,7 +971,7 @@ class JsonPolling(Test):
         # to respond with something - let it be the string `ok`.
         self.assertEqual(r.body, 'ok')
         self.assertEqual(r.status, 200)
-        self.assertFalse(r['Content-Type'])
+        self.assertEqual(r['Content-Type'], 'text/plain; charset=UTF-8')
         self.verify_cookie(r)
 
         r = GET(url + '/jsonp?c=%63allback')
