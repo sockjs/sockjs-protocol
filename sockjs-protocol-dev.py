@@ -501,7 +501,7 @@ class WebsocketHttpErrors(Test):
     def test_httpMethod(self):
         r = GET(base_url + '/0/0/websocket')
         self.assertEqual(r.status, 400)
-        self.assertEqual(r.body, 'Can "Upgrade" only to "WebSocket".')
+        self.assertTrue('Can "Upgrade" only to "WebSocket".' in r.body)
 
     # Server should be able to reject connections if origin is
     # invalid.
@@ -520,7 +520,7 @@ class WebsocketHttpErrors(Test):
         r = GET(base_url + '/0/0/websocket', headers={'Upgrade': 'WebSocket',
                                                       'Connection': 'close'})
         self.assertEqual(r.status, 400)
-        self.assertEqual(r.body, '"Connection" must be "Upgrade".')
+        self.assertTrue('"Connection" must be "Upgrade".', r.body)
 
     # WebSocket should only accept GET
     def test_invalidMethod(self):
@@ -776,12 +776,12 @@ class XhrPolling(Test):
         self.assertEqual(r.body, 'o\n')
 
         r = POST(url + '/xhr_send', body='["x')
-        self.assertEqual(r.body.strip(), "Broken JSON encoding.")
         self.assertEqual(r.status, 500)
+        self.assertTrue("Broken JSON encoding." in r.body)
 
         r = POST(url + '/xhr_send', body='')
-        self.assertEqual(r.body.strip(), "Payload expected.")
         self.assertEqual(r.status, 500)
+        self.assertTrue("Payload expected." in r.body)
 
         r = POST(url + '/xhr_send', body='["a"]')
         self.assertFalse(r.body)
@@ -955,7 +955,7 @@ class HtmlFile(Test):
     def test_no_callback(self):
         r = GET(base_url + '/a/a/htmlfile')
         self.assertEqual(r.status, 500)
-        self.assertEqual(r.body.strip(), '"callback" parameter required')
+        self.assertTrue('"callback" parameter required' in r.body)
 
 # JsonpPolling: `/*/*/jsonp`, `/*/*/jsonp_send`
 # ---------------------------------------------
@@ -990,7 +990,7 @@ class JsonPolling(Test):
     def test_no_callback(self):
         r = GET(base_url + '/a/a/jsonp')
         self.assertEqual(r.status, 500)
-        self.assertEqual(r.body.strip(), '"callback" parameter required')
+        self.assertTrue('"callback" parameter required' in r.body)
 
     # The server must behave when invalid json data is send or when no
     # json data is sent at all.
@@ -1001,14 +1001,14 @@ class JsonPolling(Test):
 
         r = POST(url + '/jsonp_send', body='d=%5B%22x',
                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
-        self.assertEqual(r.body.strip(), "Broken JSON encoding.")
         self.assertEqual(r.status, 500)
+        self.assertTrue("Broken JSON encoding." in r.body)
 
         for data in ['', 'd=', 'p=p']:
             r = POST(url + '/jsonp_send', body=data,
                      headers={'Content-Type': 'application/x-www-form-urlencoded'})
-            self.assertEqual(r.body.strip(), "Payload expected.")
             self.assertEqual(r.status, 500)
+            self.assertTrue("Payload expected." in r.body)
 
         r = POST(url + '/jsonp_send', body='d=%5B%22b%22%5D',
                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
