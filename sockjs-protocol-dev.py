@@ -339,8 +339,8 @@ class SessionURLs(Test):
     # facilitites.
     def verify(self, session_part):
         r = POST(base_url + session_part + '/xhr')
-        self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'o\n')
 
     # But not an empty string, anything containing dots or paths with
     # less or more parts.
@@ -355,17 +355,17 @@ class SessionURLs(Test):
         ''' See Protocol.test_simpleSession for explanation. '''
         session_id = str(uuid.uuid4())
         r = POST(base_url + '/000/' + session_id + '/xhr')
-        self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'o\n')
 
         payload = '["a"]'
         r = POST(base_url + '/000/' + session_id + '/xhr_send', body=payload)
-        self.assertFalse(r.body)
         self.assertEqual(r.status, 204)
+        self.assertFalse(r.body)
 
         r = POST(base_url + '/999/' + session_id + '/xhr')
-        self.assertEqual(r.body, 'a["a"]\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'a["a"]\n')
 
 # Protocol and framing
 # --------------------
@@ -416,22 +416,22 @@ class Protocol(Test):
         trans_url = base_url + '/000/' + str(uuid.uuid4())
         r = POST(trans_url + '/xhr')
         "New line is a frame delimiter specific for xhr-polling"
-        self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'o\n')
 
         # After a session was established the server needs to accept
         # requests for sending messages.
         "Xhr-polling accepts messages as a list of JSON-encoded strings."
         payload = '["a"]'
         r = POST(trans_url + '/xhr_send', body=payload)
-        self.assertFalse(r.body)
         self.assertEqual(r.status, 204)
+        self.assertFalse(r.body)
 
         '''We're using an echo service - we'll receive our message
         back. The message is encoded as an array 'a'.'''
         r = POST(trans_url + '/xhr')
-        self.assertEqual(r.body, 'a["a"]\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'a["a"]\n')
 
         # Sending messages to not existing sessions is invalid.
         payload = '["a"]'
@@ -457,17 +457,18 @@ class Protocol(Test):
     def test_closeSession(self):
         trans_url = close_base_url + '/000/' + str(uuid.uuid4())
         r = POST(trans_url + '/xhr')
+        self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'o\n')
 
         r = POST(trans_url + '/xhr')
-        self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
 
         # Until the timeout occurs, the server must constantly serve
         # the close message.
         r = POST(trans_url + '/xhr')
-        self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
 
 
 # WebSocket protocols: `/*/*/websocket`
@@ -736,8 +737,8 @@ class XhrPolling(Test):
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = POST(url + '/xhr')
-        self.assertEqual(r.body, 'o\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'o\n')
         self.assertEqual(r['content-type'],
                          'application/javascript; charset=UTF-8')
         self.verify_cookie(r)
@@ -745,8 +746,8 @@ class XhrPolling(Test):
 
         # Xhr transports receive json-encoded array of messages.
         r = POST(url + '/xhr_send', body='["x"]')
-        self.assertFalse(r.body)
         self.assertEqual(r.status, 204)
+        self.assertFalse(r.body)
         # The content type of `xhr_send` must be set to `text/plain`,
         # even though the response code is `204`. This is due to
         # Firefox/Firebug behaviour - it assumes that the content type
@@ -756,8 +757,8 @@ class XhrPolling(Test):
         self.verify_cors(r)
 
         r = POST(url + '/xhr')
-        self.assertEqual(r.body, 'a["x"]\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'a["x"]\n')
 
     # Publishing messages to a non-existing session must result in
     # a 404 error.
@@ -771,6 +772,7 @@ class XhrPolling(Test):
     def test_invalid_json(self):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = POST(url + '/xhr')
+        self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'o\n')
 
         r = POST(url + '/xhr_send', body='["x')
@@ -799,23 +801,25 @@ class XhrPolling(Test):
         ctypes = ['text/plain', 'T', 'application/json', 'application/xml', '']
         for ct in ctypes:
             r = POST(url + '/xhr_send', body='["a"]', headers={'Content-Type': ct})
-            self.assertFalse(r.body)
             self.assertEqual(r.status, 204)
+            self.assertFalse(r.body)
 
         r = POST(url + '/xhr')
-        self.assertEqual(r.body, 'a["a","a","a","a","a"]\n')
         self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'a["a","a","a","a","a"]\n')
 
     # JSESSIONID cookie must be set by default.
     def test_jsessionid(self):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = POST(url + '/xhr')
+        self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'o\n')
         self.verify_cookie(r)
 
         # And must be echoed back if it's already set.
         url = base_url + '/000/' + str(uuid.uuid4())
         r = POST(url + '/xhr', headers={'Cookie': 'JSESSIONID=abcdef'})
+        self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'o\n')
         self.assertEqual(r['Set-Cookie'].split(';')[0].strip(),
                          'JSESSIONID=abcdef')
