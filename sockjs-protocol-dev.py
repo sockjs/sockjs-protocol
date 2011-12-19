@@ -76,8 +76,8 @@ class Test(unittest.TestCase):
     def verify405(self, r):
         self.assertEqual(r.status, 405)
         self.assertFalse(r['content-type'])
+        self.assertTrue(r['allow'])
         self.assertFalse(r.body)
-        self.verify_no_cookie(r)
 
     # Multiple transport protocols need to support OPTIONS method. All
     # responses to OPTIONS requests must be cacheable and contain
@@ -526,8 +526,7 @@ class WebsocketHttpErrors(Test):
         for h in [{'Upgrade': 'WebSocket', 'Connection': 'Upgrade'},
                   {}]:
             r = POST(base_url + '/0/0/websocket', headers=h)
-            self.assertEqual(r.status, 405)
-            self.assertFalse(r.body)
+            self.verify405(r)
 
 
 # Support WebSocket Hixie-76 protocol
