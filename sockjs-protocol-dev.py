@@ -747,7 +747,7 @@ class XhrPolling(Test):
         # even though the response code is `204`. This is due to
         # Firefox/Firebug behaviour - it assumes that the content type
         # is xml and shouts about it.
-        self.assertEqual(r['content-type'], 'text/plain')
+        self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
         self.verify_cookie(r)
         self.verify_cors(r)
 
