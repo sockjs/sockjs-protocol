@@ -1106,6 +1106,36 @@ class JsonPolling(Test):
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'x("a[\\"abc\\",\\"%61bc\\"]");\r\n')
 
+
+# Raw WebSocket url: `/websocket`
+# -------------------------------
+#
+# SockJS protocol defines a bit of higher level framing. This is okay
+# when the browser using SockJS-client establishes the connection, but
+# it's not really appropriate when the connection is being esablished
+# from another program. Although SockJS focuses on server-browser
+# communication, it should be straightforward to connect to SockJS
+# from command line or some any programming language.
+#
+# In order to make writing command-line clients easier, we define this
+# `/websocket` entry point. This entry point is special and doesn't
+# use any additional custom framing, no open frame, no
+# heartbeats. Only raw WebSocket protocol.
+class RawWebsocket(Test):
+    def test_transport(self):
+        ws = WebSocket8Client(base_url + '/websocket')
+        ws.send(u'Hello world!\uffff')
+        self.assertEqual(ws.recv(), u'Hello world!\uffff')
+        ws.close()
+
+    def test_close(self):
+        ws = WebSocket8Client(close_base_url + '/websocket')
+        with self.assertRaises(ws.ConnectionClosedException):
+            ws.recv()
+        ws.close()
+
+
+
 # JSON Unicode Encoding
 # =====================
 #

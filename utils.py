@@ -93,7 +93,7 @@ class WebSocket8Client(object):
         self.queue = queue
         class IntWebSocketClient(WebSocketClient):
             def received_message(self, m):
-                queue.put(str(m))
+                queue.put(unicode(str(m), 'utf-8'))
             def read_from_connection(self, amount):
                 r = super(IntWebSocketClient, self).read_from_connection(amount)
                 if not r:
