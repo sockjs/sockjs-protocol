@@ -249,61 +249,45 @@ class IframePage(Test):
         self.assertFalse(r['content-type'])
         self.assertFalse(r.body)
 
-# Chunking test: `/chunking_test`
-# -------------------------------
+# Info test: `/info`
+# ------------------
 #
-# Warning: this functionality is going to be removed.
-class ChunkingTest(Test):
-    # This feature is used in order to check if the client and
-    # intermediate proxies support http chunking.
+# Warning: this is a replacement of `/chunking_test` functionality
+# from SockJS 0.1.
+class InfoTest(Test):
+    # This url is called before the client starts the session. It's
+    # used to check server capabilities (websocket support, cookies
+    # requiremet) and to get the value of "origin" setting (currently
+    # not used).
     #
-    # The chunking test requires the server to send six http chunks
-    # containing a `h` byte delayed by varying timeouts.
-    #
-    # First, the server must send a 'h' frame.
-    #
-    # Then, the server must send 2048 bytes of `%20` character
-    # (space), as a prelude, followed by a 'h' character.
-    #
-    # That should be followed by a series of `h` frames with following
-    # delays between them:
-    #
-    #  * 5 ms
-    #  * 25 ms
-    #  * 125 ms
-    #  * 625 ms
-    #  * 3125 ms
-    #
-    # At that point the server should close the request. The client
-    # will break the connection as soon as it detects that chunking is
-    # indeed working.
+    # But more importantly, the call to this url is used to measure
+    # the roundtrip time between the client and the server. So, please,
+    # do respond to this url in a timely fashin.
     def test_basic(self):
-        t0 = time.time()
-        r = POST_async(base_url + '/chunking_test')
+        r = GET(base_url + '/info')
         self.assertEqual(r.status, 200)
         self.assertEqual(r['content-type'],
-                         'application/javascript; charset=UTF-8')
+                         'application/json; charset=UTF-8')
         self.verify_no_cookie(r)
+        self.verify_not_cached(r)
         self.verify_cors(r)
 
-        # In first chunk the server must send a 'h' frame:
-        self.assertEqual(r.read(), 'h\n')
-        # As second chunk the server must send 2KiB prelude.
-        self.assertEqual(r.read(), ' ' * 2048 + 'h\n')
-        # Later the server must send a `h` byte.
-        self.assertEqual(r.read(), 'h\n')
-        # In third chunk the server must send a `h` byte.
-        self.assertEqual(r.read(), 'h\n')
+        data = json.loads(r.body)
+        self.assertEqual(data['websocket'], True)
+        self.assertEqual(data['cookie_needed'], False)
+        self.assertEqual(data['origins'], ['*:*'])
 
-        # At least 30 ms must have passed since the request.
-        t1 = time.time()
-        self.assertGreater((t1-t0) * 1000., 30.)
-        r.close()
-
-    # Chunking test must support CORS.
+    # Info url must support CORS.
     def test_options(self):
-        self.verify_options(base_url + '/chunking_test', 'OPTIONS, POST')
+        self.verify_options(base_url + '/info', 'OPTIONS, GET')
 
+    # The 'disabled_websocket_echo' service should have websockets
+    # disabled.
+    def test_disabled_websocket(self):
+        r = GET(wsoff_base_url + '/info')
+        self.assertEqual(r.status, 200)
+        data = json.loads(r.body)
+        self.assertEqual(data['websocket'], False)
 
 # Session URLs
 # ============
