@@ -770,7 +770,9 @@ class XhrPolling(Test):
         r = POST(url + '/xhr')
         self.assertEqual(r.body, 'o\n')
 
-        ctypes = ['text/plain', 'T', 'application/json', 'application/xml', '']
+        ctypes = ['text/plain', 'T', 'application/json', 'application/xml', '',
+                  'application/json; charset=utf-8', 'text/xml; charset=utf-8',
+                  'text/xml']
         for ct in ctypes:
             r = POST(url + '/xhr_send', body='["a"]', headers={'Content-Type': ct})
             self.assertEqual(r.status, 204)
@@ -778,7 +780,7 @@ class XhrPolling(Test):
 
         r = POST(url + '/xhr')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r.body, 'a["a","a","a","a","a"]\n')
+        self.assertEqual(r.body, 'a[' + (',').join(['"a"']*len(ctypes)) +']\n')
 
     # JSESSIONID cookie must be set by default.
     def test_jsessionid(self):
