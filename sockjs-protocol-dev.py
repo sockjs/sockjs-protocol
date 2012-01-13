@@ -469,18 +469,6 @@ import websocket
 #   - hybi-10 (Firefox 7, Chrome 14)
 #
 class WebsocketHttpErrors(Test):
-    # User should be able to disable websocket transport
-    # altogether. This is useful when load balancer doesn't
-    # support websocket protocol and we need to be able to reject
-    # the transport immediately. This is achieved by returning 404
-    # response on websocket transport url. This particular 404 page
-    # must be small (less than 1KiB).
-    def test_disabledTransport(self):
-        r = GET(wsoff_base_url + '/0/0/websocket')
-        self.verify404(r)
-        if r.body:
-            self.assertLess(len(r.body), 1025)
-
     # Normal requests to websocket should not succeed.
     def test_httpMethod(self):
         r = GET(base_url + '/0/0/websocket')
