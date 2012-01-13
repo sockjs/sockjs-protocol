@@ -274,7 +274,8 @@ class InfoTest(Test):
 
         data = json.loads(r.body)
         self.assertEqual(data['websocket'], True)
-        self.assertEqual(data['cookie_needed'], False)
+        # Test server must have `cookie_needed` option enabled.
+        self.assertEqual(data['cookie_needed'], True)
         self.assertEqual(data['origins'], ['*:*'])
 
     # Info url must support CORS.
