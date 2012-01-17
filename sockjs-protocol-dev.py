@@ -273,10 +273,28 @@ class InfoTest(Test):
         self.verify_cors(r)
 
         data = json.loads(r.body)
+        # Are websockets enabled on the server?
         self.assertEqual(data['websocket'], True)
-        # Test server must have `cookie_needed` option enabled.
+        # Do transports need to support cookies (ie: for load
+        # balancing purposes. Test server must have `cookie_needed`
+        # option enabled.
         self.assertEqual(data['cookie_needed'], True)
+        # List of allowed origins. Currently ignored.
         self.assertEqual(data['origins'], ['*:*'])
+        # Source of entropy for random number generator.
+        self.assertTrue(isinstance(data['entropy'], int))
+
+    # As browsers don't have a good entropy source, the server must
+    # help with tht. Info url must supply a good, unpredictable random
+    # number from the range 0..2^32 to feed the browser.
+    def test_entropy(self):
+        r1 = GET(base_url + '/info')
+        data1 = json.loads(r1.body)
+        r2 = GET(base_url + '/info')
+        data2 = json.loads(r2.body)
+        self.assertTrue(isinstance(data1['entropy'], int))
+        self.assertTrue(isinstance(data2['entropy'], int))
+        self.assertNotEqual(data1['entropy'], data2['entropy'])
 
     # Info url must support CORS.
     def test_options(self):
