@@ -444,7 +444,7 @@ class Protocol(Test):
         # The session must time out after 5 seconds of not having a
         # receiving connection. The server must send a heartbeat frame
         # every 25 seconds. The heartbeat frame contains a single `h`
-        # character. This delays may be configurable.
+        # character. This delay may be configurable.
         pass
         # The server must not allow two receiving connections to wait
         # on a single session. In such case the server must send a
@@ -644,8 +644,6 @@ class WebsocketHybi10(Test):
         ws.send(u'')
         ws.send(u'"a"')
         self.assertEqual(ws.recv(), 'a["a"]')
-        ''' TODO: should ws connection be automatically closed after
-        sending a close frame?'''
         ws.close()
 
     def test_close(self):
