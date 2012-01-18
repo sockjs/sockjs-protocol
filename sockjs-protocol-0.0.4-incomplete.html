@@ -115,8 +115,6 @@ have no body and no content-type.</p>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">verify404</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">cookie</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cookie</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify_no_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">cookie</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
@@ -175,7 +173,10 @@ must set this cookie.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">verify_cookie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Set-Cookie&#39;</span><span class="p">],</span> <span class="s">&#39;JSESSIONID=dummy; path=/&#39;</span><span class="p">)</span></pre></div></pre></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Set-Cookie&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                         <span class="s">&#39;JSESSIONID=dummy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Set-Cookie&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                         <span class="s">&#39;path=/&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
     </tr><tr id='section-9'>
       <td class=docs>
@@ -436,6 +437,7 @@ requests.</p>
         <span class="n">r1</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/iframe.html&#39;</span><span class="p">)</span>
         <span class="n">r2</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/iframe.html&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r1</span><span class="p">[</span><span class="s">&#39;etag&#39;</span><span class="p">],</span> <span class="n">r2</span><span class="p">[</span><span class="s">&#39;etag&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">r1</span><span class="p">[</span><span class="s">&#39;etag&#39;</span><span class="p">])</span> <span class="c"># Let&#39;s make sure ETag isn&#39;t None.</span>
 
         <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/iframe.html&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;If-None-Match&#39;</span><span class="p">:</span> <span class="n">r1</span><span class="p">[</span><span class="s">&#39;etag&#39;</span><span class="p">]})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">304</span><span class="p">)</span>
@@ -462,9 +464,11 @@ requests.</p>
 intermediate proxies support http chunking.</p>
 <p>The chunking test requires the server to send six http chunks
 containing a <code>h</code> byte delayed by varying timeouts.</p>
-<p>First, the server must send 2048 bytes of <code>%20</code> character
-(space), as a prelude. That should be followed by <code>h</code> frames
-with following delays between them:</p>
+<p>First, the server must send a 'h' frame.</p>
+<p>Then, the server must send 2048 bytes of <code>%20</code> character
+(space), as a prelude, followed by a 'h' character.</p>
+<p>That should be followed by a series of <code>h</code> frames with following
+delays between them:</p>
 <ul>
 <li>5 ms</li>
 <li>25 ms</li>
@@ -473,7 +477,7 @@ with following delays between them:</p>
 <li>3125 ms</li>
 </ul>
 <p>At that point the server should close the request. The client
-will brake the connection as soon as it detects that chunking is
+will break the connection as soon as it detects that chunking is
 indeed working.</p>
       </td>
       <td class=code>
@@ -491,27 +495,27 @@ indeed working.</p>
         <div class="octowrap">
           <a class="octothorpe" href="#section-29">#</a>
         </div>
-        <p>In first chunk the server must send 2KiB prelude.</p>
+        <p>In first chunk the server must send a 'h' frame:</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39; &#39;</span> <span class="o">*</span> <span class="mi">2048</span> <span class="o">+</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
     </tr><tr id='section-30'>
       <td class=docs>
         <div class="octowrap">
           <a class="octothorpe" href="#section-30">#</a>
         </div>
-        <p>In second chunk the server must send a <code>h</code> byte.</p>
+        <p>As second chunk the server must send 2KiB prelude.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39; &#39;</span> <span class="o">*</span> <span class="mi">2048</span> <span class="o">+</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
     </tr><tr id='section-31'>
       <td class=docs>
         <div class="octowrap">
           <a class="octothorpe" href="#section-31">#</a>
         </div>
-        <p>In third chunk the server must send a <code>h</code> byte.</p>
+        <p>Later the server must send a <code>h</code> byte.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
@@ -521,6 +525,16 @@ indeed working.</p>
         <div class="octowrap">
           <a class="octothorpe" href="#section-32">#</a>
         </div>
+        <p>In third chunk the server must send a <code>h</code> byte.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-33'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-33">#</a>
+        </div>
         <p>At least 30 ms must have passed since the request.</p>
       </td>
       <td class=code>
@@ -528,10 +542,10 @@ indeed working.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">((</span><span class="n">t1</span><span class="o">-</span><span class="n">t0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.</span><span class="p">,</span> <span class="mf">30.</span><span class="p">)</span>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-33'>
+    </tr><tr id='section-34'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-33">#</a>
+          <a class="octothorpe" href="#section-34">#</a>
         </div>
         <p>Chunking test must support CORS.</p>
       </td>
@@ -539,20 +553,20 @@ indeed working.</p>
         <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_options</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/chunking_test&#39;</span><span class="p">,</span> <span class="s">&#39;OPTIONS, POST&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-34'>
+    </tr><tr id='section-35'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-34">#</a>
+          <a class="octothorpe" href="#section-35">#</a>
         </div>
         <h1>Session URLs</h1>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre></pre></div></pre></div>
       </td>
-    </tr><tr id='section-35'>
+    </tr><tr id='section-36'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-35">#</a>
+          <a class="octothorpe" href="#section-36">#</a>
         </div>
         <h2>Top session URL: <code>/&lt;server&gt;/&lt;session&gt;</code></h2>
 <p>The session between the client and the server is always initialized
@@ -572,10 +586,10 @@ application. This field must be protected from the app.</p>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">SessionURLs</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-36'>
+    </tr><tr id='section-37'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-36">#</a>
+          <a class="octothorpe" href="#section-37">#</a>
         </div>
         <p>The server must accept any value in <code>server</code> and <code>session</code> fields.</p>
       </td>
@@ -585,10 +599,10 @@ application. This field must be protected from the app.</p>
         <span class="k">for</span> <span class="n">session_part</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;/_/_&#39;</span><span class="p">,</span> <span class="s">&#39;/1/1&#39;</span><span class="p">,</span> <span class="s">&#39;/abcdefgh_i-j%20/abcdefg_i-j%20&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">session_part</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-37'>
+    </tr><tr id='section-38'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-37">#</a>
+          <a class="octothorpe" href="#section-38">#</a>
         </div>
         <p>To test session URLs we're going to use <code>xhr-polling</code> transport
 facilitites.</p>
@@ -599,10 +613,10 @@ facilitites.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-38'>
+    </tr><tr id='section-39'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-38">#</a>
+          <a class="octothorpe" href="#section-39">#</a>
         </div>
         <p>But not an empty string, anything containing dots or paths with
 less or more parts.</p>
@@ -613,10 +627,10 @@ less or more parts.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">POST</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">))</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-39'>
+    </tr><tr id='section-40'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-39">#</a>
+          <a class="octothorpe" href="#section-40">#</a>
         </div>
         <p>A session is identified by only <code>session_id</code>. <code>server_id</code> is a
 parameter for load balancer and must be ignored by the server.</p>
@@ -638,10 +652,10 @@ parameter for load balancer and must be ignored by the server.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;a[&quot;a&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-40'>
+    </tr><tr id='section-41'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-40">#</a>
+          <a class="octothorpe" href="#section-41">#</a>
         </div>
         <h2>Protocol and framing</h2>
 <p>SockJS tries to stay API-compatible with WebSockets, but not on the
@@ -685,10 +699,10 @@ facilities.</p>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">Protocol</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-41'>
+    </tr><tr id='section-42'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-41">#</a>
+          <a class="octothorpe" href="#section-42">#</a>
         </div>
         <p>When server receives a request with unknown <code>session_id</code> it must
 recognize that as request for a new session. When server opens a
@@ -703,10 +717,10 @@ new sesion it must immediately send an frame containing a letter
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-42'>
+    </tr><tr id='section-43'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-42">#</a>
+          <a class="octothorpe" href="#section-43">#</a>
         </div>
         <p>After a session was established the server needs to accept
 requests for sending messages.</p>
@@ -725,10 +739,10 @@ requests for sending messages.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;a[&quot;a&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-43'>
+    </tr><tr id='section-44'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-43">#</a>
+          <a class="octothorpe" href="#section-44">#</a>
         </div>
         <p>Sending messages to not existing sessions is invalid.</p>
       </td>
@@ -738,10 +752,10 @@ requests for sending messages.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-44'>
+    </tr><tr id='section-45'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-44">#</a>
+          <a class="octothorpe" href="#section-45">#</a>
         </div>
         <p>The session must time out after 5 seconds of not having a
 receiving connection. The server must send a heartbeat frame
@@ -751,10 +765,10 @@ character. This delays may be configurable.</p>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre>        <span class="k">pass</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-45'>
+    </tr><tr id='section-46'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-45">#</a>
+          <a class="octothorpe" href="#section-46">#</a>
         </div>
         <p>The server may not allow two receiving connections to wait
 on a single session. In such case the server must send a
@@ -767,10 +781,10 @@ close frame to the new connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;c[2010,&quot;Another connection still open&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-46'>
+    </tr><tr id='section-47'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-46">#</a>
+          <a class="octothorpe" href="#section-47">#</a>
         </div>
         <p>The server may terminate the connection, passing error code and
 message.</p>
@@ -783,10 +797,10 @@ message.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;c[3000,&quot;Go away!&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-47'>
+    </tr><tr id='section-48'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-47">#</a>
+          <a class="octothorpe" href="#section-48">#</a>
         </div>
         <p>Until the timeout occurs, the server must constantly serve
 the close message.</p>
@@ -796,20 +810,20 @@ the close message.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;c[3000,&quot;Go away!&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-48'>
+    </tr><tr id='section-49'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-48">#</a>
+          <a class="octothorpe" href="#section-49">#</a>
         </div>
         <h2>WebSocket protocols: <code>/*/*/websocket</code></h2>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="kn">import</span> <span class="nn">websocket</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-49'>
+    </tr><tr id='section-50'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-49">#</a>
+          <a class="octothorpe" href="#section-50">#</a>
         </div>
         <p>The most important feature of SockJS is to support native WebSocket
 protocol. A decent SockJS server should support at least the
@@ -824,10 +838,10 @@ following variants:</p>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">WebsocketHttpErrors</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-50'>
+    </tr><tr id='section-51'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-50">#</a>
+          <a class="octothorpe" href="#section-51">#</a>
         </div>
         <p>User should be able to disable websocket transport
 alltogether. This is useful when load balancer doesn't
@@ -840,10 +854,10 @@ response on websocket transport url.</p>
         <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">wsoff_base_url</span> <span class="o">+</span> <span class="s">&#39;/0/0/websocket&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-51'>
+    </tr><tr id='section-52'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-51">#</a>
+          <a class="octothorpe" href="#section-52">#</a>
         </div>
         <p>Normal requests to websocket should not succeed.</p>
       </td>
@@ -853,10 +867,10 @@ response on websocket transport url.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;Can &quot;Upgrade&quot; only to &quot;WebSocket&quot;.&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-52'>
+    </tr><tr id='section-53'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-52">#</a>
+          <a class="octothorpe" href="#section-53">#</a>
         </div>
         <p>Server should be able to reject connections if origin is
 invalid.</p>
@@ -871,10 +885,10 @@ invalid.</p>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">pass</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-53'>
+    </tr><tr id='section-54'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-53">#</a>
+          <a class="octothorpe" href="#section-54">#</a>
         </div>
         <p>Some proxies and load balancers can rewrite 'Connection' header,
 in such case we must refuse connection.</p>
@@ -886,10 +900,10 @@ in such case we must refuse connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;&quot;Connection&quot; must be &quot;Upgrade&quot;.&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-54'>
+    </tr><tr id='section-55'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-54">#</a>
+          <a class="octothorpe" href="#section-55">#</a>
         </div>
         <p>WebSocket should only accept GET</p>
       </td>
@@ -901,20 +915,20 @@ in such case we must refuse connection.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">405</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-55'>
+    </tr><tr id='section-56'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-55">#</a>
+          <a class="octothorpe" href="#section-56">#</a>
         </div>
         <p>Support WebSocket Hixie-76 protocol</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">WebsocketHixie76</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-56'>
+    </tr><tr id='section-57'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-56">#</a>
+          <a class="octothorpe" href="#section-57">#</a>
         </div>
         
       </td>
@@ -925,13 +939,13 @@ in such case we must refuse connection.</p>
         <span class="n">ws</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">create_connection</span><span class="p">(</span><span class="n">ws_url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;o&#39;</span><span class="p">)</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">u&#39;[&quot;a&quot;]&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;m[&quot;a&quot;]&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;a[&quot;a&quot;]&#39;</span><span class="p">)</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-57'>
+    </tr><tr id='section-58'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-57">#</a>
+          <a class="octothorpe" href="#section-58">#</a>
         </div>
         
       </td>
@@ -944,24 +958,24 @@ in such case we must refuse connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;c[3000,&quot;Go away!&quot;]&#39;</span><span class="p">)</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-58'>
+    </tr><tr id='section-59'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-58">#</a>
+          <a class="octothorpe" href="#section-59">#</a>
         </div>
         <p>Empty frames must be ignored by the server side.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_transport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_empty_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ws_url</span> <span class="o">=</span> <span class="s">&#39;ws:&#39;</span> <span class="o">+</span> <span class="n">base_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> \
                  <span class="s">&#39;/000/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span> <span class="o">+</span> <span class="s">&#39;/websocket&#39;</span>
         <span class="n">ws</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">create_connection</span><span class="p">(</span><span class="n">ws_url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;o&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-59'>
+    </tr><tr id='section-60'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-59">#</a>
+          <a class="octothorpe" href="#section-60">#</a>
         </div>
         <p>Server must ignore empty messages.</p>
       </td>
@@ -973,10 +987,10 @@ in such case we must refuse connection.</p>
 <span class="sd">        sending a close frame?&#39;&#39;&#39;</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-60'>
+    </tr><tr id='section-61'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-60">#</a>
+          <a class="octothorpe" href="#section-61">#</a>
         </div>
         <p>For WebSockets, as opposed to other transports, it is valid to
 reuse <code>session_id</code>. The lifetime of SockJS WebSocket session is
@@ -1005,10 +1019,10 @@ correct to have two separate sessions sharing the same
         <span class="n">ws1</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">ws2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-61'>
+    </tr><tr id='section-62'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-61">#</a>
+          <a class="octothorpe" href="#section-62">#</a>
         </div>
         <p>It is correct to reuse the same <code>session_id</code> after closing a
 previous connection.</p>
@@ -1020,10 +1034,10 @@ previous connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws1</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;a[&quot;a&quot;]&#39;</span><span class="p">)</span>
         <span class="n">ws1</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-62'>
+    </tr><tr id='section-63'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-62">#</a>
+          <a class="octothorpe" href="#section-63">#</a>
         </div>
         <p>Verify WebSocket headers sanity. Due to HAProxy design the
 websocket server must support writing response headers <em>before</em>
@@ -1051,16 +1065,18 @@ work like that:</p>
             <span class="p">}</span>
 
         <span class="n">r</span> <span class="o">=</span> <span class="n">GET_async</span><span class="p">(</span><span class="n">http_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;sec-websocket-location&#39;</span><span class="p">],</span> <span class="n">ws_url</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;connection&#39;</span><span class="p">],</span> <span class="s">&#39;Upgrade&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;upgrade&#39;</span><span class="p">],</span> <span class="s">&#39;WebSocket&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;connection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s">&#39;upgrade&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;upgrade&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s">&#39;websocket&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;sec-websocket-origin&#39;</span><span class="p">],</span> <span class="n">origin</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-length&#39;</span><span class="p">])</span>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-63'>
+    </tr><tr id='section-64'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-63">#</a>
+          <a class="octothorpe" href="#section-64">#</a>
         </div>
         <p>When user sends broken data - broken JSON for example, the
 server must terminate the ws connection.</p>
@@ -1072,22 +1088,33 @@ server must terminate the ws connection.</p>
         <span class="n">ws</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">create_connection</span><span class="p">(</span><span class="n">ws_url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;o&#39;</span><span class="p">)</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">u&#39;&quot;a&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">websocket</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">,</span> <span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">)</span></pre></div></pre></div>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">websocket</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-64'>
+    </tr><tr id='section-65'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-64">#</a>
+          <a class="octothorpe" href="#section-65">#</a>
+        </div>
+        <p>Raises on error, returns None on valid closure.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>            <span class="k">if</span> <span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">websocket</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">()</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-66'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-66">#</a>
         </div>
         <p>The server must support Hybi-10 protocol</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">WebsocketHybi10</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-65'>
+    </tr><tr id='section-67'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-65">#</a>
+          <a class="octothorpe" href="#section-67">#</a>
         </div>
         
       </td>
@@ -1098,10 +1125,10 @@ server must terminate the ws connection.</p>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">&#39;o&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-66'>
+    </tr><tr id='section-68'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-66">#</a>
+          <a class="octothorpe" href="#section-68">#</a>
         </div>
         <p>Server must ignore empty messages.</p>
       </td>
@@ -1113,10 +1140,10 @@ server must terminate the ws connection.</p>
 <span class="sd">        sending a close frame?&#39;&#39;&#39;</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-67'>
+    </tr><tr id='section-69'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-67">#</a>
+          <a class="octothorpe" href="#section-69">#</a>
         </div>
         
       </td>
@@ -1128,38 +1155,41 @@ server must terminate the ws connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;c[3000,&quot;Go away!&quot;]&#39;</span><span class="p">)</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-68'>
+    </tr><tr id='section-70'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-68">#</a>
+          <a class="octothorpe" href="#section-70">#</a>
         </div>
         <p>Verify WebSocket headers sanity. Server must support both
 Hybi-07 and Hybi-10.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_headersSanity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;7&#39;</span><span class="p">,</span> <span class="s">&#39;8&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;7&#39;</span><span class="p">,</span> <span class="s">&#39;8&#39;</span><span class="p">,</span> <span class="s">&#39;13&#39;</span><span class="p">]:</span>
             <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> \
                 <span class="s">&#39;/000/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span> <span class="o">+</span> <span class="s">&#39;/websocket&#39;</span>
             <span class="n">ws_url</span> <span class="o">=</span> <span class="s">&#39;ws:&#39;</span> <span class="o">+</span> <span class="n">url</span>
             <span class="n">http_url</span> <span class="o">=</span> <span class="s">&#39;http:&#39;</span> <span class="o">+</span> <span class="n">url</span>
             <span class="n">origin</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">http_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">])</span>
-            <span class="n">h</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;Upgrade&#39;</span><span class="p">:</span> <span class="s">&#39;WebSocket&#39;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;Upgrade&#39;</span><span class="p">:</span> <span class="s">&#39;websocket&#39;</span><span class="p">,</span>
                  <span class="s">&#39;Connection&#39;</span><span class="p">:</span> <span class="s">&#39;Upgrade&#39;</span><span class="p">,</span>
                  <span class="s">&#39;Sec-WebSocket-Version&#39;</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span>
+                 <span class="s">&#39;Sec-WebSocket-Origin&#39;</span><span class="p">:</span> <span class="s">&#39;http://asd&#39;</span><span class="p">,</span>
                  <span class="s">&#39;Sec-WebSocket-Key&#39;</span><span class="p">:</span> <span class="s">&#39;x3JJHMbDL1EzLkh9GBhXDw==&#39;</span><span class="p">,</span>
                  <span class="p">}</span>
 
             <span class="n">r</span> <span class="o">=</span> <span class="n">GET_async</span><span class="p">(</span><span class="n">http_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;sec-websocket-accept&#39;</span><span class="p">],</span> <span class="s">&#39;HSmrc0sMlYUkAGmm5OPpG2HaGWk=&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;connection&#39;</span><span class="p">],</span> <span class="s">&#39;Upgrade&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;upgrade&#39;</span><span class="p">],</span> <span class="s">&#39;WebSocket&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;connection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s">&#39;upgrade&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;upgrade&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s">&#39;websocket&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-length&#39;</span><span class="p">])</span>
             <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-69'>
+    </tr><tr id='section-71'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-69">#</a>
+          <a class="octothorpe" href="#section-71">#</a>
         </div>
         <p>When user sends broken data - broken JSON for example, the
 server must terminate the ws connection.</p>
@@ -1173,10 +1203,35 @@ server must terminate the ws connection.</p>
         <span class="n">ws</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">u&#39;&quot;a&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WebSocket8Client</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">,</span> <span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-70'>
+    </tr><tr id='section-72'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-70">#</a>
+          <a class="octothorpe" href="#section-72">#</a>
+        </div>
+        <p>As a fun part, Firefox 6.0.2 supports Websockets protocol '7'. But,
+it doesn't send a normal 'Connection: Upgrade' header. Instead it
+sends: 'Connection: keep-alive, Upgrade'. Brilliant.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_firefox_602_connection_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> \
+            <span class="s">&#39;/000/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span> <span class="o">+</span> <span class="s">&#39;/websocket&#39;</span>
+        <span class="n">ws_url</span> <span class="o">=</span> <span class="s">&#39;ws:&#39;</span> <span class="o">+</span> <span class="n">url</span>
+        <span class="n">http_url</span> <span class="o">=</span> <span class="s">&#39;http:&#39;</span> <span class="o">+</span> <span class="n">url</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">http_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;Upgrade&#39;</span><span class="p">:</span> <span class="s">&#39;websocket&#39;</span><span class="p">,</span>
+             <span class="s">&#39;Connection&#39;</span><span class="p">:</span> <span class="s">&#39;keep-alive, Upgrade&#39;</span><span class="p">,</span>
+             <span class="s">&#39;Sec-WebSocket-Version&#39;</span><span class="p">:</span> <span class="s">&#39;7&#39;</span><span class="p">,</span>
+             <span class="s">&#39;Sec-WebSocket-Origin&#39;</span><span class="p">:</span> <span class="s">&#39;http://asd&#39;</span><span class="p">,</span>
+             <span class="s">&#39;Sec-WebSocket-Key&#39;</span><span class="p">:</span> <span class="s">&#39;x3JJHMbDL1EzLkh9GBhXDw==&#39;</span><span class="p">,</span>
+             <span class="p">}</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">GET_async</span><span class="p">(</span><span class="n">http_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span></pre></div></pre></div>
+      </td>
+    </tr><tr id='section-73'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-73">#</a>
         </div>
         <h2>XhrPolling: <code>/*/*/xhr</code>, <code>/*/*/xhr_send</code></h2>
 <p>The server must support xhr-polling.</p>
@@ -1184,10 +1239,10 @@ server must terminate the ws connection.</p>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">XhrPolling</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-71'>
+    </tr><tr id='section-74'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-71">#</a>
+          <a class="octothorpe" href="#section-74">#</a>
         </div>
         <p>The transport must support CORS requests, and answer correctly
 to OPTIONS requests.</p>
@@ -1198,10 +1253,10 @@ to OPTIONS requests.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify_options</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/abc/abc&#39;</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
                                 <span class="s">&#39;OPTIONS, POST&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-72'>
+    </tr><tr id='section-75'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-72">#</a>
+          <a class="octothorpe" href="#section-75">#</a>
         </div>
         <p>Test the transport itself.</p>
       </td>
@@ -1216,10 +1271,10 @@ to OPTIONS requests.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cors</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-73'>
+    </tr><tr id='section-76'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-73">#</a>
+          <a class="octothorpe" href="#section-76">#</a>
         </div>
         <p>Xhr transports receive json-encoded array of messages.</p>
       </td>
@@ -1228,10 +1283,10 @@ to OPTIONS requests.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">204</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-74'>
+    </tr><tr id='section-77'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-74">#</a>
+          <a class="octothorpe" href="#section-77">#</a>
         </div>
         <p>The content type of <code>xhr_send</code> must be set to <code>text/plain</code>,
 even though the response code is <code>204</code>. This is due to
@@ -1247,10 +1302,10 @@ is xml and shouts about it.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;a[&quot;x&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-75'>
+    </tr><tr id='section-78'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-75">#</a>
+          <a class="octothorpe" href="#section-78">#</a>
         </div>
         <p>Publishing messages to a non-existing session must result in
 a 404 error.</p>
@@ -1261,10 +1316,10 @@ a 404 error.</p>
         <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/xhr_send&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">&#39;[&quot;x&quot;]&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">cookie</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-76'>
+    </tr><tr id='section-79'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-76">#</a>
+          <a class="octothorpe" href="#section-79">#</a>
         </div>
         <p>The server must behave when invalid json data is send or when no
 json data is sent at all.</p>
@@ -1291,10 +1346,10 @@ json data is sent at all.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;a[&quot;a&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-77'>
+    </tr><tr id='section-80'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-77">#</a>
+          <a class="octothorpe" href="#section-80">#</a>
         </div>
         <p>The server must accept messages send with different content
 types.</p>
@@ -1315,10 +1370,10 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;a[&quot;a&quot;,&quot;a&quot;,&quot;a&quot;,&quot;a&quot;,&quot;a&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-78'>
+    </tr><tr id='section-81'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-78">#</a>
+          <a class="octothorpe" href="#section-81">#</a>
         </div>
         <p>JSESSIONID cookie must be set by default.</p>
       </td>
@@ -1329,10 +1384,10 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-79'>
+    </tr><tr id='section-82'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-79">#</a>
+          <a class="octothorpe" href="#section-82">#</a>
         </div>
         <p>And must be echoed back if it's already set.</p>
       </td>
@@ -1340,22 +1395,25 @@ types.</p>
         <div class='highlight'><pre><div class="highlight"><pre>        <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/000/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Cookie&#39;</span><span class="p">:</span> <span class="s">&#39;JSESSIONID=abcdef&#39;</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Set-Cookie&#39;</span><span class="p">],</span> <span class="s">&#39;JSESSIONID=abcdef; path=/&#39;</span><span class="p">)</span></pre></div></pre></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Set-Cookie&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                         <span class="s">&#39;JSESSIONID=abcdef&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Set-Cookie&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                         <span class="s">&#39;path=/&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-80'>
+    </tr><tr id='section-83'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-80">#</a>
+          <a class="octothorpe" href="#section-83">#</a>
         </div>
         <h2>XhrStreaming: <code>/*/*/xhr_streaming</code></h2>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">XhrStreaming</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-81'>
+    </tr><tr id='section-84'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-81">#</a>
+          <a class="octothorpe" href="#section-84">#</a>
         </div>
         
       </td>
@@ -1364,10 +1422,10 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_options</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/abc/abc/xhr_streaming&#39;</span><span class="p">,</span>
                             <span class="s">&#39;OPTIONS, POST&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-82'>
+    </tr><tr id='section-85'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-82">#</a>
+          <a class="octothorpe" href="#section-85">#</a>
         </div>
         
       </td>
@@ -1381,10 +1439,10 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cors</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-83'>
+    </tr><tr id='section-86'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-83">#</a>
+          <a class="octothorpe" href="#section-86">#</a>
         </div>
         <p>The transport must first send 2KiB of <code>h</code> bytes as prelude.</p>
       </td>
@@ -1400,10 +1458,10 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;a[&quot;x&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-84'>
+    </tr><tr id='section-87'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-84">#</a>
+          <a class="octothorpe" href="#section-87">#</a>
         </div>
         <h2>EventSource: <code>/*/*/eventsource</code></h2>
 <p>For details of this protocol framing read the spec:</p>
@@ -1415,10 +1473,10 @@ types.</p>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">EventSource</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-85'>
+    </tr><tr id='section-88'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-85">#</a>
+          <a class="octothorpe" href="#section-88">#</a>
         </div>
         
       </td>
@@ -1430,10 +1488,10 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">],</span>
                          <span class="s">&#39;text/event-stream; charset=UTF-8&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-86'>
+    </tr><tr id='section-89'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-86">#</a>
+          <a class="octothorpe" href="#section-89">#</a>
         </div>
         <p>As EventSource is requested using GET we must be very
 carefull not to allow it being cached.</p>
@@ -1442,10 +1500,10 @@ carefull not to allow it being cached.</p>
         <div class='highlight'><pre><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">verify_not_cached</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-87'>
+    </tr><tr id='section-90'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-87">#</a>
+          <a class="octothorpe" href="#section-90">#</a>
         </div>
         <p>The transport must first send a new line prelude, due to a
 bug in Opera.</p>
@@ -1461,10 +1519,10 @@ bug in Opera.</p>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;data: a[&quot;x&quot;]</span><span class="se">\r\n\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-88'>
+    </tr><tr id='section-91'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-88">#</a>
+          <a class="octothorpe" href="#section-91">#</a>
         </div>
         <p>This protocol doesn't allow binary data and we need to
 specially treat leading space, new lines and things like
@@ -1481,10 +1539,10 @@ there is no way to trigger this case.</p>
 
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-89'>
+    </tr><tr id='section-92'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-89">#</a>
+          <a class="octothorpe" href="#section-92">#</a>
         </div>
         <h2>HtmlFile: <code>/*/*/htmlfile</code></h2>
 <p>Htmlfile transport is based on research done by Michael Carter. It
@@ -1511,10 +1569,10 @@ requires a famous <code>document.domain</code> trick. Read on:</p>
 <span class="s">  &lt;/script&gt;</span>
 <span class="s">&#39;&#39;&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-90'>
+    </tr><tr id='section-93'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-90">#</a>
+          <a class="octothorpe" href="#section-93">#</a>
         </div>
         
       </td>
@@ -1526,10 +1584,10 @@ requires a famous <code>document.domain</code> trick. Read on:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">],</span>
                          <span class="s">&#39;text/html; charset=UTF-8&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-91'>
+    </tr><tr id='section-94'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-91">#</a>
+          <a class="octothorpe" href="#section-94">#</a>
         </div>
         <p>As HtmlFile is requested using GET we must be very carefull
 not to allow it being cached.</p>
@@ -1552,10 +1610,10 @@ not to allow it being cached.</p>
                          <span class="s">&#39;&lt;script&gt;</span><span class="se">\n</span><span class="s">p(&quot;a[</span><span class="se">\\</span><span class="s">&quot;x</span><span class="se">\\</span><span class="s">&quot;]&quot;);</span><span class="se">\n</span><span class="s">&lt;/script&gt;</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-92'>
+    </tr><tr id='section-95'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-92">#</a>
+          <a class="octothorpe" href="#section-95">#</a>
         </div>
         
       </td>
@@ -1565,20 +1623,20 @@ not to allow it being cached.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s">&#39;&quot;callback&quot; parameter required&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-93'>
+    </tr><tr id='section-96'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-93">#</a>
+          <a class="octothorpe" href="#section-96">#</a>
         </div>
         <h2>JsonpPolling: <code>/*/*/jsonp</code>, <code>/*/*/jsonp_send</code></h2>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre><span class="k">class</span> <span class="nc">JsonPolling</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-94'>
+    </tr><tr id='section-97'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-94">#</a>
+          <a class="octothorpe" href="#section-97">#</a>
         </div>
         
       </td>
@@ -1590,10 +1648,10 @@ not to allow it being cached.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">],</span>
                          <span class="s">&#39;application/javascript; charset=UTF-8&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-95'>
+    </tr><tr id='section-98'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-95">#</a>
+          <a class="octothorpe" href="#section-98">#</a>
         </div>
         <p>As JsonPolling is requested using GET we must be very
 carefull not to allow it being cached.</p>
@@ -1607,10 +1665,10 @@ carefull not to allow it being cached.</p>
         <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/jsonp_send&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">&#39;d=%5B</span><span class="si">%22x%22%</span><span class="s">5D&#39;</span><span class="p">,</span>
                  <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">})</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-96'>
+    </tr><tr id='section-99'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-96">#</a>
+          <a class="octothorpe" href="#section-99">#</a>
         </div>
         <p>Konqueror does weird things on 204. As a workaround we need
 to respond with something - let it be the string <code>ok</code>.</p>
@@ -1625,10 +1683,10 @@ to respond with something - let it be the string <code>ok</code>.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;callback(&quot;a[</span><span class="se">\\</span><span class="s">&quot;x</span><span class="se">\\</span><span class="s">&quot;]&quot;);</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-97'>
+    </tr><tr id='section-100'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-97">#</a>
+          <a class="octothorpe" href="#section-100">#</a>
         </div>
         
       </td>
@@ -1638,10 +1696,10 @@ to respond with something - let it be the string <code>ok</code>.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s">&#39;&quot;callback&quot; parameter required&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-98'>
+    </tr><tr id='section-101'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-98">#</a>
+          <a class="octothorpe" href="#section-101">#</a>
         </div>
         <p>The server must behave when invalid json data is send or when no
 json data is sent at all.</p>
@@ -1671,10 +1729,10 @@ json data is sent at all.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;x(&quot;a[</span><span class="se">\\</span><span class="s">&quot;b</span><span class="se">\\</span><span class="s">&quot;]&quot;);</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-99'>
+    </tr><tr id='section-102'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-99">#</a>
+          <a class="octothorpe" href="#section-102">#</a>
         </div>
         <p>The server must accept messages send with different content
 types.</p>
@@ -1696,20 +1754,20 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;x(&quot;a[</span><span class="se">\\</span><span class="s">&quot;abc</span><span class="se">\\</span><span class="s">&quot;,</span><span class="se">\\</span><span class="s">&quot;%61bc</span><span class="se">\\</span><span class="s">&quot;]&quot;);</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div></pre></div>
       </td>
-    </tr><tr id='section-100'>
+    </tr><tr id='section-103'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-100">#</a>
+          <a class="octothorpe" href="#section-103">#</a>
         </div>
         <h1>Footnote</h1>
       </td>
       <td class=code>
         <div class='highlight'><pre><div class="highlight"><pre></pre></div></pre></div>
       </td>
-    </tr><tr id='section-101'>
+    </tr><tr id='section-104'>
       <td class=docs>
         <div class="octowrap">
-          <a class="octothorpe" href="#section-101">#</a>
+          <a class="octothorpe" href="#section-104">#</a>
         </div>
         <p>Make this script runnable.</p>
       </td>
