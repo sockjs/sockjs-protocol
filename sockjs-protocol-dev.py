@@ -1208,21 +1208,22 @@ class JSONEncoding(Test):
         self.assertEqual(a, b)
 
 
-# Protocol Quirks
-# ===============
+# Handling close
+# ==============
 #
-# Over the time there were various implementation quirks
-# found. Following tests go through the quirks and verify that the
-# server behaves itself.
+# Dealing with session closure is quite complicated part of the
+# protocol. The exact details here don't matter that much to the
+# client side, but it's good to have a common behaviour on the server
+# side.
 #
-# This is less about defining the protocol and more about sanity checking
-# implementations.
-class ProtocolQuirks(Test):
+# This is less about defining the protocol and more about sanity
+# checking implementations.
+class HandlingClose(Test):
+    # When server is closing session, it should unlink current
+    # request. That means, if a new request appears, it should receive
+    # an application close message rather than "Another connection
+    # still open" message.
     def test_close_frame(self):
-        # When server is closing session, it should unlink current
-        # request. That means, if a new request appears, it should
-        # receive an application close message rather than "Another
-        # connection still open" message.
         url = close_base_url + '/000/' + str(uuid.uuid4())
         r1 = POST_async(url + '/xhr_streaming')
 
@@ -1253,6 +1254,52 @@ class ProtocolQuirks(Test):
         # HTTP streaming requests should be automatically closed after
         # getting the close frame.
         self.assertEqual(r2.read(), None)
+
+    # When a polling request is closed by a network error - not by
+    # server, the session should be automatically closed. When there
+    # is a network error - we're in an undefined state. Some messages
+    # may have been lost, there is not much we can do about it.
+    def test_abort_xhr_streaming(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r1 = POST_async(url + '/xhr_streaming')
+        r1.read() # prelude
+        self.assertEqual(r1.read(), 'o\n')
+
+        # Can't do second polling request now.
+        r2 = POST_async(url + '/xhr_streaming')
+        r2.read() # prelude
+        self.assertEqual(r2.read(), 'c[2010,"Another connection still open"]\n')
+        self.assertEqual(r2.read(), None)
+
+        r1.close()
+
+        # Polling request now, after we aborted previous one, should
+        # be treated as a new connection. The session should be closed
+        # and all the state should be forgotten.
+        r3 = POST_async(url + '/xhr_streaming')
+        r3.read() # prelude
+        self.assertEqual(r3.read(), 'o\n')
+        r3.close()
+
+    # The same for polling transports
+    def test_abort_xhr_polling(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r1 = POST(url + '/xhr')
+        self.assertEqual(r1.body, 'o\n')
+
+        r1 = POST_async(url + '/xhr', load=False)
+
+        # Can't do second polling request now.
+        r2 = POST(url + '/xhr')
+        self.assertEqual(r2.body, 'c[2010,"Another connection still open"]\n')
+
+        r1.close()
+
+        # Polling request now, after we aborted previous one, should
+        # be treated as a new connection. The session should be closed
+        # and all the state should be forgotten.
+        r3 = POST(url + '/xhr')
+        self.assertEqual(r3.body, 'o\n')
 
 # Footnote
 # ========
