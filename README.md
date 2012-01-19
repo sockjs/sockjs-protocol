@@ -13,7 +13,7 @@ documentation is in a form of a Python test suite decorated with some
 prose in literate-programming style. You can see current documentation
 here:
 
- * Stable: [sockjs-protocol-0.1.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.1.html)
+ * Stable: [sockjs-protocol-0.2.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.2.html)
  * Development: [sockjs-protocol-dev.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-dev.html)
 
 
@@ -33,15 +33,15 @@ And you're ready to run the tests against your server. By default we
 assume that your test server is at
 [http://localhost:8081](http://localhost:8081):
 
-    ./venv/bin/python sockjs-protocol-0.1.py
+    ./venv/bin/python sockjs-protocol-0.2.py
 
 You can specify the test server URL manually:
 
-    SOCKJS_URL=http://localhost:1234 ./venv/bin/python sockjs-protocol-0.1.py -v
+    SOCKJS_URL=http://localhost:1234 ./venv/bin/python sockjs-protocol-0.2.py -v
 
 You can run specific tests providing test class as an optional argument:
 
-    ./venv/bin/python sockjs-protocol-0.1.py Protocol.test_simpleSession
+    ./venv/bin/python sockjs-protocol-0.2.py Protocol.test_simpleSession
 
 
 There is also another test, intended to look for some http quirks:
