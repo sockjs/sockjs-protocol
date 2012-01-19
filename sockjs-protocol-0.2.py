@@ -1274,11 +1274,12 @@ class HandlingClose(Test):
         r1.close()
 
         # Polling request now, after we aborted previous one, should
-        # be treated as a new connection. The session should be closed
-        # and all the state should be forgotten.
+        # trigger a connection closure. Implementations may close
+        # the session and forget the state related. Alternatively
+        # they may return a 1002 close message.
         r3 = POST_async(url + '/xhr_streaming')
         r3.read() # prelude
-        self.assertEqual(r3.read(), 'o\n')
+        self.assertTrue(r3.read() in ['o\n', 'c[1002,"Connection interrupted"]\n'])
         r3.close()
 
     # The same for polling transports
@@ -1296,10 +1297,11 @@ class HandlingClose(Test):
         r1.close()
 
         # Polling request now, after we aborted previous one, should
-        # be treated as a new connection. The session should be closed
-        # and all the state should be forgotten.
+        # trigger a connection closure. Implementations may close
+        # the session and forget the state related. Alternatively
+        # they may return a 1002 close message.
         r3 = POST(url + '/xhr')
-        self.assertEqual(r3.body, 'o\n')
+        self.assertTrue(r3.body in ['o\n', 'c[1002,"Connection interrupted"]\n'])
 
 # Footnote
 # ========
