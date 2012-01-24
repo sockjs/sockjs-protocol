@@ -161,7 +161,7 @@ appropriate headers.</p>
                             <span class="s">&quot;max-age must be large, one year (31536000) is best&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Expires&#39;</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;access-control-max-age&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1000000</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Allow-Control-Allow-Methods&#39;</span><span class="p">],</span> <span class="n">allowed_methods</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Access-Control-Allow-Methods&#39;</span><span class="p">],</span> <span class="n">allowed_methods</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify_cors</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
@@ -2381,13 +2381,14 @@ may have been lost, there is not much we can do about it.</p>
         <a class='octothorpe' href='#section-136'>#</a>
       </div>
       <p>Polling request now, after we aborted previous one, should
-be treated as a new connection. The session should be closed
-and all the state should be forgotten.</p>
+trigger a connection closure. Implementations may close
+the session and forget the state related. Alternatively
+they may return a 1002 close message.</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>        <span class="n">r3</span> <span class="o">=</span> <span class="n">POST_async</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/xhr_streaming&#39;</span><span class="p">)</span>
         <span class="n">r3</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># prelude</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r3</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">r3</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;c[1002,&quot;Connection interrupted&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">])</span>
         <span class="n">r3</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
@@ -2427,12 +2428,13 @@ and all the state should be forgotten.</p>
         <a class='octothorpe' href='#section-139'>#</a>
       </div>
       <p>Polling request now, after we aborted previous one, should
-be treated as a new connection. The session should be closed
-and all the state should be forgotten.</p>
+trigger a connection closure. Implementations may close
+the session and forget the state related. Alternatively
+they may return a 1002 close message.</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>        <span class="n">r3</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r3</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">r3</span><span class="o">.</span><span class="n">body</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;c[1002,&quot;Connection interrupted&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">])</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div><div class='section' id='section-140'>
