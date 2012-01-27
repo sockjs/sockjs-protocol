@@ -13,8 +13,8 @@ documentation is in a form of a Python test suite decorated with some
 prose in literate-programming style. You can see current documentation
 here:
 
- * Stable: [sockjs-protocol-0.2.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.2.html)
- * Development: [sockjs-protocol-dev.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-dev.html)
+ * Previous stable: [sockjs-protocol-0.1.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.1.html)
+ * Current stable: [sockjs-protocol-0.2.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.2.html)
 
 
 Running tests
