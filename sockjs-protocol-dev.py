@@ -1333,7 +1333,7 @@ class Http10(Test):
             self.assertEqual(c.read(), 'Welcome to SockJS!\n')
             self.assertTrue(c.closed())
         else:
-            self.assertGreater(int(r.headers['content-length']), 19)
+            self.assertEqual(int(r.headers['content-length']), 19)
             self.assertEqual(c.read(19), 'Welcome to SockJS!\n')
             if r.headers['connection'].lower() == 'close':
                 self.assertTrue(c.closed())
@@ -1353,7 +1353,7 @@ class Http11(Test):
         self.assertEqual(r.headers['connection'].lower(), 'keep-alive',
                          "Your server doesn't support connection:keep-alive")
         if r.headers.get('content-length'):
-            self.assertGreater(int(r.headers['content-length']), 19)
+            self.assertEqual(int(r.headers['content-length']), 19)
         else:
             self.assertEqual(r.headers['transfer-encoding'].lower(), 'chunked')
             self.assertEqual(c.read_chunk(), 'Welcome to SockJS!\n')
