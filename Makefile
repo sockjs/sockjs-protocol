@@ -25,7 +25,7 @@ venv/.pycco_deps: venv
 test_deps: venv/.test_deps
 venv/.test_deps: venv
 	./venv/bin/pip install unittest2
-	./venv/bin/pip install -e git+https://github.com/liris/websocket-client.git#egg=websocket
+	./venv/bin/pip install websocket-client==0.4.1
 # Main source crashes https://github.com/Lawouach/WebSocket-for-Python/issues/16
 	./venv/bin/pip install git+git://github.com/majek/WebSocket-for-Python.git
 	touch venv/.test_deps
