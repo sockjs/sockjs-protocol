@@ -1335,10 +1335,12 @@ class Http10(Test):
         else:
             self.assertEqual(int(r.headers['content-length']), 19)
             self.assertEqual(c.read(19), 'Welcome to SockJS!\n')
-            if r.headers['connection'].lower() == 'close':
+            connection = r.headers.get('connection', '').lower()
+            if connection in ['close', '']:
+                # By default http 1.0 shold close connection after every request.
                 self.assertTrue(c.closed())
             else:
-                self.assertEqual(r.headers['connection'].lower(), 'keep-alive')
+                self.assertEqual(connection, 'keep-alive')
                 # We should be able to issue another request on the same connection
                 r = c.request('GET', base_url, http='1.0',
                               headers={'Connection':'keep-alive'})
