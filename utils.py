@@ -2,6 +2,9 @@ import urlparse
 import httplib
 from ws4py.client.threadedclient import WebSocketClient
 import Queue
+import socket
+import re
+
 
 class HttpResponse:
     def __init__(self, method, url,
@@ -121,3 +124,114 @@ class WebSocket8Client(object):
         except:
             self.close()
             raise
+
+def recvline(s):
+    b = []
+    c = None
+    while c != '\n':
+        c = s.recv(1)
+        b.append( c )
+    return ''.join(b)
+
+
+class CaseInsensitiveDict(object):
+    def __init__(self, *args, **kwargs):
+        self.lower = {}
+        self.d = dict(*args, **kwargs)
+        for k in self.d:
+            self[k] = self.d[k]
+
+    def __getitem__(self, key, *args, **kwargs):
+        pkey = self.lower.setdefault(key.lower(), key)
+        return dict.__getitem__(self.d, pkey, *args, **kwargs)
+
+    def __setitem__(self, key, *args, **kwargs):
+        pkey = self.lower.setdefault(key.lower(), key)
+        return dict.__setitem__(self.d, pkey, *args, **kwargs)
+
+    def items(self):
+        for k in self.lower.values():
+            yield (k, self[k])
+
+    def __repr__(self): return repr(self.d)
+    def __str__(self): return str(self.d)
+
+    def get(self, key, *args, **kwargs):
+        pkey = self.lower.setdefault(key.lower(), key)
+        return self.d.get(pkey, *args, **kwargs)
+
+
+class Response(object):
+    def __repr__(self):
+        return '<Response HTTP/%s %s %r %r>' % (
+            self.http, self.status, self.description, self.headers)
+
+    def __str__(self): return repr(self)
+
+class RawHttpConnection(object):
+    def __init__(self, url):
+        u = urlparse.urlparse(url)
+        self.s = socket.create_connection((u.hostname, u.port), timeout=1)
+
+    def request(self, method, url, headers={}, body=None, timeout=1, http="1.1"):
+        headers = CaseInsensitiveDict(headers)
+        if method == 'POST':
+            body = body or ''
+        u = urlparse.urlparse(url)
+        headers['Host'] = u.port if u.hostname + ':' + str(u.port) else u.hostname
+        if body is not None:
+            headers['Content-Length'] = str(len(body))
+
+        req = ["%s %s HTTP/%s" % (method, u.path, http)]
+        for k, v in headers.items():
+            req.append( "%s: %s" % (k, v) )
+        req.append('')
+        req.append('')
+        self.s.sendall('\r\n'.join(req))
+
+        if body:
+            self.s.sendall(body)
+
+        head = recvline(self.s)
+        r = re.match(r'HTTP/(?P<version>\S+) (?P<status>\S+) (?P<description>.*)', head)
+
+        resp = Response()
+        resp.http = r.group('version')
+        resp.status = int(r.group('status'))
+        resp.description = r.group('description').rstrip('\r\n')
+
+        resp.headers = CaseInsensitiveDict()
+        while True:
+            header = recvline(self.s)
+            if header in ['\n', '\r\n']:
+                break
+            k, _, v = header.partition(':')
+            resp.headers[k] = v.lstrip().rstrip('\r\n')
+
+        return resp
+
+    def read(self, size=99999):
+        # A single packet by default
+        return self.s.recv(size)
+
+    def closed(self):
+        # To check if socket is being closed, we need to recv and see
+        # if the response is empty.
+        t = self.s.settimeout(0.1)
+        r = self.s.recv(1) == ''
+        if not r:
+            raise Exception('Socket not closed!')
+        self.s.settimeout(t)
+        return r
+
+    def read_chunk(self):
+        line = recvline(self.s).rstrip('\r\n')
+        bytes = int(line, 16) + 2 # Additional \r\n
+        data = []
+        while bytes > 0:
+            c = self.s.recv(bytes)
+            if not c:
+                raise Exception('Socket closed!')
+            bytes -= len(c)
+            data.append( c )
+        return (''.join(data))[:-2]

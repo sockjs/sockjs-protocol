@@ -20,6 +20,7 @@ import re
 import unittest2 as unittest
 from utils import GET, GET_async, POST, POST_async, OPTIONS
 from utils import WebSocket8Client
+from utils import RawHttpConnection
 import uuid
 
 
@@ -1302,6 +1303,66 @@ class HandlingClose(Test):
         # they may return a 1002 close message.
         r3 = POST(url + '/xhr')
         self.assertTrue(r3.body in ['o\n', 'c[1002,"Connection interrupted"]\n'])
+
+# Http 1.0 and 1.1 chunking
+# =========================
+#
+# There seem to be a lot of confusion about http/1.0 and http/1.1
+# content-length and transfer-encoding:chunking headers. Although
+# following tests don't really test anything sockjs specific, it's
+# good to make sure that the server is behaving about this.
+#
+class Http10(Test):
+    # We're going to test a greeting url. No dynamic content, just the
+    # simplest possible response.
+    def test_synchronous(self):
+        c = RawHttpConnection(base_url)
+        # In theory 'connection:keep-alive' isn't a valid http/1.0
+        # header, but in this context it shouldn't hurt.
+        r = c.request('GET', base_url, http='1.0',
+                      headers={'Connection':'keep-alive'})
+        self.assertEqual(r.status, 200)
+        # Transfer-encoding is not allowed in http/1.0.
+        self.assertFalse(r.headers.get('transfer-encoding'))
+
+        # There are two ways to give valid response. Use
+        # Content-Length (and maybe connection:keep-alive) or
+        # Connection: close.
+        if not r.headers.get('content-length'):
+            self.assertEqual(r.headers['connection'].lower(), 'close')
+            self.assertEqual(c.read(), 'Welcome to SockJS!\n')
+            self.assertTrue(c.closed())
+        else:
+            self.assertGreater(int(r.headers['content-length']), 19)
+            self.assertEqual(c.read(19), 'Welcome to SockJS!\n')
+            if r.headers['connection'].lower() == 'close':
+                self.assertTrue(c.closed())
+            else:
+                self.assertEqual(r.headers['connection'].lower(), 'keep-alive')
+                # We should be able to issue another request on the same connection
+                r = c.request('GET', base_url, http='1.0',
+                              headers={'Connection':'keep-alive'})
+                self.assertEqual(r.status, 200)
+
+class Http11(Test):
+    def test_synchronous(self):
+        c = RawHttpConnection(base_url)
+        r = c.request('GET', base_url, http='1.1',
+                      headers={'Connection':'keep-alive'})
+        # Server should use 'Content-Length' or 'Transfer-Encoding'
+        self.assertEqual(r.headers['connection'].lower(), 'keep-alive',
+                         "Your server doesn't support connection:keep-alive")
+        if r.headers.get('content-length'):
+            self.assertGreater(int(r.headers['content-length']), 19)
+        else:
+            self.assertEqual(r.headers['transfer-encoding'].lower(), 'chunked')
+            self.assertEqual(c.read_chunk(), 'Welcome to SockJS!\n')
+            self.assertEqual(c.read_chunk(), '')
+        # We should be able to issue another request on the same connection
+        r = c.request('GET', base_url, http='1.1',
+                      headers={'Connection':'keep-alive'})
+        self.assertEqual(r.status, 200)
+
 
 # Footnote
 # ========
