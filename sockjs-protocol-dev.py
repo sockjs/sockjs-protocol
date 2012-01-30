@@ -1322,7 +1322,9 @@ class Http10(Test):
     def test_synchronous(self):
         c = RawHttpConnection(base_url)
         # In theory 'connection:Keep-Alive' isn't a valid http/1.0
-        # header, but in this context it shouldn't hurt.
+        # header, but in this header may in practice be issued by a
+        # http/1.0 client:
+        # http://www.freesoft.org/CIE/RFC/2068/248.htm
         r = c.request('GET', base_url, http='1.0',
                       headers={'Connection':'Keep-Alive'})
         self.assertEqual(r.status, 200)
@@ -1356,6 +1358,10 @@ class Http10(Test):
     def test_streaming(self):
         url = close_base_url + '/000/' + str(uuid.uuid4())
         c = RawHttpConnection(url)
+        # In theory 'connection:Keep-Alive' isn't a valid http/1.0
+        # header, but in this header may in practice be issued by a
+        # http/1.0 client:
+        # http://www.freesoft.org/CIE/RFC/2068/248.htm
         r = c.request('POST', url + '/xhr_streaming', http='1.0',
                       headers={'Connection':'Keep-Alive'})
         self.assertEqual(r.status, 200)
