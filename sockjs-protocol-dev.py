@@ -1322,6 +1322,9 @@ class Http10(Test):
         r = c.request('GET', base_url, http='1.0',
                       headers={'Connection':'Keep-Alive'})
         self.assertEqual(r.status, 200)
+        # In practice the exact http version on the response doesn't
+        # really matter. Many serves always respond 1.1.
+        self.assertTrue(r.http in ['1.0', '1.1'])
         # Transfer-encoding is not allowed in http/1.0.
         self.assertFalse(r.headers.get('transfer-encoding'))
 
@@ -1337,7 +1340,7 @@ class Http10(Test):
             self.assertEqual(c.read(19), 'Welcome to SockJS!\n')
             connection = r.headers.get('connection', '').lower()
             if connection in ['close', '']:
-                # By default http 1.0 shold close connection after every request.
+                # Connection-close behaviour is default in http 1.0
                 self.assertTrue(c.closed())
             else:
                 self.assertEqual(connection, 'keep-alive')
@@ -1346,16 +1349,21 @@ class Http10(Test):
                               headers={'Connection':'Keep-Alive'})
                 self.assertEqual(r.status, 200)
 
+
 class Http11(Test):
     def test_synchronous(self):
         c = RawHttpConnection(base_url)
         r = c.request('GET', base_url, http='1.1',
                       headers={'Connection':'Keep-Alive'})
+        # Keepalive is default in http 1.1
+        self.assertTrue(r.http, '1.1')
+        self.assertTrue(r.headers.get('connection', '').lower() in ['keep-alive', ''],
+                         "Your server doesn't support connection:Keep-Alive")
         # Server should use 'Content-Length' or 'Transfer-Encoding'
-        self.assertEqual(r.headers['connection'].lower(), 'keep-alive',
-                         "Your server doesn't support connection:keep-alive")
         if r.headers.get('content-length'):
             self.assertEqual(int(r.headers['content-length']), 19)
+            self.assertEqual(c.read(19), 'Welcome to SockJS!\n')
+            self.assertFalse(r.headers.get('transfer-encoding'))
         else:
             self.assertEqual(r.headers['transfer-encoding'].lower(), 'chunked')
             self.assertEqual(c.read_chunk(), 'Welcome to SockJS!\n')
