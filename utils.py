@@ -1,5 +1,5 @@
 import urlparse
-import httplib
+import httplib_fork as httplib
 from ws4py.client.threadedclient import WebSocketClient
 import Queue
 import socket

@@ -13,7 +13,7 @@
 import unittest2 as unittest
 import uuid
 import urlparse
-import httplib
+import httplib_fork as httplib
 
 test_top_url = 'http://localhost:8080'
 base_url = test_top_url + '/echo'
