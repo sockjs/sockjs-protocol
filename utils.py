@@ -178,7 +178,7 @@ class RawHttpConnection(object):
         if method == 'POST':
             body = body or ''
         u = urlparse.urlparse(url)
-        headers['Host'] = u.port if u.hostname + ':' + str(u.port) else u.hostname
+        headers['Host'] = u.hostname + ':' + str(u.port) if u.port else u.hostname
         if body is not None:
             headers['Content-Length'] = str(len(body))
 
@@ -210,9 +210,18 @@ class RawHttpConnection(object):
 
         return resp
 
-    def read(self, size=99999):
-        # A single packet by default
-        return self.s.recv(size)
+    def read(self, size=None):
+        if size is None:
+            # A single packet by default
+            return self.s.recv(999999)
+        data = []
+        while size > 0:
+            c = self.s.recv(size)
+            if not c:
+                raise Exception('Socket closed!')
+            size -= len(c)
+            data.append( c )
+        return ''.join(data)
 
     def closed(self):
         # To check if socket is being closed, we need to recv and see
@@ -227,11 +236,4 @@ class RawHttpConnection(object):
     def read_chunk(self):
         line = recvline(self.s).rstrip('\r\n')
         bytes = int(line, 16) + 2 # Additional \r\n
-        data = []
-        while bytes > 0:
-            c = self.s.recv(bytes)
-            if not c:
-                raise Exception('Socket closed!')
-            bytes -= len(c)
-            data.append( c )
-        return (''.join(data))[:-2]
+        return self.read(bytes)[:-2]

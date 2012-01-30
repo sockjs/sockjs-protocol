@@ -1312,6 +1312,10 @@ class HandlingClose(Test):
 # following tests don't really test anything sockjs specific, it's
 # good to make sure that the server is behaving about this.
 #
+# It is not the intention of this test to verify all possible urls -
+# merely to check the sanity of http server implementation.  It is
+# assumed that the implementator is able to apply presented behaviour
+# to other urls served by the sockjs server.
 class Http10(Test):
     # We're going to test a greeting url. No dynamic content, just the
     # simplest possible response.
@@ -1349,6 +1353,27 @@ class Http10(Test):
                               headers={'Connection':'Keep-Alive'})
                 self.assertEqual(r.status, 200)
 
+    def test_streaming(self):
+        url = close_base_url + '/000/' + str(uuid.uuid4())
+        c = RawHttpConnection(url)
+        r = c.request('POST', url + '/xhr_streaming', http='1.0',
+                      headers={'Connection':'Keep-Alive'})
+        self.assertEqual(r.status, 200)
+        # Transfer-encoding is not allowed in http/1.0.
+        self.assertFalse(r.headers.get('transfer-encoding'))
+        # Content-length is not allowed - we don't know it yet.
+        self.assertFalse(r.headers.get('content-length'))
+
+        # Connection:Keep-Alive is not allowed either.
+        connection = r.headers.get('connection', '').lower()
+        self.assertTrue(connection in ['close', ''])
+
+        # This is a the same logic as HandlingClose.test_close_frame
+        self.assertEqual(c.read(2048+1)[0], 'h') # prelude
+        self.assertEqual(c.read(2), 'o\n')
+        self.assertEqual(c.read(19), 'c[3000,"Go away!"]\n')
+        self.assertTrue(c.closed())
+
 
 class Http11(Test):
     def test_synchronous(self):
@@ -1372,6 +1397,24 @@ class Http11(Test):
         r = c.request('GET', base_url, http='1.1',
                       headers={'Connection':'Keep-Alive'})
         self.assertEqual(r.status, 200)
+
+    def test_streaming(self):
+        url = close_base_url + '/000/' + str(uuid.uuid4())
+        c = RawHttpConnection(url)
+        r = c.request('POST', url + '/xhr_streaming', http='1.1',
+                      headers={'Connection':'Keep-Alive'})
+        self.assertEqual(r.status, 200)
+        # Transfer-encoding is required in http/1.1.
+        self.assertTrue(r.headers['transfer-encoding'].lower(), 'chunked')
+        # Content-length is not allowed.
+        self.assertFalse(r.headers.get('content-length'))
+        # Connection header can be anything, so don't bother verifying it.
+
+        # This is a the same logic as HandlingClose.test_close_frame
+        self.assertEqual(c.read_chunk()[0], 'h') # prelude
+        self.assertEqual(c.read_chunk(), 'o\n')
+        self.assertEqual(c.read_chunk(), 'c[3000,"Go away!"]\n')
+        self.assertEqual(c.read_chunk(), '')
 
 
 # Footnote
