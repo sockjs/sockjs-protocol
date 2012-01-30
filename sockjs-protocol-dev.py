@@ -1317,16 +1317,16 @@ class Http10(Test):
     # simplest possible response.
     def test_synchronous(self):
         c = RawHttpConnection(base_url)
-        # In theory 'connection:keep-alive' isn't a valid http/1.0
+        # In theory 'connection:Keep-Alive' isn't a valid http/1.0
         # header, but in this context it shouldn't hurt.
         r = c.request('GET', base_url, http='1.0',
-                      headers={'Connection':'keep-alive'})
+                      headers={'Connection':'Keep-Alive'})
         self.assertEqual(r.status, 200)
         # Transfer-encoding is not allowed in http/1.0.
         self.assertFalse(r.headers.get('transfer-encoding'))
 
         # There are two ways to give valid response. Use
-        # Content-Length (and maybe connection:keep-alive) or
+        # Content-Length (and maybe connection:Keep-Alive) or
         # Connection: close.
         if not r.headers.get('content-length'):
             self.assertEqual(r.headers['connection'].lower(), 'close')
@@ -1343,14 +1343,14 @@ class Http10(Test):
                 self.assertEqual(connection, 'keep-alive')
                 # We should be able to issue another request on the same connection
                 r = c.request('GET', base_url, http='1.0',
-                              headers={'Connection':'keep-alive'})
+                              headers={'Connection':'Keep-Alive'})
                 self.assertEqual(r.status, 200)
 
 class Http11(Test):
     def test_synchronous(self):
         c = RawHttpConnection(base_url)
         r = c.request('GET', base_url, http='1.1',
-                      headers={'Connection':'keep-alive'})
+                      headers={'Connection':'Keep-Alive'})
         # Server should use 'Content-Length' or 'Transfer-Encoding'
         self.assertEqual(r.headers['connection'].lower(), 'keep-alive',
                          "Your server doesn't support connection:keep-alive")
@@ -1362,7 +1362,7 @@ class Http11(Test):
             self.assertEqual(c.read_chunk(), '')
         # We should be able to issue another request on the same connection
         r = c.request('GET', base_url, http='1.1',
-                      headers={'Connection':'keep-alive'})
+                      headers={'Connection':'Keep-Alive'})
         self.assertEqual(r.status, 200)
 
 
