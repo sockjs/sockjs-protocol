@@ -923,7 +923,10 @@ class EventSource(Test):
         # was delivered (by default 128KiB, but 4KiB for test server).
         # Although EventSource transport is better, and in theory may
         # not need this mechanism, there are some bugs in the browsers
-        # that actually prevent the automatic GC.
+        # that actually prevent the automatic GC. See:
+        #  * https://bugs.webkit.org/show_bug.cgi?id=61863
+        #  * http://code.google.com/p/chromium/issues/detail?id=68160
+
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET_async(url + '/eventsource')
         self.assertEqual(r.status, 200)
