@@ -542,7 +542,8 @@ class WebsocketHixie76(Test):
 
         # The connection should be closed after the close frame.
         with self.assertRaises(websocket.ConnectionClosedException):
-            ws.recv()
+            if ws.recv() is None:
+                raise websocket.ConnectionClosedException
         ws.close()
 
     # Empty frames must be ignored by the server side.
@@ -634,7 +635,8 @@ class WebsocketHixie76(Test):
         self.assertEqual(ws.recv(), u'o')
         ws.send(u'"a')
         with self.assertRaises(websocket.ConnectionClosedException):
-            ws.recv()
+            if ws.recv() is None:
+                raise websocket.ConnectionClosedException
         ws.close()
 
 
@@ -930,7 +932,6 @@ class EventSource(Test):
         # that actually prevent the automatic GC. See:
         #  * https://bugs.webkit.org/show_bug.cgi?id=61863
         #  * http://code.google.com/p/chromium/issues/detail?id=68160
-
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET_async(url + '/eventsource')
         self.assertEqual(r.status, 200)

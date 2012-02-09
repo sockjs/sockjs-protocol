@@ -11,7 +11,7 @@ class HttpResponse:
                  headers={}, body=None, async=False, load=True):
         headers = headers.copy()
         u = urlparse.urlparse(url)
-        kwargs = {'timeout': None if async else 1.0}
+        kwargs = {'timeout': 1.0}
         if u.scheme == 'http':
             conn = httplib.HTTPConnection(u.netloc, **kwargs)
         elif u.scheme == 'https':
