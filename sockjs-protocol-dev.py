@@ -1388,9 +1388,10 @@ class Http10(Test):
         # Content-length is not allowed - we don't know it yet.
         self.assertFalse(r.headers.get('content-length'))
 
-        # Connection:Keep-Alive is not allowed either.
-        connection = r.headers.get('connection', '').lower()
-        self.assertTrue(connection in ['close', ''])
+        # `Connection` should be not set or be `close`. On the other
+        # hand, if it is set to `Keep-Alive`, it won't really hurt, as
+        # we are confident that neither `Content-Length` nor
+        # `Transfer-Encoding` are set.
 
         # This is a the same logic as HandlingClose.test_close_frame
         self.assertEqual(c.read(2048+1)[0], 'h') # prelude
