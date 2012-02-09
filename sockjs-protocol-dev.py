@@ -599,27 +599,31 @@ class WebsocketHixie76(Test):
     # * Write response headers.
     # * Receive request nonce.
     # * Write response nonce.
-    def test_headersSanity(self):
+    def test_haproxy(self):
         url = base_url.split(':',1)[1] + \
                  '/000/' + str(uuid.uuid4()) + '/websocket'
         ws_url = 'ws:' + url
         http_url = 'http:' + url
         origin = '/'.join(http_url.split('/')[:3])
-        h = {'Upgrade': 'WebSocket',
-             'Connection': 'Upgrade',
-             'Origin': origin,
-             'Sec-WebSocket-Key1': '4 @1  46546xW%0l 1 5',
-             'Sec-WebSocket-Key2': '12998 5 Y3 1  .P00'
-            }
 
-        r = GET_async(http_url, headers=h)
+        c = RawHttpConnection(http_url)
+        r = c.request('GET', http_url, http='1.1', headers={
+                'Connection':'Upgrade',
+                'Upgrade':'WebSocket',
+                'Origin': origin,
+                'Sec-WebSocket-Key1': '4 @1  46546xW%0l 1 5',
+                'Sec-WebSocket-Key2': '12998 5 Y3 1  .P00'
+                })
+        # First check response headers
         self.assertEqual(r.status, 101)
-        self.assertEqual(r['sec-websocket-location'], ws_url)
-        self.assertEqual(r['connection'].lower(), 'upgrade')
-        self.assertEqual(r['upgrade'].lower(), 'websocket')
-        self.assertEqual(r['sec-websocket-origin'], origin)
-        self.assertFalse(r['content-length'])
-        r.close()
+        self.assertEqual(r.headers['connection'].lower(), 'upgrade')
+        self.assertEqual(r.headers['upgrade'].lower(), 'websocket')
+        self.assertEqual(r.headers['sec-websocket-location'], ws_url)
+        self.assertEqual(r.headers['sec-websocket-origin'], origin)
+        self.assertFalse('Content-Length' in r.headers)
+        # Later send token
+        c.send('aaaaaaaa')
+        self.assertEqual(c.read(), '\xca4\x00\xd8\xa5\x08G\x97,\xd5qZ\xba\xbfC{')
 
     # When user sends broken data - broken JSON for example, the
     # server must terminate the ws connection.

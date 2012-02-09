@@ -143,11 +143,11 @@ class CaseInsensitiveDict(object):
 
     def __getitem__(self, key, *args, **kwargs):
         pkey = self.lower.setdefault(key.lower(), key)
-        return dict.__getitem__(self.d, pkey, *args, **kwargs)
+        return self.d.__getitem__(pkey, *args, **kwargs)
 
     def __setitem__(self, key, *args, **kwargs):
         pkey = self.lower.setdefault(key.lower(), key)
-        return dict.__setitem__(self.d, pkey, *args, **kwargs)
+        return self.d.__setitem__(pkey, *args, **kwargs)
 
     def items(self):
         for k in self.lower.values():
@@ -160,6 +160,9 @@ class CaseInsensitiveDict(object):
         pkey = self.lower.setdefault(key.lower(), key)
         return self.d.get(pkey, *args, **kwargs)
 
+    def __contains__(self, key):
+        pkey = self.lower.setdefault(key.lower(), key)
+        return pkey in self.d
 
 class Response(object):
     def __repr__(self):
@@ -237,3 +240,6 @@ class RawHttpConnection(object):
         line = recvline(self.s).rstrip('\r\n')
         bytes = int(line, 16) + 2 # Additional \r\n
         return self.read(bytes)[:-2]
+
+    def send(self, data):
+        self.s.sendall(data)
