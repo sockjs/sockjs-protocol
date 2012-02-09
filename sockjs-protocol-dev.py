@@ -1105,6 +1105,16 @@ class JsonPolling(Test):
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'x("a[\\"abc\\",\\"%61bc\\"]");\r\n')
 
+    def test_close(self):
+        url = close_base_url + '/000/' + str(uuid.uuid4())
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.body, 'x("o");\r\n')
+
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.body, 'x("c[3000,\\"Go away!\\"]");\r\n')
+
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.body, 'x("c[3000,\\"Go away!\\"]");\r\n')
 
 # Raw WebSocket url: `/websocket`
 # -------------------------------
