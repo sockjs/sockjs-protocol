@@ -14,8 +14,9 @@ import unittest2 as unittest
 import uuid
 import urlparse
 import httplib_fork as httplib
+import os
 
-test_top_url = 'http://localhost:8080'
+test_top_url = os.environ.get('SOCKJS_URL', 'http://localhost:8081')
 base_url = test_top_url + '/echo'
 
 def POST_empty(url):
