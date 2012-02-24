@@ -824,6 +824,35 @@ class XhrPolling(Test):
         self.assertEqual(r['Set-Cookie'].split(';')[1].lower().strip(),
                          'path=/')
 
+    # When client sends a CORS request with
+    # 'Access-Control-Request-Headers' header set, the server must
+    # echo back this header as 'Access-Control-Allow-Headers'. This is
+    # required in order to get CORS working. Browser will be unhappy
+    # otherwise.
+    def test_request_headers_cors(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr',
+                 headers={'Access-Control-Request-Headers': 'a, b, c'})
+        self.assertEqual(r.status, 200)
+        self.verify_cors(r)
+        self.verify_cookie(r)
+        self.assertEqual(r['Access-Control-Allow-Headers'], 'a, b, c')
+
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr',
+                 headers={'Access-Control-Request-Headers': ''})
+        self.assertEqual(r.status, 200)
+        self.verify_cors(r)
+        self.verify_cookie(r)
+        self.assertFalse(r['Access-Control-Allow-Headers'])
+
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr')
+        self.assertEqual(r.status, 200)
+        self.verify_cors(r)
+        self.verify_cookie(r)
+        self.assertFalse(r['Access-Control-Allow-Headers'])
+
 
 # XhrStreaming: `/*/*/xhr_streaming`
 # ----------------------------------
