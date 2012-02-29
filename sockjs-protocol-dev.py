@@ -627,7 +627,7 @@ class WebsocketHixie76(Test):
         self.assertEqual(c.read(), '\xca4\x00\xd8\xa5\x08G\x97,\xd5qZ\xba\xbfC{')
 
     # When user sends broken data - broken JSON for example, the
-    # server must terminate the ws connection.
+    # server must abruptly terminate the ws connection.
     def test_broken_json(self):
         ws_url = 'ws:' + base_url.split(':',1)[1] + \
                  '/000/' + str(uuid.uuid4()) + '/websocket'
@@ -687,7 +687,7 @@ class WebsocketHybi10(Test):
             r.close()
 
     # When user sends broken data - broken JSON for example, the
-    # server must terminate the ws connection.
+    # server must abruptly terminate the ws connection.
     def test_broken_json(self):
         ws_url = 'ws:' + base_url.split(':',1)[1] + \
                  '/000/' + str(uuid.uuid4()) + '/websocket'
