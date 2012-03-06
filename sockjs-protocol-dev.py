@@ -84,7 +84,7 @@ class Test(unittest.TestCase):
     # responses to OPTIONS requests must be cacheable and contain
     # appropriate headers.
     def verify_options(self, url, allowed_methods):
-        for origin in [None, 'test']:
+        for origin in [None, 'test', 'null']:
             h = {}
             if origin:
                 h['Origin'] = origin
@@ -116,7 +116,10 @@ class Test(unittest.TestCase):
     # Most of the XHR/Ajax based transports do work CORS if proper
     # headers are set.
     def verify_cors(self, r, origin=None):
-        self.assertEqual(r['access-control-allow-origin'], origin or '*')
+        if origin and origin != 'null':
+            self.assertEqual(r['access-control-allow-origin'], origin)
+        else:
+            self.assertEqual(r['access-control-allow-origin'], '*')
         # In order to get cookies (`JSESSIONID` mostly) flying, we
         # need to set `allow-credentials` header to true.
         self.assertEqual(r['access-control-allow-credentials'], 'true')
@@ -301,6 +304,18 @@ class InfoTest(Test):
     def test_options(self):
         self.verify_options(base_url + '/info', 'OPTIONS, GET')
 
+    # SockJS client may be hosted from file:// url. In practice that
+    # means the 'Origin' headers sent by the browser will have a value
+    # of a string "null". Unfortunately, just echoing back "null"
+    # won't work - browser will understand that as a rejection. We
+    # must respond with star "*" origin in such case.
+    def test_options_null_origin(self):
+            url = base_url + '/info'
+            r = OPTIONS(url, headers={'Origin': 'null'})
+            self.assertEqual(r.status, 204)
+            self.assertFalse(r.body)
+            self.assertEqual(r['access-control-allow-origin'], '*')
+
     # The 'disabled_websocket_echo' service should have websockets
     # disabled.
     def test_disabled_websocket(self):
@@ -308,6 +323,7 @@ class InfoTest(Test):
         self.assertEqual(r.status, 200)
         data = json.loads(r.body)
         self.assertEqual(data['websocket'], False)
+
 
 # Session URLs
 # ============
