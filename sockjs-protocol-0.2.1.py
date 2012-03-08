@@ -1435,7 +1435,7 @@ class Http11(Test):
         self.assertFalse(r.headers.get('content-length'))
         # Connection header can be anything, so don't bother verifying it.
 
-        # This is a the same logic as HandlingClose.test_close_frame
+        # This is the same logic as HandlingClose.test_close_frame
         self.assertEqual(c.read_chunk()[0], 'h') # prelude
         self.assertEqual(c.read_chunk(), 'o\n')
         self.assertEqual(c.read_chunk(), 'c[3000,"Go away!"]\n')
