@@ -414,8 +414,7 @@ class SessionURLs(Test):
 class Protocol(Test):
     # When server receives a request with unknown `session_id` it must
     # recognize that as request for a new session. When server opens a
-    # new sesion it must immediately send an frame containing a letter
-    # `o`.
+    # new sesion it must immediately send a frame containing letter `o`.
     def test_simpleSession(self):
         trans_url = base_url + '/000/' + str(uuid.uuid4())
         r = POST(trans_url + '/xhr')
