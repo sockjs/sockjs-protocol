@@ -572,7 +572,7 @@ class WebsocketHixie76(Test):
         self.assertEqual(ws.recv(), u'o')
         # Server must ignore empty messages.
         ws.send(u'')
-        ws.send(u'"a"')
+        ws.send(u'["a"]')
         self.assertEqual(ws.recv(), u'a["a"]')
         ws.close()
 
@@ -651,7 +651,7 @@ class WebsocketHixie76(Test):
                  '/000/' + str(uuid.uuid4()) + '/websocket'
         ws = websocket.create_connection(ws_url)
         self.assertEqual(ws.recv(), u'o')
-        ws.send(u'"a')
+        ws.send(u'["a')
         with self.assertRaises(websocket.ConnectionClosedException):
             if ws.recv() is None:
                 raise websocket.ConnectionClosedException
@@ -667,7 +667,7 @@ class WebsocketHybi10(Test):
         self.assertEqual(ws.recv(), 'o')
         # Server must ignore empty messages.
         ws.send(u'')
-        ws.send(u'"a"')
+        ws.send(u'["a"]')
         self.assertEqual(ws.recv(), 'a["a"]')
         ws.close()
 
@@ -711,7 +711,7 @@ class WebsocketHybi10(Test):
                  '/000/' + str(uuid.uuid4()) + '/websocket'
         ws = WebSocket8Client(ws_url)
         self.assertEqual(ws.recv(), u'o')
-        ws.send(u'"a')
+        ws.send(u'["a')
         with self.assertRaises(ws.ConnectionClosedException):
             ws.recv()
         ws.close()
