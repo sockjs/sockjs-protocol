@@ -18,7 +18,7 @@ import time
 import json
 import re
 import unittest2 as unittest
-from utils import GET, GET_async, POST, POST_async, OPTIONS
+from utils import GET, GET_async, POST, POST_async, OPTIONS, old_POST_async
 from utils import WebSocket8Client
 from utils import RawHttpConnection
 import uuid
@@ -466,7 +466,7 @@ class Protocol(Test):
         # The server must not allow two receiving connections to wait
         # on a single session. In such case the server must send a
         # close frame to the new connection.
-        r1 = POST_async(trans_url + '/xhr', load=False)
+        r1 = old_POST_async(trans_url + '/xhr', load=False)
         r2 = POST(trans_url + '/xhr')
 
         self.assertEqual(r2.body, 'c[2010,"Another connection still open"]\n')
@@ -1292,8 +1292,8 @@ class HandlingClose(Test):
 
         # HTTP streaming requests should be automatically closed after
         # close.
-        self.assertEqual(r1.read(), None)
-        self.assertEqual(r2.read(), None)
+        self.assertFalse(r1.read())
+        self.assertFalse(r2.read())
 
     def test_close_request(self):
         url = base_url + '/000/' + str(uuid.uuid4())
@@ -1308,7 +1308,7 @@ class HandlingClose(Test):
 
         # HTTP streaming requests should be automatically closed after
         # getting the close frame.
-        self.assertEqual(r2.read(), None)
+        self.assertFalse(r2.read())
 
     # When a polling request is closed by a network error - not by
     # server, the session should be automatically closed. When there
@@ -1324,7 +1324,7 @@ class HandlingClose(Test):
         r2 = POST_async(url + '/xhr_streaming')
         r2.read() # prelude
         self.assertEqual(r2.read(), 'c[2010,"Another connection still open"]\n')
-        self.assertEqual(r2.read(), None)
+        self.assertFalse(r2.read())
 
         r1.close()
 
@@ -1343,7 +1343,7 @@ class HandlingClose(Test):
         r1 = POST(url + '/xhr')
         self.assertEqual(r1.body, 'o\n')
 
-        r1 = POST_async(url + '/xhr', load=False)
+        r1 = old_POST_async(url + '/xhr', load=False)
 
         # Can't do second polling request now.
         r2 = POST(url + '/xhr')

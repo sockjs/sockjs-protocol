@@ -74,10 +74,7 @@ class HttpResponse:
             self.close()
             return None
 
-def GET_async(url, **kwargs):
-    return HttpResponse('GET', url, async=True, **kwargs)
-
-def POST_async(url, **kwargs):
+def old_POST_async(url, **kwargs):
     return HttpResponse('POST', url, async=True, **kwargs)
 
 
@@ -293,3 +290,33 @@ def POST(url, **kwargs):
 
 def OPTIONS(url, **kwargs):
     return SynchronousHttpRequest('OPTIONS', url, **kwargs)
+
+def AsynchronousHttpRequest(method, url, **kwargs):
+    c = RawHttpConnection(url)
+    r = c.request(method, url, **kwargs)
+    if r.get('Transfer-Encoding', '').lower() == 'chunked':
+        def read():
+            return c.read_chunk()
+        r.read = read
+    elif r.get('Content-Length', ''):
+        cl = int(r['Content-Length'])
+        def read():
+            return c.read(cl)
+        r.read = read
+    elif ('close' in [k.strip() for k in r.get('Connection', '').lower().split(',')]
+          or r.status == 101):
+        def read():
+            return c.read()
+        r.read = read
+    else:
+        raise Exception(str(r.status) + ' '+str(r.headers) + " No Transfer-Encoding:chunked nor Content-Length nor Connection:Close!")
+    def close():
+        c.close()
+    r.close = close
+    return r
+
+def GET_async(url, **kwargs):
+    return AsynchronousHttpRequest('GET', url, **kwargs)
+
+def POST_async(url, **kwargs):
+    return AsynchronousHttpRequest('POST', url, **kwargs)
