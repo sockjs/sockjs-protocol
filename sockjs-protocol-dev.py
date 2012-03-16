@@ -513,17 +513,6 @@ class WebsocketHttpErrors(Test):
         self.assertEqual(r.status, 400)
         self.assertTrue('Can "Upgrade" only to "WebSocket".' in r.body)
 
-    # Server should be able to reject connections if origin is
-    # invalid.
-    def test_verifyOrigin(self):
-        '''
-        r = GET(base_url + '/0/0/websocket', {'Upgrade': 'WebSocket',
-                                              'Origin': 'VeryWrongOrigin'})
-        self.assertEqual(r.status, 400)
-        self.assertEqual(r.body, 'Unverified origin.')
-        '''
-        pass
-
     # Some proxies and load balancers can rewrite 'Connection' header,
     # in such case we must refuse connection.
     def test_invalidConnectionHeader(self):
