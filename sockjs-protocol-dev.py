@@ -468,9 +468,11 @@ class Protocol(Test):
         # close frame to the new connection.
         r1 = POST_async(trans_url + '/xhr', load=False)
         r2 = POST(trans_url + '/xhr')
-        r1.close()
+
         self.assertEqual(r2.body, 'c[2010,"Another connection still open"]\n')
         self.assertEqual(r2.status, 200)
+
+        r1.close()
 
     # The server may terminate the connection, passing error code and
     # message.
