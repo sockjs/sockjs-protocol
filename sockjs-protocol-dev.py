@@ -290,7 +290,7 @@ class InfoTest(Test):
 
     # As browsers don't have a good entropy source, the server must
     # help with tht. Info url must supply a good, unpredictable random
-    # number from the range 0..2^32 to feed the browser.
+    # number from the range <0; 2^32-1> to feed the browser.
     def test_entropy(self):
         r1 = GET(base_url + '/info')
         data1 = json.loads(r1.body)
