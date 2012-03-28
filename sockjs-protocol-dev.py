@@ -618,7 +618,8 @@ class WebsocketHixie76(Test):
         self.assertFalse('Content-Length' in r.headers)
         # Later send token
         c.send('aaaaaaaa')
-        self.assertEqual(c.read(), '\xca4\x00\xd8\xa5\x08G\x97,\xd5qZ\xba\xbfC{')
+        self.assertEqual(c.read()[:16],
+                         '\xca4\x00\xd8\xa5\x08G\x97,\xd5qZ\xba\xbfC{')
 
     # When user sends broken data - broken JSON for example, the
     # server must abruptly terminate the ws connection.
