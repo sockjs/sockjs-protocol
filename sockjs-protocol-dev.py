@@ -267,9 +267,8 @@ class InfoTest(Test):
         # Are websockets enabled on the server?
         self.assertEqual(data['websocket'], True)
         # Do transports need to support cookies (ie: for load
-        # balancing purposes. Test server must have `cookie_needed`
-        # option enabled.
-        self.assertEqual(data['cookie_needed'], True)
+        # balancing purposes.
+        self.assertTrue(data['cookie_needed'] in  [True, False])
         # List of allowed origins. Currently ignored.
         self.assertEqual(data['origins'], ['*:*'])
         # Source of entropy for random number generator.
@@ -1123,6 +1122,15 @@ class JsonPolling(Test):
 # session urls.
 #
 class JsessionidCookie(Test):
+    # Verify if info has cookie_needed set.
+    def test_basic(self):
+        r = GET(cookie_base_url + '/info')
+        self.assertEqual(r.status, 200)
+        self.verify_no_cookie(r)
+
+        data = json.loads(r.body)
+        self.assertEqual(data['cookie_needed'], True)
+
     # Helper to check cookie validity.
     def verify_cookie(self, r):
         self.assertEqual(r['Set-Cookie'].split(';')[0].strip(),
