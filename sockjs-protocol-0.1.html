@@ -39,7 +39,8 @@ using real browsers are always required.</p>
 <span class="kn">import</span> <span class="nn">uuid</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-1'>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-1'>#</a>
@@ -50,7 +51,8 @@ using real browsers are always required.</p>
       <div class="highlight"><pre></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-2'>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-2'>#</a>
@@ -84,7 +86,8 @@ enough time to timeout.</p>
 <span class="n">wsoff_base_url</span> <span class="o">=</span> <span class="n">test_top_url</span> <span class="o">+</span> <span class="s">&#39;/disabled_websocket_echo&#39;</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-3'>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-3'>#</a>
@@ -95,7 +98,8 @@ enough time to timeout.</p>
       <div class="highlight"><pre></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-4'>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-4'>#</a>
@@ -106,7 +110,8 @@ enough time to timeout.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">Test</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-5'>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-5'>#</a>
@@ -123,7 +128,8 @@ define a body or a content type.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-6'>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-6'>#</a>
@@ -138,7 +144,8 @@ define a body or a content type.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_no_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-7'>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-7'>#</a>
@@ -166,7 +173,8 @@ appropriate headers.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-8'>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-8'>#</a>
@@ -184,7 +192,8 @@ must set this cookie.</p>
                          <span class="s">&#39;path=/&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-9'>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-9'>#</a>
@@ -196,7 +205,8 @@ must set this cookie.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Set-Cookie&#39;</span><span class="p">])</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-10'>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-10'>#</a>
@@ -209,7 +219,8 @@ headers are set.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;access-control-allow-origin&#39;</span><span class="p">],</span> <span class="n">origin</span> <span class="ow">or</span> <span class="s">&#39;*&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-11'>
+  <div class='clearall'></div>
+  <div class='section' id='section-11'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-11'>#</a>
@@ -221,7 +232,8 @@ need to set <code>allow-credentials</code> header to true.</p>
       <div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;access-control-allow-credentials&#39;</span><span class="p">],</span> <span class="s">&#39;true&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-12'>
+  <div class='clearall'></div>
+  <div class='section' id='section-12'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-12'>#</a>
@@ -239,7 +251,8 @@ to disallow any caching.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;Last-Modified&#39;</span><span class="p">])</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-13'>
+  <div class='clearall'></div>
+  <div class='section' id='section-13'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-13'>#</a>
@@ -250,7 +263,8 @@ to disallow any caching.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">BaseUrlGreeting</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-14'>
+  <div class='clearall'></div>
+  <div class='section' id='section-14'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-14'>#</a>
@@ -268,7 +282,8 @@ top url. Make sure the greeting is valid.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify_no_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-15'>
+  <div class='clearall'></div>
+  <div class='section' id='section-15'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-15'>#</a>
@@ -282,7 +297,8 @@ top url. Make sure the greeting is valid.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">))</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-16'>
+  <div class='clearall'></div>
+  <div class='section' id='section-16'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-16'>#</a>
@@ -293,7 +309,8 @@ top url. Make sure the greeting is valid.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">IframePage</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-17'>
+  <div class='clearall'></div>
+  <div class='section' id='section-17'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-17'>#</a>
@@ -325,7 +342,8 @@ communicate with the server within the same domain.</p>
 <span class="s">&#39;&#39;&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-18'>
+  <div class='clearall'></div>
+  <div class='section' id='section-18'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-18'>#</a>
@@ -337,7 +355,8 @@ communicate with the server within the same domain.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/iframe.html&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-19'>
+  <div class='clearall'></div>
+  <div class='section' id='section-19'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-19'>#</a>
@@ -354,7 +373,8 @@ revision.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-20'>
+  <div class='clearall'></div>
+  <div class='section' id='section-20'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-20'>#</a>
@@ -370,7 +390,8 @@ supplying a random query string.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-21'>
+  <div class='clearall'></div>
+  <div class='section' id='section-21'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-21'>#</a>
@@ -385,7 +406,8 @@ supplying a random query string.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-22'>
+  <div class='clearall'></div>
+  <div class='section' id='section-22'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-22'>#</a>
@@ -400,7 +422,8 @@ served with 'text/html' content type.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">],</span> <span class="s">&#39;text/html; charset=UTF-8&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-23'>
+  <div class='clearall'></div>
+  <div class='section' id='section-23'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-23'>#</a>
@@ -418,7 +441,8 @@ Last-Modified header.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;last-modified&#39;</span><span class="p">])</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-24'>
+  <div class='clearall'></div>
+  <div class='section' id='section-24'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-24'>#</a>
@@ -431,7 +455,8 @@ Last-Modified header.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">match</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-25'>
+  <div class='clearall'></div>
+  <div class='section' id='section-25'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-25'>#</a>
@@ -446,7 +471,8 @@ Last-Modified header.</p>
         <span class="k">return</span> <span class="n">r</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-26'>
+  <div class='clearall'></div>
+  <div class='section' id='section-26'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-26'>#</a>
@@ -468,7 +494,8 @@ requests.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-27'>
+  <div class='clearall'></div>
+  <div class='section' id='section-27'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-27'>#</a>
@@ -480,7 +507,8 @@ requests.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">ChunkingTest</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-28'>
+  <div class='clearall'></div>
+  <div class='section' id='section-28'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-28'>#</a>
@@ -516,7 +544,8 @@ indeed working.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cors</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-29'>
+  <div class='clearall'></div>
+  <div class='section' id='section-29'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-29'>#</a>
@@ -527,7 +556,8 @@ indeed working.</p>
       <div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-30'>
+  <div class='clearall'></div>
+  <div class='section' id='section-30'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-30'>#</a>
@@ -538,7 +568,8 @@ indeed working.</p>
       <div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39; &#39;</span> <span class="o">*</span> <span class="mi">2048</span> <span class="o">+</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-31'>
+  <div class='clearall'></div>
+  <div class='section' id='section-31'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-31'>#</a>
@@ -549,7 +580,8 @@ indeed working.</p>
       <div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-32'>
+  <div class='clearall'></div>
+  <div class='section' id='section-32'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-32'>#</a>
@@ -560,7 +592,8 @@ indeed working.</p>
       <div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;h</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-33'>
+  <div class='clearall'></div>
+  <div class='section' id='section-33'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-33'>#</a>
@@ -573,7 +606,8 @@ indeed working.</p>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-34'>
+  <div class='clearall'></div>
+  <div class='section' id='section-34'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-34'>#</a>
@@ -585,7 +619,8 @@ indeed working.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_options</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/chunking_test&#39;</span><span class="p">,</span> <span class="s">&#39;OPTIONS, POST&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-35'>
+  <div class='clearall'></div>
+  <div class='section' id='section-35'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-35'>#</a>
@@ -596,7 +631,8 @@ indeed working.</p>
       <div class="highlight"><pre></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-36'>
+  <div class='clearall'></div>
+  <div class='section' id='section-36'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-36'>#</a>
@@ -620,7 +656,8 @@ application. This field must be protected from the app.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">SessionURLs</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-37'>
+  <div class='clearall'></div>
+  <div class='section' id='section-37'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-37'>#</a>
@@ -634,7 +671,8 @@ application. This field must be protected from the app.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">session_part</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-38'>
+  <div class='clearall'></div>
+  <div class='section' id='section-38'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-38'>#</a>
@@ -649,7 +687,8 @@ facilitites.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-39'>
+  <div class='clearall'></div>
+  <div class='section' id='section-39'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-39'>#</a>
@@ -664,7 +703,8 @@ less or more parts.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">POST</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">))</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-40'>
+  <div class='clearall'></div>
+  <div class='section' id='section-40'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-40'>#</a>
@@ -690,7 +730,8 @@ parameter for load balancer and must be ignored by the server.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-41'>
+  <div class='clearall'></div>
+  <div class='section' id='section-41'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-41'>#</a>
@@ -738,7 +779,8 @@ facilities.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">Protocol</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-42'>
+  <div class='clearall'></div>
+  <div class='section' id='section-42'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-42'>#</a>
@@ -757,7 +799,8 @@ new sesion it must immediately send an frame containing a letter
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-43'>
+  <div class='clearall'></div>
+  <div class='section' id='section-43'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-43'>#</a>
@@ -779,7 +822,8 @@ requests for sending messages.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-44'>
+  <div class='clearall'></div>
+  <div class='section' id='section-44'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-44'>#</a>
@@ -792,7 +836,8 @@ requests for sending messages.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">cookie</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-45'>
+  <div class='clearall'></div>
+  <div class='section' id='section-45'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-45'>#</a>
@@ -806,7 +851,8 @@ character. This delays may be configurable.</p>
       <div class="highlight"><pre>        <span class="k">pass</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-46'>
+  <div class='clearall'></div>
+  <div class='section' id='section-46'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-46'>#</a>
@@ -823,7 +869,8 @@ close frame to the new connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-47'>
+  <div class='clearall'></div>
+  <div class='section' id='section-47'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-47'>#</a>
@@ -842,7 +889,8 @@ message.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-48'>
+  <div class='clearall'></div>
+  <div class='section' id='section-48'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-48'>#</a>
@@ -856,7 +904,8 @@ the close message.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-49'>
+  <div class='clearall'></div>
+  <div class='section' id='section-49'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-49'>#</a>
@@ -867,7 +916,8 @@ the close message.</p>
       <div class="highlight"><pre><span class="kn">import</span> <span class="nn">websocket</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-50'>
+  <div class='clearall'></div>
+  <div class='section' id='section-50'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-50'>#</a>
@@ -886,7 +936,8 @@ following variants:</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">WebsocketHttpErrors</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-51'>
+  <div class='clearall'></div>
+  <div class='section' id='section-51'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-51'>#</a>
@@ -906,7 +957,8 @@ must be small (less than 1KiB).</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">),</span> <span class="mi">1025</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-52'>
+  <div class='clearall'></div>
+  <div class='section' id='section-52'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-52'>#</a>
@@ -920,7 +972,8 @@ must be small (less than 1KiB).</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;Can &quot;Upgrade&quot; only to &quot;WebSocket&quot;.&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-53'>
+  <div class='clearall'></div>
+  <div class='section' id='section-53'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-53'>#</a>
@@ -939,7 +992,8 @@ invalid.</p>
         <span class="k">pass</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-54'>
+  <div class='clearall'></div>
+  <div class='section' id='section-54'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-54'>#</a>
@@ -955,7 +1009,8 @@ in such case we must refuse connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;&quot;Connection&quot; must be &quot;Upgrade&quot;.&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-55'>
+  <div class='clearall'></div>
+  <div class='section' id='section-55'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-55'>#</a>
@@ -971,7 +1026,8 @@ in such case we must refuse connection.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-56'>
+  <div class='clearall'></div>
+  <div class='section' id='section-56'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-56'>#</a>
@@ -982,7 +1038,8 @@ in such case we must refuse connection.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">WebsocketHixie76</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-57'>
+  <div class='clearall'></div>
+  <div class='section' id='section-57'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-57'>#</a>
@@ -1000,7 +1057,8 @@ in such case we must refuse connection.</p>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-58'>
+  <div class='clearall'></div>
+  <div class='section' id='section-58'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-58'>#</a>
@@ -1017,7 +1075,8 @@ in such case we must refuse connection.</p>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-59'>
+  <div class='clearall'></div>
+  <div class='section' id='section-59'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-59'>#</a>
@@ -1032,7 +1091,8 @@ in such case we must refuse connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;o&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-60'>
+  <div class='clearall'></div>
+  <div class='section' id='section-60'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-60'>#</a>
@@ -1048,7 +1108,8 @@ in such case we must refuse connection.</p>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-61'>
+  <div class='clearall'></div>
+  <div class='section' id='section-61'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-61'>#</a>
@@ -1081,7 +1142,8 @@ correct to have two separate sessions sharing the same
         <span class="n">ws2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-62'>
+  <div class='clearall'></div>
+  <div class='section' id='section-62'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-62'>#</a>
@@ -1097,7 +1159,8 @@ previous connection.</p>
         <span class="n">ws1</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-63'>
+  <div class='clearall'></div>
+  <div class='section' id='section-63'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-63'>#</a>
@@ -1137,7 +1200,8 @@ work like that:</p>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-64'>
+  <div class='clearall'></div>
+  <div class='section' id='section-64'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-64'>#</a>
@@ -1155,7 +1219,8 @@ server must terminate the ws connection.</p>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">websocket</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-65'>
+  <div class='clearall'></div>
+  <div class='section' id='section-65'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-65'>#</a>
@@ -1167,7 +1232,8 @@ server must terminate the ws connection.</p>
                 <span class="k">raise</span> <span class="n">websocket</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-66'>
+  <div class='clearall'></div>
+  <div class='section' id='section-66'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-66'>#</a>
@@ -1178,7 +1244,8 @@ server must terminate the ws connection.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">WebsocketHybi10</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-67'>
+  <div class='clearall'></div>
+  <div class='section' id='section-67'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-67'>#</a>
@@ -1193,7 +1260,8 @@ server must terminate the ws connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">&#39;o&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-68'>
+  <div class='clearall'></div>
+  <div class='section' id='section-68'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-68'>#</a>
@@ -1209,7 +1277,8 @@ server must terminate the ws connection.</p>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-69'>
+  <div class='clearall'></div>
+  <div class='section' id='section-69'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-69'>#</a>
@@ -1225,7 +1294,8 @@ server must terminate the ws connection.</p>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-70'>
+  <div class='clearall'></div>
+  <div class='section' id='section-70'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-70'>#</a>
@@ -1257,7 +1327,8 @@ Hybi-07 and Hybi-10.</p>
             <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-71'>
+  <div class='clearall'></div>
+  <div class='section' id='section-71'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-71'>#</a>
@@ -1275,7 +1346,8 @@ server must terminate the ws connection.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WebSocket8Client</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">,</span> <span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-72'>
+  <div class='clearall'></div>
+  <div class='section' id='section-72'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-72'>#</a>
@@ -1301,7 +1373,8 @@ sends: 'Connection: keep-alive, Upgrade'. Brilliant.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-73'>
+  <div class='clearall'></div>
+  <div class='section' id='section-73'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-73'>#</a>
@@ -1313,7 +1386,8 @@ sends: 'Connection: keep-alive, Upgrade'. Brilliant.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">XhrPolling</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-74'>
+  <div class='clearall'></div>
+  <div class='section' id='section-74'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-74'>#</a>
@@ -1328,7 +1402,8 @@ to OPTIONS requests.</p>
                                 <span class="s">&#39;OPTIONS, POST&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-75'>
+  <div class='clearall'></div>
+  <div class='section' id='section-75'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-75'>#</a>
@@ -1347,7 +1422,8 @@ to OPTIONS requests.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cors</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-76'>
+  <div class='clearall'></div>
+  <div class='section' id='section-76'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-76'>#</a>
@@ -1360,7 +1436,8 @@ to OPTIONS requests.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">204</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-77'>
+  <div class='clearall'></div>
+  <div class='section' id='section-77'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-77'>#</a>
@@ -1380,7 +1457,8 @@ is xml and shouts about it.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-78'>
+  <div class='clearall'></div>
+  <div class='section' id='section-78'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-78'>#</a>
@@ -1395,7 +1473,8 @@ a 404 error.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify404</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">cookie</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-79'>
+  <div class='clearall'></div>
+  <div class='section' id='section-79'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-79'>#</a>
@@ -1426,7 +1505,8 @@ json data is sent at all.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-80'>
+  <div class='clearall'></div>
+  <div class='section' id='section-80'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-80'>#</a>
@@ -1451,7 +1531,8 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-81'>
+  <div class='clearall'></div>
+  <div class='section' id='section-81'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-81'>#</a>
@@ -1466,7 +1547,8 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-82'>
+  <div class='clearall'></div>
+  <div class='section' id='section-82'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-82'>#</a>
@@ -1483,7 +1565,8 @@ types.</p>
                          <span class="s">&#39;path=/&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-83'>
+  <div class='clearall'></div>
+  <div class='section' id='section-83'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-83'>#</a>
@@ -1494,7 +1577,8 @@ types.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">XhrStreaming</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-84'>
+  <div class='clearall'></div>
+  <div class='section' id='section-84'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-84'>#</a>
@@ -1507,7 +1591,8 @@ types.</p>
                             <span class="s">&#39;OPTIONS, POST&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-85'>
+  <div class='clearall'></div>
+  <div class='section' id='section-85'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-85'>#</a>
@@ -1525,7 +1610,8 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cors</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-86'>
+  <div class='clearall'></div>
+  <div class='section' id='section-86'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-86'>#</a>
@@ -1545,7 +1631,8 @@ types.</p>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-87'>
+  <div class='clearall'></div>
+  <div class='section' id='section-87'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-87'>#</a>
@@ -1561,7 +1648,8 @@ types.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">EventSource</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-88'>
+  <div class='clearall'></div>
+  <div class='section' id='section-88'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-88'>#</a>
@@ -1577,7 +1665,8 @@ types.</p>
                          <span class="s">&#39;text/event-stream; charset=UTF-8&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-89'>
+  <div class='clearall'></div>
+  <div class='section' id='section-89'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-89'>#</a>
@@ -1590,7 +1679,8 @@ carefull not to allow it being cached.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_cookie</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-90'>
+  <div class='clearall'></div>
+  <div class='section' id='section-90'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-90'>#</a>
@@ -1610,7 +1700,8 @@ bug in Opera.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s">&#39;data: a[&quot;x&quot;]</span><span class="se">\r\n\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-91'>
+  <div class='clearall'></div>
+  <div class='section' id='section-91'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-91'>#</a>
@@ -1631,7 +1722,8 @@ there is no way to trigger this case.</p>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-92'>
+  <div class='clearall'></div>
+  <div class='section' id='section-92'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-92'>#</a>
@@ -1662,7 +1754,8 @@ requires a famous <code>document.domain</code> trick. Read on:</p>
 <span class="s">&#39;&#39;&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-93'>
+  <div class='clearall'></div>
+  <div class='section' id='section-93'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-93'>#</a>
@@ -1678,7 +1771,8 @@ requires a famous <code>document.domain</code> trick. Read on:</p>
                          <span class="s">&#39;text/html; charset=UTF-8&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-94'>
+  <div class='clearall'></div>
+  <div class='section' id='section-94'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-94'>#</a>
@@ -1705,7 +1799,8 @@ not to allow it being cached.</p>
         <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-95'>
+  <div class='clearall'></div>
+  <div class='section' id='section-95'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-95'>#</a>
@@ -1719,7 +1814,8 @@ not to allow it being cached.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s">&#39;&quot;callback&quot; parameter required&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-96'>
+  <div class='clearall'></div>
+  <div class='section' id='section-96'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-96'>#</a>
@@ -1730,7 +1826,8 @@ not to allow it being cached.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">JsonPolling</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-97'>
+  <div class='clearall'></div>
+  <div class='section' id='section-97'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-97'>#</a>
@@ -1746,7 +1843,8 @@ not to allow it being cached.</p>
                          <span class="s">&#39;application/javascript; charset=UTF-8&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-98'>
+  <div class='clearall'></div>
+  <div class='section' id='section-98'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-98'>#</a>
@@ -1764,7 +1862,8 @@ carefull not to allow it being cached.</p>
                  <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">})</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-99'>
+  <div class='clearall'></div>
+  <div class='section' id='section-99'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-99'>#</a>
@@ -1783,7 +1882,8 @@ to respond with something - let it be the string <code>ok</code>.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;callback(&quot;a[</span><span class="se">\\</span><span class="s">&quot;x</span><span class="se">\\</span><span class="s">&quot;]&quot;);</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-100'>
+  <div class='clearall'></div>
+  <div class='section' id='section-100'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-100'>#</a>
@@ -1797,7 +1897,8 @@ to respond with something - let it be the string <code>ok</code>.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s">&#39;&quot;callback&quot; parameter required&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-101'>
+  <div class='clearall'></div>
+  <div class='section' id='section-101'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-101'>#</a>
@@ -1831,7 +1932,8 @@ json data is sent at all.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;x(&quot;a[</span><span class="se">\\</span><span class="s">&quot;b</span><span class="se">\\</span><span class="s">&quot;]&quot;);</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-102'>
+  <div class='clearall'></div>
+  <div class='section' id='section-102'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-102'>#</a>
@@ -1857,7 +1959,8 @@ types.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;x(&quot;a[</span><span class="se">\\</span><span class="s">&quot;abc</span><span class="se">\\</span><span class="s">&quot;,</span><span class="se">\\</span><span class="s">&quot;%61bc</span><span class="se">\\</span><span class="s">&quot;]&quot;);</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-103'>
+  <div class='clearall'></div>
+  <div class='section' id='section-103'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-103'>#</a>
@@ -1873,7 +1976,8 @@ implementations.</p>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">ProtocolQuirks</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-104'>
+  <div class='clearall'></div>
+  <div class='section' id='section-104'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-104'>#</a>
@@ -1884,7 +1988,8 @@ implementations.</p>
       <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_closeSession_another_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-105'>
+  <div class='clearall'></div>
+  <div class='section' id='section-105'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-105'>#</a>
@@ -1912,7 +2017,8 @@ connection still open" message.</p>
 <span class="sd">        &#39;&#39;&#39;</span></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-106'>
+  <div class='clearall'></div>
+  <div class='section' id='section-106'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-106'>#</a>
@@ -1923,7 +2029,8 @@ connection still open" message.</p>
       <div class="highlight"><pre></pre></div>
     </div>
   </div>
-  <div class='clearall'></div><div class='section' id='section-107'>
+  <div class='clearall'></div>
+  <div class='section' id='section-107'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-107'>#</a>
@@ -1938,5 +2045,6 @@ connection still open" message.</p>
     </div>
   </div>
   <div class='clearall'></div>
+  
 </div>
 </body>
