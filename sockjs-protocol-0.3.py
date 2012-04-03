@@ -18,9 +18,9 @@ import time
 import json
 import re
 import unittest2 as unittest
-from utils import GET, GET_async, POST, POST_async, OPTIONS, old_POST_async
-from utils import WebSocket8Client
-from utils import RawHttpConnection
+from utils_03 import GET, GET_async, POST, POST_async, OPTIONS, old_POST_async
+from utils_03 import WebSocket8Client
+from utils_03 import RawHttpConnection
 import uuid
 
 
