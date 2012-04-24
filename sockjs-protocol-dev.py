@@ -1002,6 +1002,15 @@ class HtmlFile(Test):
         self.assertEqual(r.status, 500)
         self.assertTrue('"callback" parameter required' in r.body)
 
+    # Supplying invalid characters to callback parameter is invalid
+    # and must result in a 500 errors. Invalid characters are any
+    # matching the following regexp: `[^a-zA-Z0-9-_.]`
+    def test_invalid_callback(self):
+        for callback in ['%20', '*', 'abc(', 'abc%28']:
+            r = GET(base_url + '/a/a/htmlfile?callback=' + callback)
+            self.assertEqual(r.status, 500)
+            self.assertTrue('invalid "callback" parameter' in r.body)
+
     def test_response_limit(self):
         # Single streaming request should be closed after enough data
         # was delivered (by default 128KiB, but 4KiB for test server).
@@ -1056,6 +1065,15 @@ class JsonPolling(Test):
         r = GET(base_url + '/a/a/jsonp')
         self.assertEqual(r.status, 500)
         self.assertTrue('"callback" parameter required' in r.body)
+
+    # Supplying invalid characters to callback parameter is invalid
+    # and must result in a 500 errors. Invalid characters are any
+    # matching the following regexp: `[^a-zA-Z0-9-_.]`
+    def test_invalid_callback(self):
+        for callback in ['%20', '*', 'abc(', 'abc%28']:
+            r = GET(base_url + '/a/a/jsonp?callback=' + callback)
+            self.assertEqual(r.status, 500)
+            self.assertTrue('invalid "callback" parameter' in r.body)
 
     # The server must behave when invalid json data is send or when no
     # json data is sent at all.
