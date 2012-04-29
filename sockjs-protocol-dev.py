@@ -894,7 +894,7 @@ class EventSource(Test):
         self.assertEqual(r['Content-Type'],
                          'text/event-stream; charset=UTF-8')
         # As EventSource is requested using GET we must be very
-        # carefull not to allow it being cached.
+        # careful not to allow it being cached.
         self.verify_not_cached(r)
 
         # The transport must first send a new line prelude, due to a
@@ -1043,7 +1043,7 @@ class JsonPolling(Test):
         self.assertEqual(r['Content-Type'],
                          'application/javascript; charset=UTF-8')
         # As JsonPolling is requested using GET we must be very
-        # carefull not to allow it being cached.
+        # careful not to allow it being cached.
         self.verify_not_cached(r)
 
         self.assertEqual(r.body, 'callback("o");\r\n')
