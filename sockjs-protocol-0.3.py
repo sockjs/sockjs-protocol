@@ -282,8 +282,8 @@ class InfoTest(Test):
         data1 = json.loads(r1.body)
         r2 = GET(base_url + '/info')
         data2 = json.loads(r2.body)
-        self.assertTrue(type(data1['entropy']) in [int, long])
-        self.assertTrue(type(data2['entropy']) in [int, long])
+        self.assertTrue(type(data1['entropy']) in [int, long, float])
+        self.assertTrue(type(data2['entropy']) in [int, long, float])
         self.assertNotEqual(data1['entropy'], data2['entropy'])
 
     # Info url must support CORS.
