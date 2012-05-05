@@ -272,7 +272,7 @@ class InfoTest(Test):
         # List of allowed origins. Currently ignored.
         self.assertEqual(data['origins'], ['*:*'])
         # Source of entropy for random number generator.
-        self.assertTrue(type(data['entropy']) in [int, long])
+        self.assertTrue(type(data['entropy']) in [int, long, float])
 
     # As browsers don't have a good entropy source, the server must
     # help with tht. Info url must supply a good, unpredictable random
@@ -282,8 +282,8 @@ class InfoTest(Test):
         data1 = json.loads(r1.body)
         r2 = GET(base_url + '/info')
         data2 = json.loads(r2.body)
-        self.assertTrue(type(data1['entropy']) in [int, long])
-        self.assertTrue(type(data2['entropy']) in [int, long])
+        self.assertTrue(type(data1['entropy']) in [int, long, float])
+        self.assertTrue(type(data2['entropy']) in [int, long, float])
         self.assertNotEqual(data1['entropy'], data2['entropy'])
 
     # Info url must support CORS.
