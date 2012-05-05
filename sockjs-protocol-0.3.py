@@ -272,7 +272,7 @@ class InfoTest(Test):
         # List of allowed origins. Currently ignored.
         self.assertEqual(data['origins'], ['*:*'])
         # Source of entropy for random number generator.
-        self.assertTrue(type(data['entropy']) in [int, long])
+        self.assertTrue(type(data['entropy']) in [int, long, float])
 
     # As browsers don't have a good entropy source, the server must
     # help with tht. Info url must supply a good, unpredictable random
