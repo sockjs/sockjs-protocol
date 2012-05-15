@@ -1030,7 +1030,7 @@ class HtmlFile(Test):
     # matching the following regexp: `[^a-zA-Z0-9-_.]`
     def test_invalid_callback(self):
         for callback in ['%20', '*', 'abc(', 'abc%28']:
-            r = GET(base_url + '/a/a/htmlfile?callback=' + callback)
+            r = GET(base_url + '/a/a/htmlfile?c=' + callback)
             self.assertEqual(r.status, 500)
             self.assertTrue('invalid "callback" parameter' in r.body)
 
@@ -1094,7 +1094,7 @@ class JsonPolling(Test):
     # matching the following regexp: `[^a-zA-Z0-9-_.]`
     def test_invalid_callback(self):
         for callback in ['%20', '*', 'abc(', 'abc%28']:
-            r = GET(base_url + '/a/a/jsonp?callback=' + callback)
+            r = GET(base_url + '/a/a/jsonp?c=' + callback)
             self.assertEqual(r.status, 500)
             self.assertTrue('invalid "callback" parameter' in r.body)
 
