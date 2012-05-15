@@ -253,7 +253,7 @@ class InfoTest(Test):
     #
     # But more importantly, the call to this url is used to measure
     # the roundtrip time between the client and the server. So, please,
-    # do respond to this url in a timely fashin.
+    # do respond to this url in a timely fashion.
     def test_basic(self):
         r = GET(base_url + '/info')
         self.assertEqual(r.status, 200)
@@ -917,7 +917,7 @@ class EventSource(Test):
         self.assertEqual(r['Content-Type'],
                          'text/event-stream; charset=UTF-8')
         # As EventSource is requested using GET we must be very
-        # carefull not to allow it being cached.
+        # careful not to allow it being cached.
         self.verify_not_cached(r)
 
         # The transport must first send a new line prelude, due to a
@@ -1066,7 +1066,7 @@ class JsonPolling(Test):
         self.assertEqual(r['Content-Type'],
                          'application/javascript; charset=UTF-8')
         # As JsonPolling is requested using GET we must be very
-        # carefull not to allow it being cached.
+        # careful not to allow it being cached.
         self.verify_not_cached(r)
 
         self.assertEqual(r.body, 'callback("o");\r\n')
