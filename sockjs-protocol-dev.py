@@ -547,6 +547,9 @@ class WebsocketHixie76(Test):
         self.assertEqual(ws.recv(), u'o')
         # Server must ignore empty messages.
         ws.send(u'')
+        # Server must also ignore frames with no messages.
+        ws.send(u'[]')
+
         ws.send(u'["a"]')
         self.assertEqual(ws.recv(), u'a["a"]')
         ws.close()
@@ -823,6 +826,26 @@ class XhrPolling(Test):
         self.assertEqual(r.status, 200)
         self.verify_cors(r)
         self.assertFalse(r['Access-Control-Allow-Headers'])
+
+    # The client must be able to send frames containint no messages to
+    # the server.  This is used as a heartbeat mechanism - client may
+    # voluntairly send frames with no messages once in a while.
+    def test_sending_empty_frame(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = POST(url + '/xhr')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'o\n')
+
+        # Sending empty frames with no data must allowed.
+        r = POST(url + '/xhr_send', body='[]')
+        self.assertEqual(r.status, 204)
+
+        r = POST(url + '/xhr_send', body='["a"]')
+        self.assertEqual(r.status, 204)
+
+        r = POST(url + '/xhr')
+        self.assertEqual(r.body, 'a["a"]\n')
+        self.assertEqual(r.status, 200)
 
 
 # XhrStreaming: `/*/*/xhr_streaming`
@@ -1129,6 +1152,25 @@ class JsonPolling(Test):
 
         r = GET(url + '/jsonp?c=x')
         self.assertEqual(r.body, 'x("c[3000,\\"Go away!\\"]");\r\n')
+
+    def test_sending_empty_frame(self):
+        url = base_url + '/000/' + str(uuid.uuid4())
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.body, 'x("o");\r\n')
+
+        # Sending frames containing no messages must be allowed.
+        r = POST(url + '/jsonp_send', body='d=%5B%5D',
+                 headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        self.assertEqual(r.body, 'ok')
+
+        r = POST(url + '/jsonp_send', body='d=%5B%22x%22%5D',
+                 headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        self.assertEqual(r.body, 'ok')
+
+        r = GET(url + '/jsonp?c=x')
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r.body, 'x("a[\\"x\\"]");\r\n')
+
 
 # JSESSIONID cookie
 # -----------------
