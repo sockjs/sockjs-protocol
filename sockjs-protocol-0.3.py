@@ -346,7 +346,10 @@ class SessionURLs(Test):
     def verify(self, session_part):
         r = POST(base_url + session_part + '/xhr')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r.body, 'o\n')
+        # As mentioned in HandlingClose, the server may close the session and
+        # forget the state related. Alternatively they may return
+        # a 1002 close message.
+        self.assertTrue(r.body in ['o\n', 'c[1002,"Connection interrupted"]\n'])
 
     # But not an empty string, anything containing dots or paths with
     # less or more parts.
