@@ -14,6 +14,7 @@ guarantee that SockJS client will work flawlessly, end-to-end tests
 using real browsers are always required.
 """
 import os
+import random
 import time
 import json
 import re
@@ -337,8 +338,10 @@ class SessionURLs(Test):
 
     # The server must accept any value in `server` and `session` fields.
     def test_anyValue(self):
-        self.verify('/a/a')
-        for session_part in ['/_/_', '/1/1', '/abcdefgh_i-j%20/abcdefg_i-j%20']:
+        # add some randomness, so that test could be rerun immediately.
+        r = '%s' % random.randint(0, 1024)
+        self.verify('/a/a' + r)
+        for session_part in ['/_/_' + r, '/1/' + r, '/abcdefgh_i-j%20/abcdefg_i-j%20'+ r]:
             self.verify(session_part)
 
     # To test session URLs we're going to use `xhr-polling` transport
