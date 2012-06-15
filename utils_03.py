@@ -5,7 +5,6 @@ import Queue
 import socket
 import re
 
-
 class HttpResponse:
     def __init__(self, method, url,
                  headers={}, body=None, async=False, load=True):
@@ -89,8 +88,10 @@ class WebSocket8Client(object):
                 queue.put(unicode(str(m), 'utf-8'))
             def read_from_connection(self, amount):
                 r = super(IntWebSocketClient, self).read_from_connection(amount)
-                if not r:
-                    queue.put(Ellipsis)
+                if self.stream.closing:
+                    queue.put((self.stream.closing.code, self.stream.closing.reason[2:]))
+                elif not r:
+                    queue.put((1000, ""))
                 return r
         self.client = IntWebSocketClient(url)
         self.client.connect()
@@ -108,8 +109,10 @@ class WebSocket8Client(object):
     def recv(self):
         try:
             r = self.queue.get(timeout=1.0)
-            if r is Ellipsis:
-                raise self.ConnectionClosedException()
+            if isinstance(r, tuple):
+                ce = self.ConnectionClosedException()
+                (ce.code, ce.reason) = r
+                raise ce
             return r
         except:
             self.close()

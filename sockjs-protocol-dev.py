@@ -1276,8 +1276,9 @@ class RawWebsocket(Test):
 
     def test_close(self):
         ws = WebSocket8Client(close_base_url + '/websocket')
-        with self.assertRaises(ws.ConnectionClosedException):
+        with self.assertRaises(ws.ConnectionClosedException) as ce:
             ws.recv()
+        self.assertEqual(ce.exception.reason, "Go away!")
         ws.close()
 
 
