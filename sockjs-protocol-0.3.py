@@ -253,7 +253,7 @@ class InfoTest(Test):
     #
     # But more importantly, the call to this url is used to measure
     # the roundtrip time between the client and the server. So, please,
-    # do respond to this url in a timely fashin.
+    # do respond to this url in a timely fashion.
     def test_basic(self):
         r = GET(base_url + '/info')
         self.assertEqual(r.status, 200)
