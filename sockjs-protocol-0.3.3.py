@@ -732,6 +732,8 @@ class XhrPolling(Test):
         self.assertEqual(r['content-type'],
                          'application/javascript; charset=UTF-8')
         self.verify_cors(r)
+        # iOS 6 caches POSTs. Make sure we send no-cache header.
+        self.verify_not_cached(r)
 
         # Xhr transports receive json-encoded array of messages.
         r = POST(url + '/xhr_send', body='["x"]')
@@ -743,6 +745,8 @@ class XhrPolling(Test):
         # is xml and shouts about it.
         self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
         self.verify_cors(r)
+        # iOS 6 caches POSTs. Make sure we send no-cache header.
+        self.verify_not_cached(r)
 
         r = POST(url + '/xhr')
         self.assertEqual(r.status, 200)
@@ -839,6 +843,8 @@ class XhrStreaming(Test):
         self.assertEqual(r['Content-Type'],
                          'application/javascript; charset=UTF-8')
         self.verify_cors(r)
+        # iOS 6 caches POSTs. Make sure we send no-cache header.
+        self.verify_not_cached(r)
 
         # The transport must first send 2KiB of `h` bytes as prelude.
         self.assertEqual(r.read(), 'h' *  2048 + '\n')
@@ -1046,6 +1052,8 @@ class JsonPolling(Test):
         self.assertEqual(r.body, 'ok')
         self.assertEqual(r.status, 200)
         self.assertEqual(r['Content-Type'], 'text/plain; charset=UTF-8')
+        # iOS 6 caches POSTs. Make sure we send no-cache header.
+        self.verify_not_cached(r)
 
         r = GET(url + '/jsonp?c=%63allback')
         self.assertEqual(r.status, 200)
