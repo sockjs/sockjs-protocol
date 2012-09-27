@@ -8,7 +8,6 @@
 <body>
 <div id="background"></div>
 <div id='container'>
-  
   <div class='section'>
     <div class='docs'><h1>sockjs-protocol-0.2.py</h1></div>
   </div>
@@ -35,8 +34,8 @@ using real browsers are always required.</p>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">unittest2</span> <span class="kn">as</span> <span class="nn">unittest</span>
-<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">GET</span><span class="p">,</span> <span class="n">GET_async</span><span class="p">,</span> <span class="n">POST</span><span class="p">,</span> <span class="n">POST_async</span><span class="p">,</span> <span class="n">OPTIONS</span>
-<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">WebSocket8Client</span>
+<span class="kn">from</span> <span class="nn">utils_02</span> <span class="kn">import</span> <span class="n">GET</span><span class="p">,</span> <span class="n">GET_async</span><span class="p">,</span> <span class="n">POST</span><span class="p">,</span> <span class="n">POST_async</span><span class="p">,</span> <span class="n">OPTIONS</span>
+<span class="kn">from</span> <span class="nn">utils_02</span> <span class="kn">import</span> <span class="n">WebSocket8Client</span>
 <span class="kn">import</span> <span class="nn">uuid</span></pre></div>
     </div>
   </div>
@@ -1774,7 +1773,7 @@ bug in Opera.</p>
       </div>
       <p>This protocol doesn't allow binary data and we need to
 specially treat leading space, new lines and things like
-x00. But, now the protocol json-encodes everything, so
+\x00. But, now the protocol json-encodes everything, so
 there is no way to trigger this case.</p>
     </div>
     <div class='code'>
@@ -2233,7 +2232,7 @@ browser mangling outgoing chars on transports like XHR.</p>
         <a class='octothorpe' href='#section-119'>#</a>
       </div>
       <p>The server is able to send much more chars verbatim. But, it can't
-send Unicode surrogates over Websockets, also various u2xxxx chars
+send Unicode surrogates over Websockets, also various \u2xxxx chars
 get mangled. Additionally, if the server is capable of handling
 UCS-2 (ie: 16 bit character size), it should be able to deal with
 Unicode surrogates 0xD800-0xDFFF:
@@ -2604,6 +2603,5 @@ they may return a 1002 close message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  
 </div>
 </body>

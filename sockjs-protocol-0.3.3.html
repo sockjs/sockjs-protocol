@@ -2,14 +2,14 @@
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html;charset=utf-8">
-  <title>sockjs-protocol-dev.py</title>
+  <title>sockjs-protocol-0.3.3.py</title>
   <link rel="stylesheet" href="pycco.css">
 </head>
 <body>
 <div id="background"></div>
 <div id='container'>
   <div class='section'>
-    <div class='docs'><h1>sockjs-protocol-dev.py</h1></div>
+    <div class='docs'><h1>sockjs-protocol-0.3.3.py</h1></div>
   </div>
   <div class='clearall'>
   <div class='section' id='section-0'>
@@ -30,7 +30,6 @@ using real browsers are always required.</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -502,7 +501,7 @@ requiremet) and to get the value of "origin" setting (currently
 not used).</p>
 <p>But more importantly, the call to this url is used to measure
 the roundtrip time between the client and the server. So, please,
-do respond to this url in a timely fashion.</p>
+do respond to this url in a timely fashin.</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_basic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -684,7 +683,10 @@ application. This field must be protected from the app.</p>
       <p>The server must accept any value in <code>server</code> and <code>session</code> fields.</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_anyValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre></div>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_anyValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="s">&#39;/a/a&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">session_part</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;/_/_&#39;</span><span class="p">,</span> <span class="s">&#39;/1/1&#39;</span><span class="p">,</span> <span class="s">&#39;/abcdefgh_i-j%20/abcdefg_i-j%20&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">session_part</span><span class="p">)</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -692,21 +694,6 @@ application. This field must be protected from the app.</p>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-39'>#</a>
-      </div>
-      <p>add some randomness, so that test could be rerun immediately.</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>        <span class="n">r</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="s">&#39;/a/a&#39;</span> <span class="o">+</span> <span class="n">r</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">session_part</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;/_/_&#39;</span> <span class="o">+</span> <span class="n">r</span><span class="p">,</span> <span class="s">&#39;/1/&#39;</span> <span class="o">+</span> <span class="n">r</span><span class="p">,</span> <span class="s">&#39;/abcdefgh_i-j%20/abcdefg_i-j%20&#39;</span><span class="o">+</span> <span class="n">r</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">session_part</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-40'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-40'>#</a>
       </div>
       <p>To test session URLs we're going to use <code>xhr-polling</code> transport
 facilitites.</p>
@@ -719,10 +706,10 @@ facilitites.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-41'>
+  <div class='section' id='section-40'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-41'>#</a>
+        <a class='octothorpe' href='#section-40'>#</a>
       </div>
       <p>But not an empty string, anything containing dots or paths with
 less or more parts.</p>
@@ -735,10 +722,10 @@ less or more parts.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-42'>
+  <div class='section' id='section-41'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-42'>#</a>
+        <a class='octothorpe' href='#section-41'>#</a>
       </div>
       <p>A session is identified by only <code>session_id</code>. <code>server_id</code> is a
 parameter for load balancer and must be ignored by the server.</p>
@@ -762,10 +749,10 @@ parameter for load balancer and must be ignored by the server.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-43'>
+  <div class='section' id='section-42'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-43'>#</a>
+        <a class='octothorpe' href='#section-42'>#</a>
       </div>
       <h2>Protocol and framing</h2>
 <p>SockJS tries to stay API-compatible with WebSockets, but not on the
@@ -811,10 +798,10 @@ facilities.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-44'>
+  <div class='section' id='section-43'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-44'>#</a>
+        <a class='octothorpe' href='#section-43'>#</a>
       </div>
       <p>When server receives a request with unknown <code>session_id</code> it must
 recognize that as request for a new session. When server opens a
@@ -831,10 +818,10 @@ new sesion it must immediately send an frame containing a letter
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-45'>
+  <div class='section' id='section-44'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-45'>#</a>
+        <a class='octothorpe' href='#section-44'>#</a>
       </div>
       <p>After a session was established the server needs to accept
 requests for sending messages.</p>
@@ -854,10 +841,10 @@ requests for sending messages.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-46'>
+  <div class='section' id='section-45'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-46'>#</a>
+        <a class='octothorpe' href='#section-45'>#</a>
       </div>
       <p>Sending messages to not existing sessions is invalid.</p>
     </div>
@@ -868,10 +855,10 @@ requests for sending messages.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-47'>
+  <div class='section' id='section-46'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-47'>#</a>
+        <a class='octothorpe' href='#section-46'>#</a>
       </div>
       <p>The session must time out after 5 seconds of not having a
 receiving connection. The server must send a heartbeat frame
@@ -883,10 +870,10 @@ character. This delay may be configurable.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-48'>
+  <div class='section' id='section-47'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-48'>#</a>
+        <a class='octothorpe' href='#section-47'>#</a>
       </div>
       <p>The server must not allow two receiving connections to wait
 on a single session. In such case the server must send a
@@ -903,10 +890,10 @@ close frame to the new connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-49'>
+  <div class='section' id='section-48'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-49'>#</a>
+        <a class='octothorpe' href='#section-48'>#</a>
       </div>
       <p>The server may terminate the connection, passing error code and
 message.</p>
@@ -924,10 +911,10 @@ message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-50'>
+  <div class='section' id='section-49'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-50'>#</a>
+        <a class='octothorpe' href='#section-49'>#</a>
       </div>
       <p>Until the timeout occurs, the server must constantly serve
 the close message.</p>
@@ -939,10 +926,10 @@ the close message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-51'>
+  <div class='section' id='section-50'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-51'>#</a>
+        <a class='octothorpe' href='#section-50'>#</a>
       </div>
       <h2>WebSocket protocols: <code>/*/*/websocket</code></h2>
     </div>
@@ -951,10 +938,10 @@ the close message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-52'>
+  <div class='section' id='section-51'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-52'>#</a>
+        <a class='octothorpe' href='#section-51'>#</a>
       </div>
       <p>The most important feature of SockJS is to support native WebSocket
 protocol. A decent SockJS server should support at least the
@@ -971,10 +958,10 @@ following variants:</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-53'>
+  <div class='section' id='section-52'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-53'>#</a>
+        <a class='octothorpe' href='#section-52'>#</a>
       </div>
       <p>Normal requests to websocket should not succeed.</p>
     </div>
@@ -986,10 +973,10 @@ following variants:</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-54'>
+  <div class='section' id='section-53'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-54'>#</a>
+        <a class='octothorpe' href='#section-53'>#</a>
       </div>
       <p>Some proxies and load balancers can rewrite 'Connection' header,
 in such case we must refuse connection.</p>
@@ -1003,10 +990,10 @@ in such case we must refuse connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-55'>
+  <div class='section' id='section-54'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-55'>#</a>
+        <a class='octothorpe' href='#section-54'>#</a>
       </div>
       <p>WebSocket should only accept GET</p>
     </div>
@@ -1019,10 +1006,10 @@ in such case we must refuse connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-56'>
+  <div class='section' id='section-55'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-56'>#</a>
+        <a class='octothorpe' href='#section-55'>#</a>
       </div>
       <p>Support WebSocket Hixie-76 protocol</p>
     </div>
@@ -1031,10 +1018,10 @@ in such case we must refuse connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-57'>
+  <div class='section' id='section-56'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-57'>#</a>
+        <a class='octothorpe' href='#section-56'>#</a>
       </div>
       
     </div>
@@ -1050,10 +1037,10 @@ in such case we must refuse connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-58'>
+  <div class='section' id='section-57'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-58'>#</a>
+        <a class='octothorpe' href='#section-57'>#</a>
       </div>
       
     </div>
@@ -1067,10 +1054,10 @@ in such case we must refuse connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-59'>
+  <div class='section' id='section-58'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-59'>#</a>
+        <a class='octothorpe' href='#section-58'>#</a>
       </div>
       <p>The connection should be closed after the close frame.</p>
     </div>
@@ -1082,10 +1069,10 @@ in such case we must refuse connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-60'>
+  <div class='section' id='section-59'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-60'>#</a>
+        <a class='octothorpe' href='#section-59'>#</a>
       </div>
       <p>Empty frames must be ignored by the server side.</p>
     </div>
@@ -1098,38 +1085,25 @@ in such case we must refuse connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-61'>
+  <div class='section' id='section-60'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-61'>#</a>
+        <a class='octothorpe' href='#section-60'>#</a>
       </div>
       <p>Server must ignore empty messages.</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre>        <span class="n">ws</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">u&#39;&#39;</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-62'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-62'>#</a>
-      </div>
-      <p>Server must also ignore frames with no messages.</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>        <span class="n">ws</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">u&#39;[]&#39;</span><span class="p">)</span>
-
+      <div class="highlight"><pre>        <span class="n">ws</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">u&#39;&#39;</span><span class="p">)</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">u&#39;[&quot;a&quot;]&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span> <span class="s">u&#39;a[&quot;a&quot;]&#39;</span><span class="p">)</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-63'>
+  <div class='section' id='section-61'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-63'>#</a>
+        <a class='octothorpe' href='#section-61'>#</a>
       </div>
       <p>For WebSockets, as opposed to other transports, it is valid to
 reuse <code>session_id</code>. The lifetime of SockJS WebSocket session is
@@ -1160,10 +1134,10 @@ correct to have two separate sessions sharing the same
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-64'>
+  <div class='section' id='section-62'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-64'>#</a>
+        <a class='octothorpe' href='#section-62'>#</a>
       </div>
       <p>It is correct to reuse the same <code>session_id</code> after closing a
 previous connection.</p>
@@ -1177,10 +1151,10 @@ previous connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-65'>
+  <div class='section' id='section-63'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-65'>#</a>
+        <a class='octothorpe' href='#section-63'>#</a>
       </div>
       <p>Verify WebSocket headers sanity. Due to HAProxy design the
 websocket server must support writing response headers <em>before</em>
@@ -1212,10 +1186,10 @@ work like that:</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-66'>
+  <div class='section' id='section-64'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-66'>#</a>
+        <a class='octothorpe' href='#section-64'>#</a>
       </div>
       <p>First check response headers</p>
     </div>
@@ -1229,10 +1203,10 @@ work like that:</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-67'>
+  <div class='section' id='section-65'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-67'>#</a>
+        <a class='octothorpe' href='#section-65'>#</a>
       </div>
       <p>Later send token</p>
     </div>
@@ -1243,10 +1217,10 @@ work like that:</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-68'>
+  <div class='section' id='section-66'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-68'>#</a>
+        <a class='octothorpe' href='#section-66'>#</a>
       </div>
       <p>When user sends broken data - broken JSON for example, the
 server must abruptly terminate the ws connection.</p>
@@ -1265,10 +1239,10 @@ server must abruptly terminate the ws connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-69'>
+  <div class='section' id='section-67'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-69'>#</a>
+        <a class='octothorpe' href='#section-67'>#</a>
       </div>
       <p>The server must support Hybi-10 protocol</p>
     </div>
@@ -1277,10 +1251,10 @@ server must abruptly terminate the ws connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-70'>
+  <div class='section' id='section-68'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-70'>#</a>
+        <a class='octothorpe' href='#section-68'>#</a>
       </div>
       
     </div>
@@ -1293,10 +1267,10 @@ server must abruptly terminate the ws connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-71'>
+  <div class='section' id='section-69'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-71'>#</a>
+        <a class='octothorpe' href='#section-69'>#</a>
       </div>
       <p>Server must ignore empty messages.</p>
     </div>
@@ -1308,10 +1282,10 @@ server must abruptly terminate the ws connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-72'>
+  <div class='section' id='section-70'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-72'>#</a>
+        <a class='octothorpe' href='#section-70'>#</a>
       </div>
       
     </div>
@@ -1327,10 +1301,10 @@ server must abruptly terminate the ws connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-73'>
+  <div class='section' id='section-71'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-73'>#</a>
+        <a class='octothorpe' href='#section-71'>#</a>
       </div>
       <p>Verify WebSocket headers sanity. Server must support both
 Hybi-07 and Hybi-10.</p>
@@ -1360,10 +1334,10 @@ Hybi-07 and Hybi-10.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-74'>
+  <div class='section' id='section-72'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-74'>#</a>
+        <a class='octothorpe' href='#section-72'>#</a>
       </div>
       <p>When user sends broken data - broken JSON for example, the
 server must abruptly terminate the ws connection.</p>
@@ -1381,10 +1355,10 @@ server must abruptly terminate the ws connection.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-75'>
+  <div class='section' id='section-73'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-75'>#</a>
+        <a class='octothorpe' href='#section-73'>#</a>
       </div>
       <p>As a fun part, Firefox 6.0.2 supports Websockets protocol '7'. But,
 it doesn't send a normal 'Connection: Upgrade' header. Instead it
@@ -1408,10 +1382,10 @@ sends: 'Connection: keep-alive, Upgrade'. Brilliant.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-76'>
+  <div class='section' id='section-74'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-76'>#</a>
+        <a class='octothorpe' href='#section-74'>#</a>
       </div>
       <h2>XhrPolling: <code>/*/*/xhr</code>, <code>/*/*/xhr_send</code></h2>
 <p>The server must support xhr-polling.</p>
@@ -1421,10 +1395,10 @@ sends: 'Connection: keep-alive, Upgrade'. Brilliant.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-77'>
+  <div class='section' id='section-75'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-77'>#</a>
+        <a class='octothorpe' href='#section-75'>#</a>
       </div>
       <p>The transport must support CORS requests, and answer correctly
 to OPTIONS requests.</p>
@@ -1437,10 +1411,10 @@ to OPTIONS requests.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-78'>
+  <div class='section' id='section-76'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-78'>#</a>
+        <a class='octothorpe' href='#section-76'>#</a>
       </div>
       <p>Test the transport itself.</p>
     </div>
@@ -1456,10 +1430,10 @@ to OPTIONS requests.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-79'>
+  <div class='section' id='section-77'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-79'>#</a>
+        <a class='octothorpe' href='#section-77'>#</a>
       </div>
       <p>iOS 6 caches POSTs. Make sure we send no-cache header.</p>
     </div>
@@ -1468,10 +1442,10 @@ to OPTIONS requests.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-80'>
+  <div class='section' id='section-78'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-80'>#</a>
+        <a class='octothorpe' href='#section-78'>#</a>
       </div>
       <p>Xhr transports receive json-encoded array of messages.</p>
     </div>
@@ -1482,10 +1456,10 @@ to OPTIONS requests.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-81'>
+  <div class='section' id='section-79'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-81'>#</a>
+        <a class='octothorpe' href='#section-79'>#</a>
       </div>
       <p>The content type of <code>xhr_send</code> must be set to <code>text/plain</code>,
 even though the response code is <code>204</code>. This is due to
@@ -1498,10 +1472,10 @@ is xml and shouts about it.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-82'>
+  <div class='section' id='section-80'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-82'>#</a>
+        <a class='octothorpe' href='#section-80'>#</a>
       </div>
       <p>iOS 6 caches POSTs. Make sure we send no-cache header.</p>
     </div>
@@ -1514,10 +1488,10 @@ is xml and shouts about it.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-83'>
+  <div class='section' id='section-81'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-83'>#</a>
+        <a class='octothorpe' href='#section-81'>#</a>
       </div>
       <p>Publishing messages to a non-existing session must result in
 a 404 error.</p>
@@ -1530,10 +1504,10 @@ a 404 error.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-84'>
+  <div class='section' id='section-82'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-84'>#</a>
+        <a class='octothorpe' href='#section-82'>#</a>
       </div>
       <p>The server must behave when invalid json data is send or when no
 json data is sent at all.</p>
@@ -1563,10 +1537,10 @@ json data is sent at all.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-85'>
+  <div class='section' id='section-83'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-85'>#</a>
+        <a class='octothorpe' href='#section-83'>#</a>
       </div>
       <p>The server must accept messages send with different content
 types.</p>
@@ -1591,10 +1565,10 @@ types.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-86'>
+  <div class='section' id='section-84'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-86'>#</a>
+        <a class='octothorpe' href='#section-84'>#</a>
       </div>
       <p>When client sends a CORS request with
 'Access-Control-Request-Headers' header set, the server must
@@ -1626,48 +1600,10 @@ otherwise.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-87'>
+  <div class='section' id='section-85'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-87'>#</a>
-      </div>
-      <p>The client must be able to send frames containint no messages to
-the server.  This is used as a heartbeat mechanism - client may
-voluntairly send frames with no messages once in a while.</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_sending_empty_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/000/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;o</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-88'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-88'>#</a>
-      </div>
-      <p>Sending empty frames with no data must allowed.</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/xhr_send&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">&#39;[]&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">204</span><span class="p">)</span>
-
-        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/xhr_send&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">&#39;[&quot;a&quot;]&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">204</span><span class="p">)</span>
-
-        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/xhr&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;a[&quot;a&quot;]</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-89'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-89'>#</a>
+        <a class='octothorpe' href='#section-85'>#</a>
       </div>
       <h2>XhrStreaming: <code>/*/*/xhr_streaming</code></h2>
     </div>
@@ -1676,10 +1612,10 @@ voluntairly send frames with no messages once in a while.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-90'>
+  <div class='section' id='section-86'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-90'>#</a>
+        <a class='octothorpe' href='#section-86'>#</a>
       </div>
       
     </div>
@@ -1690,10 +1626,10 @@ voluntairly send frames with no messages once in a while.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-91'>
+  <div class='section' id='section-87'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-91'>#</a>
+        <a class='octothorpe' href='#section-87'>#</a>
       </div>
       
     </div>
@@ -1708,10 +1644,10 @@ voluntairly send frames with no messages once in a while.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-92'>
+  <div class='section' id='section-88'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-92'>#</a>
+        <a class='octothorpe' href='#section-88'>#</a>
       </div>
       <p>iOS 6 caches POSTs. Make sure we send no-cache header.</p>
     </div>
@@ -1720,10 +1656,10 @@ voluntairly send frames with no messages once in a while.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-93'>
+  <div class='section' id='section-89'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-93'>#</a>
+        <a class='octothorpe' href='#section-89'>#</a>
       </div>
       <p>The transport must first send 2KiB of <code>h</code> bytes as prelude.</p>
     </div>
@@ -1741,10 +1677,10 @@ voluntairly send frames with no messages once in a while.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-94'>
+  <div class='section' id='section-90'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-94'>#</a>
+        <a class='octothorpe' href='#section-90'>#</a>
       </div>
       
     </div>
@@ -1753,10 +1689,10 @@ voluntairly send frames with no messages once in a while.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-95'>
+  <div class='section' id='section-91'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-95'>#</a>
+        <a class='octothorpe' href='#section-91'>#</a>
       </div>
       <p>Single streaming request will buffer all data until
 closed. In order to remove (garbage collect) old messages
@@ -1774,10 +1710,10 @@ this limit decreased to 4096B.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-96'>
+  <div class='section' id='section-92'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-96'>#</a>
+        <a class='octothorpe' href='#section-92'>#</a>
       </div>
       <p>Test server should gc streaming session after 4096 bytes
 were sent (including framing).</p>
@@ -1791,10 +1727,10 @@ were sent (including framing).</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-97'>
+  <div class='section' id='section-93'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-97'>#</a>
+        <a class='octothorpe' href='#section-93'>#</a>
       </div>
       <p>The connection should be closed after enough data was
 delivered.</p>
@@ -1804,10 +1740,10 @@ delivered.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-98'>
+  <div class='section' id='section-94'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-98'>#</a>
+        <a class='octothorpe' href='#section-94'>#</a>
       </div>
       <h2>EventSource: <code>/*/*/eventsource</code></h2>
 <p>For details of this protocol framing read the spec:</p>
@@ -1821,10 +1757,10 @@ delivered.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-99'>
+  <div class='section' id='section-95'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-99'>#</a>
+        <a class='octothorpe' href='#section-95'>#</a>
       </div>
       
     </div>
@@ -1838,23 +1774,23 @@ delivered.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-100'>
+  <div class='section' id='section-96'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-100'>#</a>
+        <a class='octothorpe' href='#section-96'>#</a>
       </div>
       <p>As EventSource is requested using GET we must be very
-careful not to allow it being cached.</p>
+carefull not to allow it being cached.</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">verify_not_cached</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-101'>
+  <div class='section' id='section-97'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-101'>#</a>
+        <a class='octothorpe' href='#section-97'>#</a>
       </div>
       <p>The transport must first send a new line prelude, due to a
 bug in Opera.</p>
@@ -1872,10 +1808,10 @@ bug in Opera.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-102'>
+  <div class='section' id='section-98'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-102'>#</a>
+        <a class='octothorpe' href='#section-98'>#</a>
       </div>
       <p>This protocol doesn't allow binary data and we need to
 specially treat leading space, new lines and things like
@@ -1894,10 +1830,10 @@ there is no way to trigger this case.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-103'>
+  <div class='section' id='section-99'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-103'>#</a>
+        <a class='octothorpe' href='#section-99'>#</a>
       </div>
       
     </div>
@@ -1906,10 +1842,10 @@ there is no way to trigger this case.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-104'>
+  <div class='section' id='section-100'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-104'>#</a>
+        <a class='octothorpe' href='#section-100'>#</a>
       </div>
       <p>Single streaming request should be closed after enough data
 was delivered (by default 128KiB, but 4KiB for test server).
@@ -1928,10 +1864,10 @@ that actually prevent the automatic GC. See:
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-105'>
+  <div class='section' id='section-101'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-105'>#</a>
+        <a class='octothorpe' href='#section-101'>#</a>
       </div>
       <p>Test server should gc streaming session after 4096 bytes
 were sent (including framing).</p>
@@ -1944,10 +1880,10 @@ were sent (including framing).</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-106'>
+  <div class='section' id='section-102'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-106'>#</a>
+        <a class='octothorpe' href='#section-102'>#</a>
       </div>
       <p>The connection should be closed after enough data was
 delivered.</p>
@@ -1957,10 +1893,10 @@ delivered.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-107'>
+  <div class='section' id='section-103'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-107'>#</a>
+        <a class='octothorpe' href='#section-103'>#</a>
       </div>
       <h2>HtmlFile: <code>/*/*/htmlfile</code></h2>
 <p>Htmlfile transport is based on research done by Michael Carter. It
@@ -1989,10 +1925,10 @@ requires a famous <code>document.domain</code> trick. Read on:</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-108'>
+  <div class='section' id='section-104'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-108'>#</a>
+        <a class='octothorpe' href='#section-104'>#</a>
       </div>
       
     </div>
@@ -2006,10 +1942,10 @@ requires a famous <code>document.domain</code> trick. Read on:</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-109'>
+  <div class='section' id='section-105'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-109'>#</a>
+        <a class='octothorpe' href='#section-105'>#</a>
       </div>
       <p>As HtmlFile is requested using GET we must be very careful
 not to allow it being cached.</p>
@@ -2033,10 +1969,10 @@ not to allow it being cached.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-110'>
+  <div class='section' id='section-106'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-110'>#</a>
+        <a class='octothorpe' href='#section-106'>#</a>
       </div>
       
     </div>
@@ -2048,28 +1984,10 @@ not to allow it being cached.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-111'>
+  <div class='section' id='section-107'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-111'>#</a>
-      </div>
-      <p>Supplying invalid characters to callback parameter is invalid
-and must result in a 500 errors. Invalid characters are any
-matching the following regexp: <code>[^a-zA-Z0-9-_.]</code></p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_invalid_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;%20&#39;</span><span class="p">,</span> <span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="s">&#39;abc(&#39;</span><span class="p">,</span> <span class="s">&#39;abc%28&#39;</span><span class="p">]:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/a/a/htmlfile?c=&#39;</span> <span class="o">+</span> <span class="n">callback</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s">&#39;invalid &quot;callback&quot; parameter&#39;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-112'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-112'>#</a>
+        <a class='octothorpe' href='#section-107'>#</a>
       </div>
       
     </div>
@@ -2078,10 +1996,10 @@ matching the following regexp: <code>[^a-zA-Z0-9-_.]</code></p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-113'>
+  <div class='section' id='section-108'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-113'>#</a>
+        <a class='octothorpe' href='#section-108'>#</a>
       </div>
       <p>Single streaming request should be closed after enough data
 was delivered (by default 128KiB, but 4KiB for test server).</p>
@@ -2096,10 +2014,10 @@ was delivered (by default 128KiB, but 4KiB for test server).</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-114'>
+  <div class='section' id='section-109'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-114'>#</a>
+        <a class='octothorpe' href='#section-109'>#</a>
       </div>
       <p>Test server should gc streaming session after 4096 bytes
 were sent (including framing).</p>
@@ -2113,10 +2031,10 @@ were sent (including framing).</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-115'>
+  <div class='section' id='section-110'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-115'>#</a>
+        <a class='octothorpe' href='#section-110'>#</a>
       </div>
       <p>The connection should be closed after enough data was
 delivered.</p>
@@ -2126,10 +2044,10 @@ delivered.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-116'>
+  <div class='section' id='section-111'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-116'>#</a>
+        <a class='octothorpe' href='#section-111'>#</a>
       </div>
       <h2>JsonpPolling: <code>/*/*/jsonp</code>, <code>/*/*/jsonp_send</code></h2>
     </div>
@@ -2138,10 +2056,10 @@ delivered.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-117'>
+  <div class='section' id='section-112'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-117'>#</a>
+        <a class='octothorpe' href='#section-112'>#</a>
       </div>
       
     </div>
@@ -2155,13 +2073,13 @@ delivered.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-118'>
+  <div class='section' id='section-113'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-118'>#</a>
+        <a class='octothorpe' href='#section-113'>#</a>
       </div>
       <p>As JsonPolling is requested using GET we must be very
-careful not to allow it being cached.</p>
+carefull not to allow it being cached.</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">verify_not_cached</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
@@ -2173,10 +2091,10 @@ careful not to allow it being cached.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-119'>
+  <div class='section' id='section-114'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-119'>#</a>
+        <a class='octothorpe' href='#section-114'>#</a>
       </div>
       <p>Konqueror does weird things on 204. As a workaround we need
 to respond with something - let it be the string <code>ok</code>.</p>
@@ -2188,10 +2106,10 @@ to respond with something - let it be the string <code>ok</code>.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-120'>
+  <div class='section' id='section-115'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-120'>#</a>
+        <a class='octothorpe' href='#section-115'>#</a>
       </div>
       <p>iOS 6 caches POSTs. Make sure we send no-cache header.</p>
     </div>
@@ -2204,10 +2122,10 @@ to respond with something - let it be the string <code>ok</code>.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-121'>
+  <div class='section' id='section-116'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-121'>#</a>
+        <a class='octothorpe' href='#section-116'>#</a>
       </div>
       
     </div>
@@ -2219,28 +2137,10 @@ to respond with something - let it be the string <code>ok</code>.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-122'>
+  <div class='section' id='section-117'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-122'>#</a>
-      </div>
-      <p>Supplying invalid characters to callback parameter is invalid
-and must result in a 500 errors. Invalid characters are any
-matching the following regexp: <code>[^a-zA-Z0-9-_.]</code></p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_invalid_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;%20&#39;</span><span class="p">,</span> <span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="s">&#39;abc(&#39;</span><span class="p">,</span> <span class="s">&#39;abc%28&#39;</span><span class="p">]:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/a/a/jsonp?c=&#39;</span> <span class="o">+</span> <span class="n">callback</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s">&#39;invalid &quot;callback&quot; parameter&#39;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-123'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-123'>#</a>
+        <a class='octothorpe' href='#section-117'>#</a>
       </div>
       <p>The server must behave when invalid json data is send or when no
 json data is sent at all.</p>
@@ -2272,10 +2172,10 @@ json data is sent at all.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-124'>
+  <div class='section' id='section-118'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-124'>#</a>
+        <a class='octothorpe' href='#section-118'>#</a>
       </div>
       <p>The server must accept messages sent with different content
 types.</p>
@@ -2299,10 +2199,10 @@ types.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-125'>
+  <div class='section' id='section-119'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-125'>#</a>
+        <a class='octothorpe' href='#section-119'>#</a>
       </div>
       
     </div>
@@ -2320,47 +2220,10 @@ types.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-126'>
+  <div class='section' id='section-120'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-126'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_sending_empty_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="s">&#39;/000/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/jsonp?c=x&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;x(&quot;o&quot;);</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-127'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-127'>#</a>
-      </div>
-      <p>Sending frames containing no messages must be allowed.</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/jsonp_send&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">&#39;d=%5B%5D&#39;</span><span class="p">,</span>
-                 <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;ok&#39;</span><span class="p">)</span>
-
-        <span class="n">r</span> <span class="o">=</span> <span class="n">POST</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/jsonp_send&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">&#39;d=%5B</span><span class="si">%22x%22%</span><span class="s">5D&#39;</span><span class="p">,</span>
-                 <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;ok&#39;</span><span class="p">)</span>
-
-        <span class="n">r</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/jsonp?c=x&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;x(&quot;a[</span><span class="se">\\</span><span class="s">&quot;x</span><span class="se">\\</span><span class="s">&quot;]&quot;);</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-128'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-128'>#</a>
+        <a class='octothorpe' href='#section-120'>#</a>
       </div>
       <h2>JSESSIONID cookie</h2>
 <p>All transports except WebSockets need sticky session support from
@@ -2374,10 +2237,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-129'>
+  <div class='section' id='section-121'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-129'>#</a>
+        <a class='octothorpe' href='#section-121'>#</a>
       </div>
       <p>Verify if info has cookie_needed set.</p>
     </div>
@@ -2392,10 +2255,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-130'>
+  <div class='section' id='section-122'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-130'>#</a>
+        <a class='octothorpe' href='#section-122'>#</a>
       </div>
       <p>Helper to check cookie validity.</p>
     </div>
@@ -2408,10 +2271,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-131'>
+  <div class='section' id='section-123'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-131'>#</a>
+        <a class='octothorpe' href='#section-123'>#</a>
       </div>
       <p>JSESSIONID cookie must be set by default</p>
     </div>
@@ -2420,10 +2283,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-132'>
+  <div class='section' id='section-124'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-132'>#</a>
+        <a class='octothorpe' href='#section-124'>#</a>
       </div>
       <p>polling url must set cookies</p>
     </div>
@@ -2436,10 +2299,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-133'>
+  <div class='section' id='section-125'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-133'>#</a>
+        <a class='octothorpe' href='#section-125'>#</a>
       </div>
       <p>Cookie must be echoed back if it's already set.</p>
     </div>
@@ -2455,10 +2318,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-134'>
+  <div class='section' id='section-126'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-134'>#</a>
+        <a class='octothorpe' href='#section-126'>#</a>
       </div>
       
     </div>
@@ -2471,10 +2334,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-135'>
+  <div class='section' id='section-127'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-135'>#</a>
+        <a class='octothorpe' href='#section-127'>#</a>
       </div>
       
     </div>
@@ -2487,10 +2350,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-136'>
+  <div class='section' id='section-128'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-136'>#</a>
+        <a class='octothorpe' href='#section-128'>#</a>
       </div>
       
     </div>
@@ -2503,10 +2366,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-137'>
+  <div class='section' id='section-129'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-137'>#</a>
+        <a class='octothorpe' href='#section-129'>#</a>
       </div>
       
     </div>
@@ -2527,10 +2390,10 @@ session urls.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-138'>
+  <div class='section' id='section-130'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-138'>#</a>
+        <a class='octothorpe' href='#section-130'>#</a>
       </div>
       <h2>Raw WebSocket url: <code>/websocket</code></h2>
 <p>SockJS protocol defines a bit of higher level framing. This is okay
@@ -2549,10 +2412,10 @@ heartbeats. Only raw WebSocket protocol.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-139'>
+  <div class='section' id='section-131'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-139'>#</a>
+        <a class='octothorpe' href='#section-131'>#</a>
       </div>
       
     </div>
@@ -2565,27 +2428,26 @@ heartbeats. Only raw WebSocket protocol.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-140'>
+  <div class='section' id='section-132'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-140'>#</a>
+        <a class='octothorpe' href='#section-132'>#</a>
       </div>
       
     </div>
     <div class='code'>
       <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ws</span> <span class="o">=</span> <span class="n">WebSocket8Client</span><span class="p">(</span><span class="n">close_base_url</span> <span class="o">+</span> <span class="s">&#39;/websocket&#39;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">)</span> <span class="k">as</span> <span class="n">ce</span><span class="p">:</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">ConnectionClosedException</span><span class="p">):</span>
             <span class="n">ws</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ce</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span> <span class="s">&quot;Go away!&quot;</span><span class="p">)</span>
         <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-141'>
+  <div class='section' id='section-133'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-141'>#</a>
+        <a class='octothorpe' href='#section-133'>#</a>
       </div>
       <h1>JSON Unicode Encoding</h1>
 <p>SockJS takes the responsibility of encoding Unicode strings for the
@@ -2608,10 +2470,10 @@ browser mangling outgoing chars on transports like XHR.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-142'>
+  <div class='section' id='section-134'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-142'>#</a>
+        <a class='octothorpe' href='#section-134'>#</a>
       </div>
       <p>The server is able to send much more chars verbatim. But, it can't
 send Unicode surrogates over Websockets, also various \u2xxxx chars
@@ -2632,10 +2494,10 @@ http://en.wikipedia.org/wiki/Mapping_of_Unicode_characters#Surrogates</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-143'>
+  <div class='section' id='section-135'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-143'>#</a>
+        <a class='octothorpe' href='#section-135'>#</a>
       </div>
       
     </div>
@@ -2644,10 +2506,10 @@ http://en.wikipedia.org/wiki/Mapping_of_Unicode_characters#Surrogates</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-144'>
+  <div class='section' id='section-136'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-144'>#</a>
+        <a class='octothorpe' href='#section-136'>#</a>
       </div>
       
     </div>
@@ -2656,10 +2518,10 @@ http://en.wikipedia.org/wiki/Mapping_of_Unicode_characters#Surrogates</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-145'>
+  <div class='section' id='section-137'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-145'>#</a>
+        <a class='octothorpe' href='#section-137'>#</a>
       </div>
       <p>Make sure that server encodes at least all the characters
 it's supposed to encode.</p>
@@ -2679,10 +2541,10 @@ it's supposed to encode.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-146'>
+  <div class='section' id='section-138'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-146'>#</a>
+        <a class='octothorpe' href='#section-138'>#</a>
       </div>
       <p>skip framing, quotes and parenthesis</p>
     </div>
@@ -2691,10 +2553,10 @@ it's supposed to encode.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-147'>
+  <div class='section' id='section-139'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-147'>#</a>
+        <a class='octothorpe' href='#section-139'>#</a>
       </div>
       <p>Received string is indeed what we send previously, aka - escaped.</p>
     </div>
@@ -2703,10 +2565,10 @@ it's supposed to encode.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-148'>
+  <div class='section' id='section-140'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-148'>#</a>
+        <a class='octothorpe' href='#section-140'>#</a>
       </div>
       
     </div>
@@ -2715,10 +2577,10 @@ it's supposed to encode.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-149'>
+  <div class='section' id='section-141'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-149'>#</a>
+        <a class='octothorpe' href='#section-141'>#</a>
       </div>
       <p>Make sure that server decodes the chars we're customly
 encoding.</p>
@@ -2738,10 +2600,10 @@ encoding.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-150'>
+  <div class='section' id='section-142'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-150'>#</a>
+        <a class='octothorpe' href='#section-142'>#</a>
       </div>
       <p>skip framing, quotes and parenthesis</p>
     </div>
@@ -2750,10 +2612,10 @@ encoding.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-151'>
+  <div class='section' id='section-143'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-151'>#</a>
+        <a class='octothorpe' href='#section-143'>#</a>
       </div>
       <p>Received string is indeed what we send previously. We don't
 really need to know what exactly got escaped and what not.</p>
@@ -2765,10 +2627,10 @@ really need to know what exactly got escaped and what not.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-152'>
+  <div class='section' id='section-144'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-152'>#</a>
+        <a class='octothorpe' href='#section-144'>#</a>
       </div>
       <h1>Handling close</h1>
 <p>Dealing with session closure is quite complicated part of the
@@ -2783,10 +2645,10 @@ checking implementations.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-153'>
+  <div class='section' id='section-145'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-153'>#</a>
+        <a class='octothorpe' href='#section-145'>#</a>
       </div>
       <p>When server is closing session, it should unlink current
 request. That means, if a new request appears, it should receive
@@ -2808,10 +2670,10 @@ still open" message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-154'>
+  <div class='section' id='section-146'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-154'>#</a>
+        <a class='octothorpe' href='#section-146'>#</a>
       </div>
       <p>HTTP streaming requests should be automatically closed after
 close.</p>
@@ -2822,10 +2684,10 @@ close.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-155'>
+  <div class='section' id='section-147'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-155'>#</a>
+        <a class='octothorpe' href='#section-147'>#</a>
       </div>
       
     </div>
@@ -2843,10 +2705,10 @@ close.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-156'>
+  <div class='section' id='section-148'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-156'>#</a>
+        <a class='octothorpe' href='#section-148'>#</a>
       </div>
       <p>HTTP streaming requests should be automatically closed after
 getting the close frame.</p>
@@ -2856,10 +2718,10 @@ getting the close frame.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-157'>
+  <div class='section' id='section-149'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-157'>#</a>
+        <a class='octothorpe' href='#section-149'>#</a>
       </div>
       <p>When a polling request is closed by a network error - not by
 server, the session should be automatically closed. When there
@@ -2875,10 +2737,10 @@ may have been lost, there is not much we can do about it.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-158'>
+  <div class='section' id='section-150'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-158'>#</a>
+        <a class='octothorpe' href='#section-150'>#</a>
       </div>
       <p>Can't do second polling request now.</p>
     </div>
@@ -2892,10 +2754,10 @@ may have been lost, there is not much we can do about it.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-159'>
+  <div class='section' id='section-151'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-159'>#</a>
+        <a class='octothorpe' href='#section-151'>#</a>
       </div>
       <p>Polling request now, after we aborted previous one, should
 trigger a connection closure. Implementations may close
@@ -2910,10 +2772,10 @@ they may return a 1002 close message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-160'>
+  <div class='section' id='section-152'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-160'>#</a>
+        <a class='octothorpe' href='#section-152'>#</a>
       </div>
       <p>The same for polling transports</p>
     </div>
@@ -2927,10 +2789,10 @@ they may return a 1002 close message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-161'>
+  <div class='section' id='section-153'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-161'>#</a>
+        <a class='octothorpe' href='#section-153'>#</a>
       </div>
       <p>Can't do second polling request now.</p>
     </div>
@@ -2942,10 +2804,10 @@ they may return a 1002 close message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-162'>
+  <div class='section' id='section-154'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-162'>#</a>
+        <a class='octothorpe' href='#section-154'>#</a>
       </div>
       <p>Polling request now, after we aborted previous one, should
 trigger a connection closure. Implementations may close
@@ -2958,10 +2820,10 @@ they may return a 1002 close message.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-163'>
+  <div class='section' id='section-155'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-163'>#</a>
+        <a class='octothorpe' href='#section-155'>#</a>
       </div>
       <h1>Http 1.0 and 1.1 chunking</h1>
 <p>There seem to be a lot of confusion about http/1.0 and http/1.1
@@ -2978,10 +2840,10 @@ to other urls served by the sockjs server.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-164'>
+  <div class='section' id='section-156'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-164'>#</a>
+        <a class='octothorpe' href='#section-156'>#</a>
       </div>
       <p>We're going to test a greeting url. No dynamic content, just the
 simplest possible response.</p>
@@ -2992,10 +2854,10 @@ simplest possible response.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-165'>
+  <div class='section' id='section-157'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-165'>#</a>
+        <a class='octothorpe' href='#section-157'>#</a>
       </div>
       <p>In theory 'connection:Keep-Alive' isn't a valid http/1.0
 header, but in this header may in practice be issued by a
@@ -3009,10 +2871,10 @@ http://www.freesoft.org/CIE/RFC/2068/248.htm</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-166'>
+  <div class='section' id='section-158'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-166'>#</a>
+        <a class='octothorpe' href='#section-158'>#</a>
       </div>
       <p>In practice the exact http version on the response doesn't
 really matter. Many serves always respond 1.1.</p>
@@ -3022,10 +2884,10 @@ really matter. Many serves always respond 1.1.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-167'>
+  <div class='section' id='section-159'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-167'>#</a>
+        <a class='octothorpe' href='#section-159'>#</a>
       </div>
       <p>Transfer-encoding is not allowed in http/1.0.</p>
     </div>
@@ -3034,10 +2896,10 @@ really matter. Many serves always respond 1.1.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-168'>
+  <div class='section' id='section-160'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-168'>#</a>
+        <a class='octothorpe' href='#section-160'>#</a>
       </div>
       <p>There are two ways to give valid response. Use
 Content-Length (and maybe connection:Keep-Alive) or
@@ -3056,10 +2918,10 @@ Connection: close.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-169'>
+  <div class='section' id='section-161'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-169'>#</a>
+        <a class='octothorpe' href='#section-161'>#</a>
       </div>
       <p>Connection-close behaviour is default in http 1.0</p>
     </div>
@@ -3070,10 +2932,10 @@ Connection: close.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-170'>
+  <div class='section' id='section-162'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-170'>#</a>
+        <a class='octothorpe' href='#section-162'>#</a>
       </div>
       <p>We should be able to issue another request on the same connection</p>
     </div>
@@ -3084,10 +2946,10 @@ Connection: close.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-171'>
+  <div class='section' id='section-163'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-171'>#</a>
+        <a class='octothorpe' href='#section-163'>#</a>
       </div>
       
     </div>
@@ -3098,10 +2960,10 @@ Connection: close.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-172'>
+  <div class='section' id='section-164'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-172'>#</a>
+        <a class='octothorpe' href='#section-164'>#</a>
       </div>
       <p>In theory 'connection:Keep-Alive' isn't a valid http/1.0
 header, but in this header may in practice be issued by a
@@ -3115,10 +2977,10 @@ http://www.freesoft.org/CIE/RFC/2068/248.htm</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-173'>
+  <div class='section' id='section-165'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-173'>#</a>
+        <a class='octothorpe' href='#section-165'>#</a>
       </div>
       <p>Transfer-encoding is not allowed in http/1.0.</p>
     </div>
@@ -3127,10 +2989,10 @@ http://www.freesoft.org/CIE/RFC/2068/248.htm</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-174'>
+  <div class='section' id='section-166'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-174'>#</a>
+        <a class='octothorpe' href='#section-166'>#</a>
       </div>
       <p>Content-length is not allowed - we don't know it yet.</p>
     </div>
@@ -3139,10 +3001,10 @@ http://www.freesoft.org/CIE/RFC/2068/248.htm</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-175'>
+  <div class='section' id='section-167'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-175'>#</a>
+        <a class='octothorpe' href='#section-167'>#</a>
       </div>
       <p><code>Connection</code> should be not set or be <code>close</code>. On the other
 hand, if it is set to <code>Keep-Alive</code>, it won't really hurt, as
@@ -3154,10 +3016,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-176'>
+  <div class='section' id='section-168'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-176'>#</a>
+        <a class='octothorpe' href='#section-168'>#</a>
       </div>
       <p>This is a the same logic as HandlingClose.test_close_frame</p>
     </div>
@@ -3169,10 +3031,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-177'>
+  <div class='section' id='section-169'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-177'>#</a>
+        <a class='octothorpe' href='#section-169'>#</a>
       </div>
       
     </div>
@@ -3181,10 +3043,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-178'>
+  <div class='section' id='section-170'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-178'>#</a>
+        <a class='octothorpe' href='#section-170'>#</a>
       </div>
       
     </div>
@@ -3196,10 +3058,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-179'>
+  <div class='section' id='section-171'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-179'>#</a>
+        <a class='octothorpe' href='#section-171'>#</a>
       </div>
       <p>Keepalive is default in http 1.1</p>
     </div>
@@ -3210,10 +3072,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-180'>
+  <div class='section' id='section-172'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-180'>#</a>
+        <a class='octothorpe' href='#section-172'>#</a>
       </div>
       <p>Server should use 'Content-Length' or 'Transfer-Encoding'</p>
     </div>
@@ -3229,10 +3091,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-181'>
+  <div class='section' id='section-173'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-181'>#</a>
+        <a class='octothorpe' href='#section-173'>#</a>
       </div>
       <p>We should be able to issue another request on the same connection</p>
     </div>
@@ -3243,10 +3105,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-182'>
+  <div class='section' id='section-174'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-182'>#</a>
+        <a class='octothorpe' href='#section-174'>#</a>
       </div>
       
     </div>
@@ -3260,10 +3122,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-183'>
+  <div class='section' id='section-175'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-183'>#</a>
+        <a class='octothorpe' href='#section-175'>#</a>
       </div>
       <p>Transfer-encoding is required in http/1.1.</p>
     </div>
@@ -3272,10 +3134,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-184'>
+  <div class='section' id='section-176'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-184'>#</a>
+        <a class='octothorpe' href='#section-176'>#</a>
       </div>
       <p>Content-length is not allowed.</p>
     </div>
@@ -3284,10 +3146,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-185'>
+  <div class='section' id='section-177'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-185'>#</a>
+        <a class='octothorpe' href='#section-177'>#</a>
       </div>
       <p>Connection header can be anything, so don't bother verifying it.</p>
     </div>
@@ -3296,10 +3158,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-186'>
+  <div class='section' id='section-178'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-186'>#</a>
+        <a class='octothorpe' href='#section-178'>#</a>
       </div>
       <p>This is a the same logic as HandlingClose.test_close_frame</p>
     </div>
@@ -3311,10 +3173,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-187'>
+  <div class='section' id='section-179'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-187'>#</a>
+        <a class='octothorpe' href='#section-179'>#</a>
       </div>
       <h1>Footnote</h1>
     </div>
@@ -3323,10 +3185,10 @@ we are confident that neither <code>Content-Length</code> nor
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-188'>
+  <div class='section' id='section-180'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-188'>#</a>
+        <a class='octothorpe' href='#section-180'>#</a>
       </div>
       <p>Make this script runnable.</p>
     </div>
