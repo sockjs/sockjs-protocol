@@ -4,7 +4,7 @@
 effort to define a protocol between in-browser
 [SockJS-client](https://github.com/sockjs/sockjs-client) and its
 server-side counterparts, like
-[SockJS-node](https://github.com/sockjs/sockjs-client). This should
+[SockJS-node](https://github.com/sockjs/sockjs-node). This should
 help others to write alternative server implementations.
 
 
