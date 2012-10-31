@@ -4,7 +4,7 @@
 effort to define a protocol between in-browser
 [SockJS-client](https://github.com/sockjs/sockjs-client) and its
 server-side counterparts, like
-[SockJS-node](https://github.com/sockjs/sockjs-client). This should
+[SockJS-node](https://github.com/sockjs/sockjs-node). This should
 help others to write alternative server implementations.
 
 
@@ -1510,6 +1510,7 @@ class Http10(Test):
             connection = r.headers.get('connection', '').lower()
             if connection in ['close', '']:
                 # Connection-close behaviour is default in http 1.0
+                print 'XXX'
                 self.assertTrue(c.closed())
             else:
                 self.assertEqual(connection, 'keep-alive')
