@@ -573,10 +573,10 @@ class WebsocketHixie76(Test):
         ws2 = websocket.create_connection(ws_url, on_close=on_close)
         self.assertEqual(ws2.recv(), u'o')
 
-        ws1.send(u'"a"')
+        ws1.send(u'["a"]')
         self.assertEqual(ws1.recv(), u'a["a"]')
 
-        ws2.send(u'"b"')
+        ws2.send(u'["b"]')
         self.assertEqual(ws2.recv(), u'a["b"]')
 
         ws1.close()
@@ -586,7 +586,7 @@ class WebsocketHixie76(Test):
         # previous connection.
         ws1 = websocket.create_connection(ws_url)
         self.assertEqual(ws1.recv(), u'o')
-        ws1.send(u'"a"')
+        ws1.send(u'["a"]')
         self.assertEqual(ws1.recv(), u'a["a"]')
         ws1.close()
 
