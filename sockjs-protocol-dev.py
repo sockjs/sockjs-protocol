@@ -1097,7 +1097,7 @@ class JsonPolling(Test):
 
     def test_no_callback(self):
         r = GET(base_url + '/a/a/jsonp')
-        self.assertEqual(r.status, 4500)
+        self.assertEqual(r.status, 400)
         self.assertTrue('"callback" parameter required' in r.body)
 
     # Supplying invalid characters to callback parameter is invalid
