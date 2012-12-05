@@ -1192,6 +1192,10 @@ class JsonPolling(Test):
 # opt-in for this functionality - and set this cookie for all the
 # session urls.
 #
+# Detailed explanation of this functionality is available [in this
+# thread on SockJS mailing
+# list](https://groups.google.com/group/sockjs/msg/ef0c508bb774a9ac).
+#
 class JsessionidCookie(Test):
     # Verify if info has cookie_needed set.
     def test_basic(self):
