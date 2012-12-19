@@ -29,7 +29,7 @@ import uuid
 
 """
 The SockJS server provides one or more SockJS services. The services
-are usually exposed with a simple url prefixes, like:
+are usually exposed with a simple url prefix, like:
 `http://localhost:8000/echo` or
 `http://localhost:8000/broadcast`. We'll call this kind of url a
 `base_url`. There is nothing wrong with base url being more complex,
@@ -398,7 +398,7 @@ class SessionURLs(Test):
 #
 # * `a` - Array of json-encoded messages. For example: `a["message"]`.
 #
-# * `c` - Close frame. This frame is send to the browser every time
+# * `c` - Close frame. This frame is sent to the browser every time
 #   the client asks for data on closed connection. This may happen
 #   multiple times. Close frame contains a code and a string explaining
 #   a reason of closure, like: `c[3000,"Go away!"]`.
@@ -759,7 +759,7 @@ class XhrPolling(Test):
         r = POST(url + '/xhr_send', body='["x"]')
         self.verify404(r)
 
-    # The server must behave when invalid json data is send or when no
+    # The server must behave when invalid json data is sent or when no
     # json data is sent at all.
     def test_invalid_json(self):
         url = base_url + '/000/' + str(uuid.uuid4())
@@ -783,7 +783,7 @@ class XhrPolling(Test):
         self.assertEqual(r.body, 'a["a"]\n')
         self.assertEqual(r.status, 200)
 
-    # The server must accept messages send with different content
+    # The server must accept messages sent with different content
     # types.
     def test_content_types(self):
         url = base_url + '/000/' + str(uuid.uuid4())
@@ -1065,7 +1065,7 @@ class JsonPolling(Test):
         self.assertEqual(r.status, 500)
         self.assertTrue('"callback" parameter required' in r.body)
 
-    # The server must behave when invalid json data is send or when no
+    # The server must behave when invalid json data is sent or when no
     # json data is sent at all.
     def test_invalid_json(self):
         url = base_url + '/000/' + str(uuid.uuid4())
@@ -1202,11 +1202,11 @@ class JsessionidCookie(Test):
 # -------------------------------
 #
 # SockJS protocol defines a bit of higher level framing. This is okay
-# when the browser using SockJS-client establishes the connection, but
-# it's not really appropriate when the connection is being esablished
+# when the browser uses SockJS-client to establish the connection, but
+# it's not really appropriate when the connection is being established
 # from another program. Although SockJS focuses on server-browser
 # communication, it should be straightforward to connect to SockJS
-# from command line or some any programming language.
+# from the command line or using any programming language.
 #
 # In order to make writing command-line clients easier, we define this
 # `/websocket` entry point. This entry point is special and doesn't
@@ -1281,7 +1281,7 @@ class JSONEncoding(Test):
         # skip framing, quotes and parenthesis
         recv = r.body.strip()[2:-1]
 
-        # Received string is indeed what we send previously, aka - escaped.
+        # Received string is indeed what we sent previously, aka - escaped.
         self.assertEqual(recv, server_killer_string_esc)
 
     def test_xhr_server_decodes(self):
@@ -1301,7 +1301,7 @@ class JSONEncoding(Test):
         # skip framing, quotes and parenthesis
         recv = r.body.strip()[2:-1]
 
-        # Received string is indeed what we send previously. We don't
+        # Received string is indeed what we sent previously. We don't
         # really need to know what exactly got escaped and what not.
         a = json.loads(recv)
         b = json.loads(client_killer_string_esc)
