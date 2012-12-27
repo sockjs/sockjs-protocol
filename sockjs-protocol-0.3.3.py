@@ -78,6 +78,10 @@ class Test(unittest.TestCase):
         self.assertTrue(r['allow'])
         self.assertFalse(r.body)
 
+    # Compare the 'content-type' header ignoring spaces
+    def verify_content_type(self, r, content_type):
+        self.assertEqual(r['content-type'].replace(' ', ''), content_type)
+
     # Multiple transport protocols need to support OPTIONS method. All
     # responses to OPTIONS requests must be cacheable and contain
     # appropriate headers.
@@ -130,7 +134,7 @@ class BaseUrlGreeting(Test):
         for url in [base_url, base_url + '/']:
             r = GET(url)
             self.assertEqual(r.status, 200)
-            self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
+            self.verify_content_type(r, 'text/plain;charset=UTF-8')
             self.assertEqual(r.body, 'Welcome to SockJS!\n')
             self.verify_no_cookie(r)
 
@@ -203,7 +207,7 @@ class IframePage(Test):
     def verify(self, url):
         r = GET(url)
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['content-type'], 'text/html; charset=UTF-8')
+        self.verify_content_type(r, 'text/html;charset=UTF-8')
         # The iframe page must be strongly cacheable, supply
         # Cache-Control, Expires and Etag headers and avoid
         # Last-Modified header.
@@ -257,8 +261,7 @@ class InfoTest(Test):
     def test_basic(self):
         r = GET(base_url + '/info')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['content-type'],
-                         'application/json; charset=UTF-8')
+        self.verify_content_type(r, 'application/json;charset=UTF-8')
         self.verify_no_cookie(r)
         self.verify_not_cached(r)
         self.verify_cors(r)
@@ -474,6 +477,7 @@ class Protocol(Test):
 
         # Until the timeout occurs, the server must constantly serve
         # the close message.
+
         r = POST(trans_url + '/xhr')
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'c[3000,"Go away!"]\n')
@@ -729,8 +733,7 @@ class XhrPolling(Test):
         r = POST(url + '/xhr')
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'o\n')
-        self.assertEqual(r['content-type'],
-                         'application/javascript; charset=UTF-8')
+        self.verify_content_type(r, 'application/javascript;charset=UTF-8')
         self.verify_cors(r)
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
@@ -743,7 +746,7 @@ class XhrPolling(Test):
         # even though the response code is `204`. This is due to
         # Firefox/Firebug behaviour - it assumes that the content type
         # is xml and shouts about it.
-        self.assertEqual(r['content-type'], 'text/plain; charset=UTF-8')
+        self.verify_content_type(r, 'text/plain; charset=UTF-8')
         self.verify_cors(r)
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
@@ -840,8 +843,7 @@ class XhrStreaming(Test):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = POST_async(url + '/xhr_streaming')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['Content-Type'],
-                         'application/javascript; charset=UTF-8')
+        self.verify_content_type(r, 'application/javascript;charset=UTF-8')
         self.verify_cors(r)
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
@@ -897,8 +899,7 @@ class EventSource(Test):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET_async(url + '/eventsource')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['Content-Type'],
-                         'text/event-stream; charset=UTF-8')
+        self.verify_content_type(r, 'text/event-stream;charset=UTF-8')
         # As EventSource is requested using GET we must be very
         # carefull not to allow it being cached.
         self.verify_not_cached(r)
@@ -983,8 +984,7 @@ class HtmlFile(Test):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET_async(url + '/htmlfile?c=%63allback')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['Content-Type'],
-                         'text/html; charset=UTF-8')
+        self.verify_content_type(r, 'text/html;charset=UTF-8')
         # As HtmlFile is requested using GET we must be very careful
         # not to allow it being cached.
         self.verify_not_cached(r)
@@ -1037,8 +1037,7 @@ class JsonPolling(Test):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET(url + '/jsonp?c=%63allback')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['Content-Type'],
-                         'application/javascript; charset=UTF-8')
+        self.verify_content_type(r, 'application/javascript;charset=UTF-8')
         # As JsonPolling is requested using GET we must be very
         # carefull not to allow it being cached.
         self.verify_not_cached(r)
@@ -1051,7 +1050,7 @@ class JsonPolling(Test):
         # to respond with something - let it be the string `ok`.
         self.assertEqual(r.body, 'ok')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r['Content-Type'], 'text/plain; charset=UTF-8')
+        self.verify_content_type(r, 'text/plain;charset=UTF-8')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
