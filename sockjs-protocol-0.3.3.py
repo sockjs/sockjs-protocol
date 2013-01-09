@@ -456,6 +456,7 @@ class Protocol(Test):
         # on a single session. In such case the server must send a
         # close frame to the new connection.
         r1 = old_POST_async(trans_url + '/xhr', load=False)
+        time.sleep(0.25)
         r2 = POST(trans_url + '/xhr')
 
         self.assertEqual(r2.body, 'c[2010,"Another connection still open"]\n')
@@ -1388,6 +1389,7 @@ class HandlingClose(Test):
         self.assertEqual(r1.body, 'o\n')
 
         r1 = old_POST_async(url + '/xhr', load=False)
+        time.sleep(0.25)
 
         # Can't do second polling request now.
         r2 = POST(url + '/xhr')
