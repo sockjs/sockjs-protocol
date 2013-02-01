@@ -52,8 +52,8 @@ There is also another test, intended to look for some http quirks:
     python http-quirks.py -v
 
 
-Genrating literate html
------------------------
+Generating literate html
+------------------------
 
 If you edited `sockjs-protocol` files, you may want to see how it
 looks rendered to html. To generate the html type:
