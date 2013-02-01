@@ -5,7 +5,7 @@
 all: pycco_deps test_deps build
 
 build: pycco_deps
-	./venv/bin/pycco sockjs-protocol*.py
+	pycco sockjs-protocol*.py
 
 clean:
 	rm -rf venv *.pyc
@@ -14,21 +14,15 @@ clean:
 #### Dependencies
 
 venv:
-	virtualenv venv
+	virtualenv venv --no-site-packages --distribute
 	-rm distribute-*.tar.gz || true
+	source ./venv/bin/activate
 
-pycco_deps: venv/.pycco_deps
-venv/.pycco_deps: venv
-	./venv/bin/pip install pycco
-	touch venv/.pycco_deps
+pycco_deps:
+	pip install -r requirements_dev.txt
 
-test_deps: venv/.test_deps
-venv/.test_deps: venv
-	./venv/bin/pip install unittest2
-	./venv/bin/pip install websocket-client==0.4.1
-# Main source crashes https://github.com/Lawouach/WebSocket-for-Python/issues/16
-	./venv/bin/pip install git+git://github.com/majek/WebSocket-for-Python.git
-	touch venv/.test_deps
+test_deps:
+	pip install -r requirements.txt
 
 
 #### Development
