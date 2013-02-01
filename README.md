@@ -55,7 +55,7 @@ There is also another test, intended to look for some http quirks:
 Generating literate html
 ------------------------
 
-If you edited `sockjs-protocol` files, you may want to see how it
+If you edited `sockjs-protocol*.py` files, you may want to see how it
 looks rendered to html. To generate the html type:
 
     make build
