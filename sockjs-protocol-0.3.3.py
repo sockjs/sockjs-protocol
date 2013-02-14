@@ -747,7 +747,7 @@ class XhrPolling(Test):
         # even though the response code is `204`. This is due to
         # Firefox/Firebug behaviour - it assumes that the content type
         # is xml and shouts about it.
-        self.verify_content_type(r, 'text/plain; charset=UTF-8')
+        self.verify_content_type(r, 'text/plain;charset=UTF-8')
         self.verify_cors(r)
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
