@@ -13,22 +13,17 @@ documentation is in a form of a Python test suite decorated with some
 prose in literate-programming style. You can see current documentation
 here:
 
- * Current stable: [sockjs-protocol-0.3.3.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.3.3.html)
+ * Current stable: [sockjs-protocol-0.3.3.html](
+   http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.3.3.html)
 
 
 Running tests
 -------------
 
 You must have Python 2.X and `virtualenv` installed. You can install
-it via `pip install virtualenv` or `sudo apt-get install
-python-virtualenv`.
+it via `pip install virtualenv` or `sudo apt-get install python-virtualenv`.
 
-Build a virtualenv:
-
-    make venv
-
-To run the test suite against your server, first checkout
-dependencies:
+To run the test suite against your server, first checkout dependencies:
 
     make test_deps
 

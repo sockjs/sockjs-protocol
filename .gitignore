@@ -1,5 +1,4 @@
 *.pyc
-venv
-distribute-*.tar.gz
+.build
 docs
 node_modules/

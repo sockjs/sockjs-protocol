@@ -2,27 +2,41 @@
 
 #### General
 
+BUILD_DIR = .build
+SHELL = /bin/bash
+VENV_DIR = $(BUILD_DIR)/venv
+PIP = $(VENV_DIR)/bin/pip
+PYTHON = $(VENV_DIR)/bin/python
+
 all: pycco_deps test_deps build
 
 build: pycco_deps
 	pycco sockjs-protocol*.py
 
 clean:
-	rm -rf venv *.pyc
+	@rm -rf $(BUILD_DIR)
+	@find . -name "*.pyc" -delete
 
 
 #### Dependencies
 
-venv:
-	virtualenv venv --no-site-packages --distribute
-	-rm distribute-*.tar.gz || true
-	source ./venv/bin/activate
+venv: $(VENV_DIR)
 
-pycco_deps:
-	pip install -r requirements_dev.txt
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
 
-test_deps:
-	pip install -r requirements.txt
+$(VENV_DIR): $(BUILD_DIR)
+	virtualenv $(VENV_DIR) --no-site-packages --distribute
+
+$(BUILD_DIR)/pip.log: $(BUILD_DIR) requirements.txt
+	$(PIP) install -Ur requirements.txt | tee $(BUILD_DIR)/pip.log
+
+$(BUILD_DIR)/pip-dev.log: $(BUILD_DIR) requirements_dev.txt
+	$(PIP) install -Ur requirements_dev.txt | tee $(BUILD_DIR)/pip-dev.log
+
+pycco_deps: venv $(BUILD_DIR)/pip.log
+
+test_deps: venv $(BUILD_DIR)/pip-dev.log
 
 
 #### Development
