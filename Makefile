@@ -7,11 +7,12 @@ SHELL = /bin/bash
 VENV_DIR = $(BUILD_DIR)/venv
 PIP = $(VENV_DIR)/bin/pip
 PYTHON = $(VENV_DIR)/bin/python
+PYCCO = $(VENV_DIR)/bin/pycco
 
 all: pycco_deps test_deps build
 
 build: pycco_deps
-	pycco sockjs-protocol*.py
+	$(PYCCO) sockjs-protocol*.py
 
 clean:
 	@rm -rf $(BUILD_DIR)
