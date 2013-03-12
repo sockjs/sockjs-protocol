@@ -13,18 +13,17 @@ documentation is in a form of a Python test suite decorated with some
 prose in literate-programming style. You can see current documentation
 here:
 
- * Current stable: [sockjs-protocol-0.3.3.html](http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.3.3.html)
+ * Current stable: [sockjs-protocol-0.3.3.html](
+   http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.3.3.html)
 
 
 Running tests
 -------------
 
 You must have Python 2.X and `virtualenv` installed. You can install
-it via `pip install virtualenv` or `sudo apt-get install
-python-virtualenv`.
+it via `pip install virtualenv` or `sudo apt-get install python-virtualenv`.
 
-To run the test suite against your server, first checkout
-dependencies:
+To run the test suite against your server, first checkout dependencies:
 
     make test_deps
 
@@ -48,10 +47,10 @@ There is also another test, intended to look for some http quirks:
     ./venv/bin/python http-quirks.py -v
 
 
-Genrating literate html
------------------------
+Generating literate html
+------------------------
 
-If you edited `sockjs-protocol` files, you may want to see how it
+If you edited `sockjs-protocol*.py` files, you may want to see how it
 looks rendered to html. To generate the html type:
 
     make build

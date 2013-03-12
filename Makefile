@@ -2,33 +2,42 @@
 
 #### General
 
+BUILD_DIR = .build
+SHELL = /bin/bash
+VENV_DIR = venv
+PIP = $(VENV_DIR)/bin/pip
+PYTHON = $(VENV_DIR)/bin/python
+PYCCO = $(VENV_DIR)/bin/pycco
+
 all: pycco_deps test_deps build
 
 build: pycco_deps
-	./venv/bin/pycco sockjs-protocol*.py
+	$(PYCCO) sockjs-protocol*.py
 
 clean:
-	rm -rf venv *.pyc
+	@rm -rf $(BUILD_DIR)
+	@find . -name "*.pyc" -delete
 
 
 #### Dependencies
 
-venv:
-	virtualenv venv
-	-rm distribute-*.tar.gz || true
+venv: $(VENV_DIR)
 
-pycco_deps: venv/.pycco_deps
-venv/.pycco_deps: venv
-	./venv/bin/pip install pycco
-	touch venv/.pycco_deps
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
 
-test_deps: venv/.test_deps
-venv/.test_deps: venv
-	./venv/bin/pip install unittest2
-	./venv/bin/pip install websocket-client==0.4.1
-# Main source crashes https://github.com/Lawouach/WebSocket-for-Python/issues/16
-	./venv/bin/pip install git+git://github.com/majek/WebSocket-for-Python.git
-	touch venv/.test_deps
+$(VENV_DIR):
+	virtualenv $(VENV_DIR) --no-site-packages --distribute
+
+$(BUILD_DIR)/pip.log: $(BUILD_DIR) requirements.txt
+	$(PIP) install -Ur requirements.txt | tee $(BUILD_DIR)/pip.log
+
+$(BUILD_DIR)/pip-dev.log: $(BUILD_DIR) requirements_dev.txt
+	$(PIP) install -Ur requirements_dev.txt | tee $(BUILD_DIR)/pip-dev.log
+
+pycco_deps: venv $(BUILD_DIR)/pip.log
+
+test_deps: venv $(BUILD_DIR)/pip-dev.log
 
 
 #### Development
