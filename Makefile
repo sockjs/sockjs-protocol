@@ -4,7 +4,7 @@
 
 BUILD_DIR = .build
 SHELL = /bin/bash
-VENV_DIR = $(BUILD_DIR)/venv
+VENV_DIR = venv
 PIP = $(VENV_DIR)/bin/pip
 PYTHON = $(VENV_DIR)/bin/python
 PYCCO = $(VENV_DIR)/bin/pycco
@@ -26,7 +26,7 @@ venv: $(VENV_DIR)
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 
-$(VENV_DIR): $(BUILD_DIR)
+$(VENV_DIR):
 	virtualenv $(VENV_DIR) --no-site-packages --distribute
 
 $(BUILD_DIR)/pip.log: $(BUILD_DIR) requirements.txt
