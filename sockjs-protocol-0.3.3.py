@@ -110,6 +110,8 @@ class Test(unittest.TestCase):
     def verify_cors(self, r, origin=None):
         if origin and origin != 'null':
             self.assertEqual(r['access-control-allow-origin'], origin)
+        else:
+            self.assertEqual(r['access-control-allow-origin'], '*')
         # In order to get cookies (`JSESSIONID` mostly) flying, we
         # need to set `allow-credentials` header to true.
         self.assertEqual(r['access-control-allow-credentials'], 'true')
@@ -815,21 +817,21 @@ class XhrPolling(Test):
         r = OPTIONS(url + '/xhr',
                 headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'a, b, c'})
         self.assertTrue(r.status == 204 or r.status == 200)
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         self.assertEqual(r['Access-Control-Allow-Headers'], 'a, b, c')
 
         url = base_url + '/000/' + str(uuid.uuid4())
         r = OPTIONS(url + '/xhr',
                 headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': ''})
         self.assertTrue(r.status == 204 or r.status == 200)
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         self.assertFalse(r['Access-Control-Allow-Headers'])
 
         url = base_url + '/000/' + str(uuid.uuid4())
         r = OPTIONS(url + '/xhr',
                 headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST'})
         self.assertTrue(r.status == 204 or r.status == 200)
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         self.assertFalse(r['Access-Control-Allow-Headers'])
 
 
