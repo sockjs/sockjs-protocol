@@ -3,6 +3,22 @@ SockJS family:
   * [SockJS-client](https://github.com/sockjs/sockjs-client) JavaScript client library
   * [SockJS-node](https://github.com/sockjs/sockjs-node) Node.js server
   * [SockJS-erlang](https://github.com/sockjs/sockjs-erlang) Erlang server
+  * [SockJS-tornado](https://github.com/MrJoes/sockjs-tornado) Python/Tornado server
+  * [vert.x](https://github.com/vert-x/vert.x) Java/vert.x server
+  * [Xitrum](http://ngocdaothanh.github.io/xitrum/) Scala server
+
+Work in progress:
+
+  * [SockJS-ruby](https://github.com/nyarly/sockjs-ruby)
+  * [SockJS-netty](https://github.com/cgbystrom/sockjs-netty)
+  * [SockJS-gevent](https://github.com/sdiehl/sockjs-gevent) ([SockJS-gevent fork](https://github.com/njoyce/sockjs-gevent))
+  * [pyramid-SockJS](https://github.com/fafhrd91/pyramid_sockjs)
+  * [wildcloud-websockets](https://github.com/wildcloud/wildcloud-websockets)
+  * [SockJS-cyclone](https://github.com/flaviogrossi/sockjs-cyclone)
+  * [SockJS-twisted](https://github.com/Fugiman/sockjs-twisted/)
+  * [wai-SockJS](https://github.com/Palmik/wai-sockjs)
+  * [SockJS-perl](https://github.com/vti/sockjs-perl)
+  * [SockJS-go](https://github.com/igm/sockjs-go/)
 
 
 SockJS-protocol
