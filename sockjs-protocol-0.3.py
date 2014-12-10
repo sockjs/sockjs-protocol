@@ -398,7 +398,7 @@ class SessionURLs(Test):
 #
 # * `a` - Array of json-encoded messages. For example: `a["message"]`.
 #
-# * `c` - Close frame. This frame is send to the browser every time
+# * `c` - Close frame. This frame is sent to the browser every time
 #   the client asks for data on closed connection. This may happen
 #   multiple times. Close frame contains a code and a string explaining
 #   a reason of closure, like: `c[3000,"Go away!"]`.
