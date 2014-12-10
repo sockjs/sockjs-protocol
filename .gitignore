@@ -1,4 +1,5 @@
 *.pyc
 .build
+venv
 docs
 node_modules/

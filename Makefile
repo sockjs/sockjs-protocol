@@ -21,7 +21,7 @@ clean:
 
 #### Dependencies
 
-venv: $(VENV_DIR)
+venv_dir: $(VENV_DIR)
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
@@ -35,9 +35,9 @@ $(BUILD_DIR)/pip.log: $(BUILD_DIR) requirements.txt
 $(BUILD_DIR)/pip-dev.log: $(BUILD_DIR) requirements_dev.txt
 	$(PIP) install -Ur requirements_dev.txt | tee $(BUILD_DIR)/pip-dev.log
 
-pycco_deps: venv $(BUILD_DIR)/pip.log
+pycco_deps: venv_dir $(BUILD_DIR)/pip.log
 
-test_deps: venv $(BUILD_DIR)/pip-dev.log
+test_deps: venv_dir $(BUILD_DIR)/pip-dev.log
 
 
 #### Development
