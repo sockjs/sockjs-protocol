@@ -778,11 +778,11 @@ class XhrPolling(Test):
         self.assertEqual(r.body, 'o\n')
 
         r = POST(url + '/xhr_send', body='["x')
-        self.assertEqual(r.status, 500)
+        self.assertEqual(r.status, 400)
         self.assertTrue("Broken JSON encoding." in r.body)
 
         r = POST(url + '/xhr_send', body='')
-        self.assertEqual(r.status, 500)
+        self.assertEqual(r.status, 400)
         self.assertTrue("Payload expected." in r.body)
 
         r = POST(url + '/xhr_send', body='["a"]')
@@ -1032,16 +1032,16 @@ class HtmlFile(Test):
 
     def test_no_callback(self):
         r = GET(base_url + '/a/a/htmlfile')
-        self.assertEqual(r.status, 500)
+        self.assertEqual(r.status, 400)
         self.assertTrue('"callback" parameter required' in r.body)
 
     # Supplying invalid characters to callback parameter is invalid
-    # and must result in a 500 errors. Invalid characters are any
+    # and must result in a 400 errors. Invalid characters are any
     # matching the following regexp: `[^a-zA-Z0-9-_.]`
     def test_invalid_callback(self):
         for callback in ['%20', '*', 'abc(', 'abc%28']:
             r = GET(base_url + '/a/a/htmlfile?c=' + callback)
-            self.assertEqual(r.status, 500)
+            self.assertEqual(r.status, 400)
             self.assertTrue('invalid "callback" parameter' in r.body)
 
     def test_response_limit(self):
@@ -1097,7 +1097,7 @@ class JsonPolling(Test):
 
     def test_no_callback(self):
         r = GET(base_url + '/a/a/jsonp')
-        self.assertEqual(r.status, 500)
+        self.assertEqual(r.status, 400)
         self.assertTrue('"callback" parameter required' in r.body)
 
     # Supplying invalid characters to callback parameter is invalid
@@ -1106,7 +1106,7 @@ class JsonPolling(Test):
     def test_invalid_callback(self):
         for callback in ['%20', '*', 'abc(', 'abc%28']:
             r = GET(base_url + '/a/a/jsonp?c=' + callback)
-            self.assertEqual(r.status, 500)
+            self.assertEqual(r.status, 400)
             self.assertTrue('invalid "callback" parameter' in r.body)
 
     # The server must behave when invalid json data is sent or when no
@@ -1118,13 +1118,13 @@ class JsonPolling(Test):
 
         r = POST(url + '/jsonp_send', body='d=%5B%22x',
                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
-        self.assertEqual(r.status, 500)
+        self.assertEqual(r.status, 400)
         self.assertTrue("Broken JSON encoding." in r.body)
 
         for data in ['', 'd=', 'p=p']:
             r = POST(url + '/jsonp_send', body=data,
                      headers={'Content-Type': 'application/x-www-form-urlencoded'})
-            self.assertEqual(r.status, 500)
+            self.assertEqual(r.status, 400)
             self.assertTrue("Payload expected." in r.body)
 
         r = POST(url + '/jsonp_send', body='d=%5B%22b%22%5D',
