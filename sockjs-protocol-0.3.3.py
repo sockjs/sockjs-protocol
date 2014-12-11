@@ -260,12 +260,12 @@ class InfoTest(Test):
     # the roundtrip time between the client and the server. So, please,
     # do respond to this url in a timely fashin.
     def test_basic(self):
-        r = GET(base_url + '/info', headers={'Access-Control-Request-Method': 'GET', 'Origin': 'test'})
+        r = GET(base_url + '/info', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.verify_content_type(r, 'application/json;charset=UTF-8')
         self.verify_no_cookie(r)
         self.verify_not_cached(r)
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
 
         data = json.loads(r.body)
         # Are websockets enabled on the server?
@@ -732,16 +732,16 @@ class XhrPolling(Test):
     # Test the transport itself.
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr', headers={'Access-Control-Request-Method': 'POST', 'Origin': 'test'})
+        r = POST(url + '/xhr', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'o\n')
         self.verify_content_type(r, 'application/javascript;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
         # Xhr transports receive json-encoded array of messages.
-        r = POST(url + '/xhr_send', body='["x"]', headers={'Access-Control-Request-Method': 'POST', 'Origin': 'test'})
+        r = POST(url + '/xhr_send', body='["x"]', headers={'Origin': 'test'})
         self.assertEqual(r.status, 204)
         self.assertFalse(r.body)
         # The content type of `xhr_send` must be set to `text/plain`,
@@ -749,7 +749,7 @@ class XhrPolling(Test):
         # Firefox/Firebug behaviour - it assumes that the content type
         # is xml and shouts about it.
         self.verify_content_type(r, 'text/plain;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
@@ -844,10 +844,10 @@ class XhrStreaming(Test):
 
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST_async(url + '/xhr_streaming', headers={'Access-Control-Request-Method': 'POST', 'Origin': 'test'})
+        r = POST_async(url + '/xhr_streaming', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.verify_content_type(r, 'application/javascript;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
