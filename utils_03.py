@@ -211,8 +211,10 @@ class RawHttpConnection(object):
             if header in ['\n', '\r\n']:
                 break
             k, _, v = header.partition(':')
-            resp.headers[k] = v.lstrip().rstrip('\r\n')
-
+            if k in resp.headers:
+                resp.headers[k] = resp.headers[k] + ', ' + v.lstrip().rstrip('\r\n')
+            else:
+                resp.headers[k] = v.lstrip().rstrip('\r\n')
         return resp
 
     def read(self, size=None):
