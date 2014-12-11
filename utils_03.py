@@ -278,7 +278,7 @@ def SynchronousHttpRequest(method, url, **kwargs):
         r.body = c.read_till_eof()
     else:
         # Whitelist statuses that may not need a response
-        if r.status in [101, 304, 204]:
+        if r.status in [101, 304, 204] or (r.status == 200 and method == 'OPTIONS'):
             r.body = ''
         else:
             raise Exception(str(r.status) + ' '+str(r.headers) + " No Transfer-Encoding:chunked nor Content-Length nor Connection:Close!")

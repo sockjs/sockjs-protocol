@@ -86,18 +86,19 @@ class Test(unittest.TestCase):
     # responses to OPTIONS requests must be cacheable and contain
     # appropriate headers.
     def verify_options(self, url, allowed_methods):
-        for origin in [None, 'test', 'null']:
-            h = {}
-            if origin:
-                h['Origin'] = origin
+        for origin in ['test', 'null']:
+            h = {'Access-Control-Request-Method': allowed_methods, 'Origin': origin}
             r = OPTIONS(url, headers=h)
-            self.assertEqual(r.status, 204)
+            # A 200 'OK' or a 204 'No Content' should both be acceptable as responses for a CORS request.
+            self.assertTrue(r.status == 204 or r.status == 200)
             self.assertTrue(re.search('public', r['Cache-Control']))
             self.assertTrue(re.search('max-age=[1-9][0-9]{6}', r['Cache-Control']),
                             "max-age must be large, one year (31536000) is best")
             self.assertTrue(r['Expires'])
             self.assertTrue(int(r['access-control-max-age']) > 1000000)
-            self.assertEqual(r['Access-Control-Allow-Methods'], allowed_methods)
+            # A server may respond to a preflight request with HTTP methods in addition to method specified in the 'Access-Control-Request-Method' header
+            for header in allowed_methods.split(','):
+                self.assertTrue(header.strip() in r['Access-Control-Allow-Methods'], 'Access-Control-Allow-Methods did not contain :' + header)
             self.assertFalse(r.body)
             self.verify_cors(r, origin)
 
@@ -260,12 +261,12 @@ class InfoTest(Test):
     # the roundtrip time between the client and the server. So, please,
     # do respond to this url in a timely fashin.
     def test_basic(self):
-        r = GET(base_url + '/info')
+        r = GET(base_url + '/info', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.verify_content_type(r, 'application/json;charset=UTF-8')
         self.verify_no_cookie(r)
         self.verify_not_cached(r)
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
 
         data = json.loads(r.body)
         # Are websockets enabled on the server?
@@ -301,8 +302,8 @@ class InfoTest(Test):
     # must respond with star "*" origin in such case.
     def test_options_null_origin(self):
             url = base_url + '/info'
-            r = OPTIONS(url, headers={'Origin': 'null'})
-            self.assertEqual(r.status, 204)
+            r = OPTIONS(url, headers={'Origin': 'null', 'Access-Control-Request-Method': 'POST'})
+            self.assertTrue(r.status == 204 or r.status == 200)
             self.assertFalse(r.body)
             self.assertEqual(r['access-control-allow-origin'], '*')
 
@@ -732,16 +733,16 @@ class XhrPolling(Test):
     # Test the transport itself.
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr')
+        r = POST(url + '/xhr', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'o\n')
         self.verify_content_type(r, 'application/javascript;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
         # Xhr transports receive json-encoded array of messages.
-        r = POST(url + '/xhr_send', body='["x"]')
+        r = POST(url + '/xhr_send', body='["x"]', headers={'Origin': 'test'})
         self.assertEqual(r.status, 204)
         self.assertFalse(r.body)
         # The content type of `xhr_send` must be set to `text/plain`,
@@ -749,7 +750,7 @@ class XhrPolling(Test):
         # Firefox/Firebug behaviour - it assumes that the content type
         # is xml and shouts about it.
         self.verify_content_type(r, 'text/plain;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
@@ -814,23 +815,24 @@ class XhrPolling(Test):
     # otherwise.
     def test_request_headers_cors(self):
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr',
-                 headers={'Access-Control-Request-Headers': 'a, b, c'})
-        self.assertEqual(r.status, 200)
-        self.verify_cors(r)
+        r = OPTIONS(url + '/xhr',
+                headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'a, b, c'})
+        self.assertTrue(r.status == 204 or r.status == 200)
+        self.verify_cors(r, 'test')
         self.assertEqual(r['Access-Control-Allow-Headers'], 'a, b, c')
 
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr',
-                 headers={'Access-Control-Request-Headers': ''})
-        self.assertEqual(r.status, 200)
-        self.verify_cors(r)
+        r = OPTIONS(url + '/xhr',
+                headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': ''})
+        self.assertTrue(r.status == 204 or r.status == 200)
+        self.verify_cors(r, 'test')
         self.assertFalse(r['Access-Control-Allow-Headers'])
 
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr')
-        self.assertEqual(r.status, 200)
-        self.verify_cors(r)
+        r = OPTIONS(url + '/xhr',
+                headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST'})
+        self.assertTrue(r.status == 204 or r.status == 200)
+        self.verify_cors(r, 'test')
         self.assertFalse(r['Access-Control-Allow-Headers'])
 
 
@@ -843,10 +845,10 @@ class XhrStreaming(Test):
 
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST_async(url + '/xhr_streaming')
+        r = POST_async(url + '/xhr_streaming', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.verify_content_type(r, 'application/javascript;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
