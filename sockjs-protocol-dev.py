@@ -934,15 +934,15 @@ class EventSource(Test):
 
         # The transport must first send a new line prelude, due to a
         # bug in Opera.
-        self.assertEqual(r.read(), '\r\n')
+        self.assertRegexpMatches(r.read(), '\r|\n')
 
-        self.assertEqual(r.read(), 'data: o\r\n\r\n')
+        self.assertRegexpMatches(r.read(), 'data: o(\r|\n)(\r|\n)')
 
         r1 = POST(url + '/xhr_send', body='["x"]')
         self.assertFalse(r1.body)
         self.assertEqual(r1.status, 204)
 
-        self.assertEqual(r.read(), 'data: a["x"]\r\n\r\n')
+        self.assertRegexpMatches(r.read(), 'data: a\["x"\](\r|\n)(\r|\n)')
 
         # This protocol doesn't allow binary data and we need to
         # specially treat leading space, new lines and things like
@@ -952,8 +952,8 @@ class EventSource(Test):
         self.assertFalse(r1.body)
         self.assertEqual(r1.status, 204)
 
-        self.assertEqual(r.read(),
-                         'data: a["  \\u0000\\n\\r "]\r\n\r\n')
+        self.assertIn(r.read(),
+        	['data: a["  \\u0000\\n\\r "]' + nl for nl in ['\n\n', '\r\r', '\r\n\r\n']])
 
         r.close()
 
@@ -969,14 +969,14 @@ class EventSource(Test):
         r = GET_async(url + '/eventsource')
         self.assertEqual(r.status, 200)
         self.assertTrue(r.read()) # prelude
-        self.assertEqual(r.read(), 'data: o\r\n\r\n')
+        self.assertRegexpMatches(r.read(), 'data: o(\r|\n)(\r|\n)')
 
         # Test server should gc streaming session after 4096 bytes
         # were sent (including framing).
         msg = '"' + ('x' * 4096) + '"'
         r1 = POST(url + '/xhr_send', body='[' + msg + ']')
         self.assertEqual(r1.status, 204)
-        self.assertEqual(r.read(), 'data: a[' + msg + ']\r\n\r\n')
+        self.assertRegexpMatches(r.read(), 'data: a\[' + msg + '\](\r|\n)(\r|\n)')
 
         # The connection should be closed after enough data was
         # delivered.
