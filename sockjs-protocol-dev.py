@@ -952,7 +952,7 @@ class EventSource(Test):
         self.assertEqual(r1.status, 204)
 
         self.assertIn(r.read(),
-        	['data: a["  \\u0000\\n\\r "]' + nl for nl in ['\n\n', '\r\n\r\n']])
+        	['data: a["  \\u0000\\n\\r "]' + nl for nl in ['\n\n', '\r\r', '\r\n\r\n']])
 
         r.close()
 
