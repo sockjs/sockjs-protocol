@@ -12,7 +12,7 @@ PYCCO = $(VENV_DIR)/bin/pycco
 all: pycco_deps test_deps build
 
 build: pycco_deps
-	$(PYCCO) sockjs-protocol*.py
+	$(PYCCO) sockjs-protocol.py
 
 clean:
 	@rm -rf $(BUILD_DIR)

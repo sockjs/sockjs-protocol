@@ -48,15 +48,15 @@ And you're ready to run the tests against your server. By default we
 assume that your test server is at
 [http://localhost:8081](http://localhost:8081):
 
-    ./venv/bin/python sockjs-protocol-0.3.3.py
+    ./venv/bin/python sockjs-protocol.py
 
 You can specify the test server URL manually:
 
-    SOCKJS_URL=http://localhost:1234 ./venv/bin/python sockjs-protocol-0.3.3.py -v
+    SOCKJS_URL=http://localhost:1234 ./venv/bin/python sockjs-protocol.py -v
 
 You can run specific tests providing test class as an optional argument:
 
-    ./venv/bin/python sockjs-protocol-0.3.3.py Protocol.test_simpleSession
+    ./venv/bin/python sockjs-protocol.py Protocol.test_simpleSession
 
 
 There is also another test, intended to look for some http quirks:
@@ -67,7 +67,7 @@ There is also another test, intended to look for some http quirks:
 Generating literate html
 ------------------------
 
-If you edited `sockjs-protocol*.py` files, you may want to see how it
+If you edited `sockjs-protocol.py` files, you may want to see how it
 looks rendered to html. To generate the html type:
 
     make build

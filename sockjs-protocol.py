@@ -19,9 +19,9 @@ import time
 import json
 import re
 import unittest2 as unittest
-from utils_03 import GET, GET_async, POST, POST_async, OPTIONS, old_POST_async
-from utils_03 import WebSocket8Client
-from utils_03 import RawHttpConnection
+from utils import GET, GET_async, POST, POST_async, OPTIONS, old_POST_async
+from utils import WebSocket8Client
+from utils import RawHttpConnection
 import uuid
 
 
@@ -87,18 +87,19 @@ class Test(unittest.TestCase):
     # responses to OPTIONS requests must be cacheable and contain
     # appropriate headers.
     def verify_options(self, url, allowed_methods):
-        for origin in [None, 'test', 'null']:
-            h = {}
-            if origin:
-                h['Origin'] = origin
+        for origin in ['test', 'null']:
+            h = {'Access-Control-Request-Method': allowed_methods, 'Origin': origin}
             r = OPTIONS(url, headers=h)
-            self.assertEqual(r.status, 204)
+            # A 200 'OK' or a 204 'No Content' should both be acceptable as responses for a CORS request.
+            self.assertTrue(r.status == 204 or r.status == 200)
             self.assertTrue(re.search('public', r['Cache-Control']))
             self.assertTrue(re.search('max-age=[1-9][0-9]{6}', r['Cache-Control']),
                             "max-age must be large, one year (31536000) is best")
             self.assertTrue(r['Expires'])
             self.assertTrue(int(r['access-control-max-age']) > 1000000)
-            self.assertEqual(r['Access-Control-Allow-Methods'], allowed_methods)
+            # A server may respond to a preflight request with HTTP methods in addition to method specified in the 'Access-Control-Request-Method' header
+            for header in allowed_methods.split(','):
+                self.assertTrue(header.strip() in r['Access-Control-Allow-Methods'], 'Access-Control-Allow-Methods did not contain :' + header)
             self.assertFalse(r.body)
             self.verify_cors(r, origin)
 
@@ -108,7 +109,7 @@ class Test(unittest.TestCase):
     # Most of the XHR/Ajax based transports do work CORS if proper
     # headers are set.
     def verify_cors(self, r, origin=None):
-        if origin and origin != 'null':
+        if origin:
             self.assertEqual(r['access-control-allow-origin'], origin)
             # In order to get cookies (`JSESSIONID` mostly) flying, we
             # need to set `allow-credentials` header to true.
@@ -163,11 +164,11 @@ class IframePage(Test):
 <head>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <script src="(?P<sockjs_url>[^"]*)"></script>
   <script>
     document.domain = document.domain;
-    _sockjs_onload = function\(\){SockJS.bootstrap_iframe\(\);};
+    SockJS.bootstrap_iframe\(\);
   </script>
-  <script src="(?P<sockjs_url>[^"]*)"></script>
 </head>
 <body>
   <h2>Don't panic!</h2>
@@ -261,12 +262,12 @@ class InfoTest(Test):
     # the roundtrip time between the client and the server. So, please,
     # do respond to this url in a timely fashion.
     def test_basic(self):
-        r = GET(base_url + '/info')
+        r = GET(base_url + '/info', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.verify_content_type(r, 'application/json;charset=UTF-8')
         self.verify_no_cookie(r)
         self.verify_not_cached(r)
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
 
         data = json.loads(r.body)
         # Are websockets enabled on the server?
@@ -302,10 +303,10 @@ class InfoTest(Test):
     # must respond with star "*" origin in such case.
     def test_options_null_origin(self):
             url = base_url + '/info'
-            r = OPTIONS(url, headers={'Origin': 'null'})
-            self.assertEqual(r.status, 204)
+            r = OPTIONS(url, headers={'Origin': 'null', 'Access-Control-Request-Method': 'POST'})
+            self.assertTrue(r.status == 204 or r.status == 200)
             self.assertFalse(r.body)
-            self.assertEqual(r['access-control-allow-origin'], '*')
+            self.assertEqual(r['access-control-allow-origin'], 'null')
 
     # The 'disabled_websocket_echo' service should have websockets
     # disabled.
@@ -506,7 +507,6 @@ class WebsocketHttpErrors(Test):
     def test_httpMethod(self):
         r = GET(base_url + '/0/0/websocket')
         self.assertEqual(r.status, 400)
-        self.assertTrue('Can "Upgrade" only to "WebSocket".' in r.body)
 
     # Some proxies and load balancers can rewrite 'Connection' header,
     # in such case we must refuse connection.
@@ -514,7 +514,7 @@ class WebsocketHttpErrors(Test):
         r = GET(base_url + '/0/0/websocket', headers={'Upgrade': 'WebSocket',
                                                       'Connection': 'close'})
         self.assertEqual(r.status, 400)
-        self.assertTrue('"Connection" must be "Upgrade".', r.body)
+        self.assertTrue('Not a valid websocket request', r.body)
 
     # WebSocket should only accept GET
     def test_invalidMethod(self):
@@ -558,7 +558,6 @@ class WebsocketHixie76(Test):
         ws.send(u'')
         # Server must also ignore frames with no messages.
         ws.send(u'[]')
-
         ws.send(u'["a"]')
         self.assertEqual(ws.recv(), u'a["a"]')
         ws.close()
@@ -649,7 +648,7 @@ class WebsocketHixie76(Test):
 # The server must support Hybi-10 protocol
 class WebsocketHybi10(Test):
     def test_transport(self):
-        trans_url = base_url + '/000/' + str(uuid.uuid4()) + '/websocket'
+        trans_url = base_url.replace('http', 'ws') + '/000/' + str(uuid.uuid4()) + '/websocket'
         ws = WebSocket8Client(trans_url)
 
         self.assertEqual(ws.recv(), 'o')
@@ -660,7 +659,7 @@ class WebsocketHybi10(Test):
         ws.close()
 
     def test_close(self):
-        trans_url = close_base_url + '/000/' + str(uuid.uuid4()) + '/websocket'
+        trans_url = close_base_url.replace('http', 'ws') + '/000/' + str(uuid.uuid4()) + '/websocket'
         ws = WebSocket8Client(trans_url)
         self.assertEqual(ws.recv(), u'o')
         self.assertEqual(ws.recv(), u'c[3000,"Go away!"]')
@@ -738,16 +737,16 @@ class XhrPolling(Test):
     # Test the transport itself.
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr')
+        r = POST(url + '/xhr', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body, 'o\n')
         self.verify_content_type(r, 'application/javascript;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
         # Xhr transports receive json-encoded array of messages.
-        r = POST(url + '/xhr_send', body='["x"]')
+        r = POST(url + '/xhr_send', body='["x"]', headers={'Origin': 'test'})
         self.assertEqual(r.status, 204)
         self.assertFalse(r.body)
         # The content type of `xhr_send` must be set to `text/plain`,
@@ -755,7 +754,7 @@ class XhrPolling(Test):
         # Firefox/Firebug behaviour - it assumes that the content type
         # is xml and shouts about it.
         self.verify_content_type(r, 'text/plain;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
@@ -779,11 +778,11 @@ class XhrPolling(Test):
         self.assertEqual(r.body, 'o\n')
 
         r = POST(url + '/xhr_send', body='["x')
-        self.assertEqual(r.status, 400)
+        self.assertEqual(r.status, 500)
         self.assertTrue("Broken JSON encoding." in r.body)
 
         r = POST(url + '/xhr_send', body='')
-        self.assertEqual(r.status, 400)
+        self.assertEqual(r.status, 500)
         self.assertTrue("Payload expected." in r.body)
 
         r = POST(url + '/xhr_send', body='["a"]')
@@ -820,23 +819,24 @@ class XhrPolling(Test):
     # otherwise.
     def test_request_headers_cors(self):
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr',
-                 headers={'Access-Control-Request-Headers': 'a, b, c'})
-        self.assertEqual(r.status, 200)
-        self.verify_cors(r)
+        r = OPTIONS(url + '/xhr',
+                headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'a, b, c'})
+        self.assertTrue(r.status == 204 or r.status == 200)
+        self.verify_cors(r, 'test')
         self.assertEqual(r['Access-Control-Allow-Headers'], 'a, b, c')
 
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr',
-                 headers={'Access-Control-Request-Headers': ''})
-        self.assertEqual(r.status, 200)
-        self.verify_cors(r)
+        r = OPTIONS(url + '/xhr',
+                headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': ''})
+        self.assertTrue(r.status == 204 or r.status == 200)
+        self.verify_cors(r, 'test')
         self.assertFalse(r['Access-Control-Allow-Headers'])
 
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST(url + '/xhr')
-        self.assertEqual(r.status, 200)
-        self.verify_cors(r)
+        r = OPTIONS(url + '/xhr',
+                headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST'})
+        self.assertTrue(r.status == 204 or r.status == 200)
+        self.verify_cors(r, 'test')
         self.assertFalse(r['Access-Control-Allow-Headers'])
 
     # The client must be able to send frames containint no messages to
@@ -869,10 +869,10 @@ class XhrStreaming(Test):
 
     def test_transport(self):
         url = base_url + '/000/' + str(uuid.uuid4())
-        r = POST_async(url + '/xhr_streaming')
+        r = POST_async(url + '/xhr_streaming', headers={'Origin': 'test'})
         self.assertEqual(r.status, 200)
         self.verify_content_type(r, 'application/javascript;charset=UTF-8')
-        self.verify_cors(r)
+        self.verify_cors(r, 'test')
         # iOS 6 caches POSTs. Make sure we send no-cache header.
         self.verify_not_cached(r)
 
@@ -927,7 +927,7 @@ class EventSource(Test):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET_async(url + '/eventsource')
         self.assertEqual(r.status, 200)
-        self.verify_content_type(r, 'text/event-stream;charset=UTF-8')
+        self.verify_content_type(r, 'text/event-stream')
         # As EventSource is requested using GET we must be very
         # careful not to allow it being cached.
         self.verify_not_cached(r)
@@ -1033,16 +1033,16 @@ class HtmlFile(Test):
 
     def test_no_callback(self):
         r = GET(base_url + '/a/a/htmlfile')
-        self.assertEqual(r.status, 400)
+        self.assertEqual(r.status, 500)
         self.assertTrue('"callback" parameter required' in r.body)
 
     # Supplying invalid characters to callback parameter is invalid
-    # and must result in a 400 errors. Invalid characters are any
+    # and must result in a 500 errors. Invalid characters are any
     # matching the following regexp: `[^a-zA-Z0-9-_.]`
     def test_invalid_callback(self):
         for callback in ['%20', '*', 'abc(', 'abc%28']:
             r = GET(base_url + '/a/a/htmlfile?c=' + callback)
-            self.assertEqual(r.status, 400)
+            self.assertEqual(r.status, 500)
             self.assertTrue('invalid "callback" parameter' in r.body)
 
     def test_response_limit(self):
@@ -1079,7 +1079,7 @@ class JsonPolling(Test):
         # careful not to allow it being cached.
         self.verify_not_cached(r)
 
-        self.assertEqual(r.body, 'callback("o");\r\n')
+        self.assertEqual(r.body, '/**/callback("o");\r\n')
 
         r = POST(url + '/jsonp_send', body='d=%5B%22x%22%5D',
                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
@@ -1093,12 +1093,12 @@ class JsonPolling(Test):
 
         r = GET(url + '/jsonp?c=%63allback')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r.body, 'callback("a[\\"x\\"]");\r\n')
+        self.assertEqual(r.body, '/**/callback("a[\\"x\\"]");\r\n')
 
 
     def test_no_callback(self):
         r = GET(base_url + '/a/a/jsonp')
-        self.assertEqual(r.status, 400)
+        self.assertEqual(r.status, 500)
         self.assertTrue('"callback" parameter required' in r.body)
 
     # Supplying invalid characters to callback parameter is invalid
@@ -1107,7 +1107,7 @@ class JsonPolling(Test):
     def test_invalid_callback(self):
         for callback in ['%20', '*', 'abc(', 'abc%28']:
             r = GET(base_url + '/a/a/jsonp?c=' + callback)
-            self.assertEqual(r.status, 400)
+            self.assertEqual(r.status, 500)
             self.assertTrue('invalid "callback" parameter' in r.body)
 
     # The server must behave when invalid json data is sent or when no
@@ -1115,17 +1115,17 @@ class JsonPolling(Test):
     def test_invalid_json(self):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET(url + '/jsonp?c=x')
-        self.assertEqual(r.body, 'x("o");\r\n')
+        self.assertEqual(r.body, '/**/x("o");\r\n')
 
         r = POST(url + '/jsonp_send', body='d=%5B%22x',
                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
-        self.assertEqual(r.status, 400)
+        self.assertEqual(r.status, 500)
         self.assertTrue("Broken JSON encoding." in r.body)
 
         for data in ['', 'd=', 'p=p']:
             r = POST(url + '/jsonp_send', body=data,
                      headers={'Content-Type': 'application/x-www-form-urlencoded'})
-            self.assertEqual(r.status, 400)
+            self.assertEqual(r.status, 500)
             self.assertTrue("Payload expected." in r.body)
 
         r = POST(url + '/jsonp_send', body='d=%5B%22b%22%5D',
@@ -1134,14 +1134,14 @@ class JsonPolling(Test):
 
         r = GET(url + '/jsonp?c=x')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r.body, 'x("a[\\"b\\"]");\r\n')
+        self.assertEqual(r.body, '/**/x("a[\\"b\\"]");\r\n')
 
     # The server must accept messages sent with different content
     # types.
     def test_content_types(self):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET(url + '/jsonp?c=x')
-        self.assertEqual(r.body, 'x("o");\r\n')
+        self.assertEqual(r.body, '/**/x("o");\r\n')
 
         r = POST(url + '/jsonp_send', body='d=%5B%22abc%22%5D',
                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
@@ -1152,23 +1152,23 @@ class JsonPolling(Test):
 
         r = GET(url + '/jsonp?c=x')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r.body, 'x("a[\\"abc\\",\\"%61bc\\"]");\r\n')
+        self.assertEqual(r.body, '/**/x("a[\\"abc\\",\\"%61bc\\"]");\r\n')
 
     def test_close(self):
         url = close_base_url + '/000/' + str(uuid.uuid4())
         r = GET(url + '/jsonp?c=x')
-        self.assertEqual(r.body, 'x("o");\r\n')
+        self.assertEqual(r.body, '/**/x("o");\r\n')
 
         r = GET(url + '/jsonp?c=x')
-        self.assertEqual(r.body, 'x("c[3000,\\"Go away!\\"]");\r\n')
+        self.assertEqual(r.body, '/**/x("c[3000,\\"Go away!\\"]");\r\n')
 
         r = GET(url + '/jsonp?c=x')
-        self.assertEqual(r.body, 'x("c[3000,\\"Go away!\\"]");\r\n')
+        self.assertEqual(r.body, '/**/x("c[3000,\\"Go away!\\"]");\r\n')
 
     def test_sending_empty_frame(self):
         url = base_url + '/000/' + str(uuid.uuid4())
         r = GET(url + '/jsonp?c=x')
-        self.assertEqual(r.body, 'x("o");\r\n')
+        self.assertEqual(r.body, '/**/x("o");\r\n')
 
         # Sending frames containing no messages must be allowed.
         r = POST(url + '/jsonp_send', body='d=%5B%5D',
@@ -1181,7 +1181,7 @@ class JsonPolling(Test):
 
         r = GET(url + '/jsonp?c=x')
         self.assertEqual(r.status, 200)
-        self.assertEqual(r.body, 'x("a[\\"x\\"]");\r\n')
+        self.assertEqual(r.body, '/**/x("a[\\"x\\"]");\r\n')
 
 
 # JSESSIONID cookie
@@ -1257,7 +1257,7 @@ class JsessionidCookie(Test):
         self.assertEqual(r.status, 200)
         self.verify_cookie(r)
 
-        self.assertEqual(r.body, 'callback("o");\r\n')
+        self.assertEqual(r.body, '/**/callback("o");\r\n')
 
         r = POST(url + '/jsonp_send', body='d=%5B%22x%22%5D',
                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
@@ -1282,13 +1282,13 @@ class JsessionidCookie(Test):
 # heartbeats. Only raw WebSocket protocol.
 class RawWebsocket(Test):
     def test_transport(self):
-        ws = WebSocket8Client(base_url + '/websocket')
+        ws = WebSocket8Client(base_url.replace('http', 'ws') + '/websocket')
         ws.send(u'Hello world!\uffff')
         self.assertEqual(ws.recv(), u'Hello world!\uffff')
         ws.close()
 
     def test_close(self):
-        ws = WebSocket8Client(close_base_url + '/websocket')
+        ws = WebSocket8Client(close_base_url.replace('http', 'ws') + '/websocket')
         with self.assertRaises(ws.ConnectionClosedException) as ce:
             ws.recv()
         self.assertEqual(ce.exception.reason, "Go away!")
@@ -1516,7 +1516,6 @@ class Http10(Test):
             connection = r.headers.get('connection', '').lower()
             if connection in ['close', '']:
                 # Connection-close behaviour is default in http 1.0
-                print 'XXX'
                 self.assertTrue(c.closed())
             else:
                 self.assertEqual(connection, 'keep-alive')

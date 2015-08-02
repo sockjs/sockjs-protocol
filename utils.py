@@ -86,13 +86,15 @@ class WebSocket8Client(object):
         class IntWebSocketClient(WebSocketClient):
             def received_message(self, m):
                 queue.put(unicode(str(m), 'utf-8'))
-            def read_from_connection(self, amount):
-                r = super(IntWebSocketClient, self).read_from_connection(amount)
-                if self.stream.closing:
-                    queue.put((self.stream.closing.code, self.stream.closing.reason[2:]))
-                elif not r:
-                    queue.put((1000, ""))
-                return r
+            def closed(self, code, reason):
+                queue.put((code, reason))
+            # def read_from_connection(self, amount):
+            #     r = super(IntWebSocketClient, self).read_from_connection(amount)
+            #     if self.stream.closing:
+            #         queue.put((self.stream.closing.code, self.stream.closing.reason[2:]))
+            #     elif not r:
+            #         queue.put((1000, ""))
+            #     return r
         self.client = IntWebSocketClient(url)
         self.client.connect()
 

@@ -1,4 +1,3 @@
 unittest2
 websocket-client==0.4.1
-# Main source crashes https://github.com/Lawouach/WebSocket-for-Python/issues/16
--e git+git://github.com/majek/WebSocket-for-Python.git@master#egg=ws4py
+ws4py
