@@ -823,21 +823,30 @@ class XhrPolling(Test):
                 headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'a, b, c'})
         self.assertTrue(r.status == 204 or r.status == 200)
         self.verify_cors(r, 'test')
-        self.assertEqual(r['Access-Control-Allow-Headers'], 'a, b, c')
+        self.assertAllowedHeaders(r['Access-Control-Allow-Headers'])
 
         url = base_url + '/000/' + str(uuid.uuid4())
         r = OPTIONS(url + '/xhr',
                 headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': ''})
         self.assertTrue(r.status == 204 or r.status == 200)
         self.verify_cors(r, 'test')
-        self.assertFalse(r['Access-Control-Allow-Headers'])
+        self.assertTrue(r['Access-Control-Allow-Headers'] == "" or self.assertAllowedHeaders(r['Access-Control-Allow-Headers']))
 
         url = base_url + '/000/' + str(uuid.uuid4())
         r = OPTIONS(url + '/xhr',
                 headers={'Origin': 'test', 'Access-Control-Request-Method': 'POST'})
         self.assertTrue(r.status == 204 or r.status == 200)
         self.verify_cors(r, 'test')
-        self.assertFalse(r['Access-Control-Allow-Headers'])
+        self.assertTrue(r['Access-Control-Allow-Headers'] == "" or self.assertAllowedHeaders(r['Access-Control-Allow-Headers']))
+
+    def assertAllowedHeaders(self, responseHeader):
+	if responseHeader is None:
+	    return True
+
+        self.assertTrue('a' in responseHeader)
+        self.assertTrue('b' in responseHeader)
+        self.assertTrue('c' in responseHeader)
+        return True
 
     # The client must be able to send frames containint no messages to
     # the server.  This is used as a heartbeat mechanism - client may
