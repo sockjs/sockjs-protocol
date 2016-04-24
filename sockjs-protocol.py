@@ -123,7 +123,7 @@ class Test(unittest.TestCase):
     # to disallow any caching.
     def verify_not_cached(self, r, origin=None):
         self.assertEqual(r['Cache-Control'],
-                         'no-store, no-cache, must-revalidate, max-age=0')
+                         'no-store, no-cache, no-transform, must-revalidate, max-age=0')
         self.assertFalse(r['Expires'])
         self.assertFalse(r['Last-Modified'])
 
