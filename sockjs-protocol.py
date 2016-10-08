@@ -110,10 +110,15 @@ class Test(unittest.TestCase):
     # headers are set.
     def verify_cors(self, r, origin=None):
         if origin:
-            self.assertEqual(r['access-control-allow-origin'], origin)
-            # In order to get cookies (`JSESSIONID` mostly) flying, we
-            # need to set `allow-credentials` header to true.
-            self.assertEqual(r['access-control-allow-credentials'], 'true')
+	    if origin == 'null':
+	       self.assertEqual(r['access-control-allow-origin'], '*')
+               # if access-control-allow-origin is '*' then access-control-allow-credentials must not be set.
+               self.assertFalse(r['access-control-allow-credentials'])
+            else:
+	        self.assertEqual(r['access-control-allow-origin'], origin)
+                # In order to get cookies (`JSESSIONID` mostly) flying, we
+                # need to set `allow-credentials` header to true.
+                self.assertEqual(r['access-control-allow-credentials'], 'true')
         else:
             self.assertEqual(r['access-control-allow-origin'], '*')
             self.assertFalse(r['access-control-allow-credentials'])
@@ -306,7 +311,7 @@ class InfoTest(Test):
             r = OPTIONS(url, headers={'Origin': 'null', 'Access-Control-Request-Method': 'POST'})
             self.assertTrue(r.status == 204 or r.status == 200)
             self.assertFalse(r.body)
-            self.assertEqual(r['access-control-allow-origin'], 'null')
+            self.assertEqual(r['access-control-allow-origin'], '*')
 
     # The 'disabled_websocket_echo' service should have websockets
     # disabled.
