@@ -667,10 +667,10 @@ class WebsocketHybi10(Test):
             ws.recv()
         ws.close()
 
-    # Verify WebSocket headers sanity. Server must support both
-    # Hybi-07 and Hybi-10.
+    # Verify WebSocket headers sanity. Server must support 
+    # Hybi-13
     def test_headersSanity(self):
-        for version in ['7', '8', '13']:
+        for version in ['13']:
             url = base_url.split(':',1)[1] + \
                 '/000/' + str(uuid.uuid4()) + '/websocket'
             ws_url = 'ws:' + url
@@ -702,24 +702,6 @@ class WebsocketHybi10(Test):
         with self.assertRaises(ws.ConnectionClosedException):
             ws.recv()
         ws.close()
-
-    # As a fun part, Firefox 6.0.2 supports Websockets protocol '7'. But,
-    # it doesn't send a normal 'Connection: Upgrade' header. Instead it
-    # sends: 'Connection: keep-alive, Upgrade'. Brilliant.
-    def test_firefox_602_connection_header(self):
-        url = base_url.split(':',1)[1] + \
-            '/000/' + str(uuid.uuid4()) + '/websocket'
-        ws_url = 'ws:' + url
-        http_url = 'http:' + url
-        origin = '/'.join(http_url.split('/')[:3])
-        h = {'Upgrade': 'websocket',
-             'Connection': 'keep-alive, Upgrade',
-             'Sec-WebSocket-Version': '7',
-             'Sec-WebSocket-Origin': 'http://asd',
-             'Sec-WebSocket-Key': 'x3JJHMbDL1EzLkh9GBhXDw==',
-             }
-        r = GET_async(http_url, headers=h)
-        self.assertEqual(r.status, 101)
 
 
 # XhrPolling: `/*/*/xhr`, `/*/*/xhr_send`
