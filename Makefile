@@ -27,7 +27,7 @@ $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 
 $(VENV_DIR):
-	virtualenv $(VENV_DIR) --no-site-packages --distribute
+	virtualenv $(VENV_DIR)
 
 $(BUILD_DIR)/pip.log: $(BUILD_DIR) requirements.txt
 	$(PIP) install -Ur requirements.txt | tee $(BUILD_DIR)/pip.log
