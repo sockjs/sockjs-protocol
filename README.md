@@ -31,7 +31,7 @@ prose in literate-programming style. You can see current documentation
 here:
 
  * Current stable: [sockjs-protocol-0.3.3.html](
-   http://sockjs.github.com/sockjs-protocol/sockjs-protocol-0.3.3.html)
+   http://sockjs.github.io/sockjs-protocol/sockjs-protocol-0.3.3.html)
 
 
 Running tests
