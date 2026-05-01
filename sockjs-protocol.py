@@ -167,7 +167,7 @@ class IframePage(Test):
   <script src="(?P<sockjs_url>[^"]*)"></script>
   <script>
     document.domain = document.domain;
-    SockJS.bootstrap_iframe\(\);
+    SockJS.bootstrap_iframe\\(\\);
   </script>
 </head>
 <body>
