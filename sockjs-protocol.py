@@ -545,7 +545,7 @@ class Websocket(Test):
                 raise websocket.WebSocketConnectionClosedException
         ws.close()
 
-    # Verify WebSocket headers sanity. Server must support 
+    # Verify WebSocket headers sanity. Server must support
     # Hybi-13
     def test_headersSanity(self):
         for version in ['13']:
@@ -589,7 +589,7 @@ class Websocket(Test):
     # correct to have two separate sessions sharing the same
     # `session_id` at the same time.
     def test_reuseSessionId(self):
-        on_close = lambda(ws): self.assertFalse(True)
+        on_close = lambda ws: self.assertFalse(True)
 
         ws_url = 'ws:' + base_url.split(':',1)[1] + \
                  '/000/' + str(uuid.uuid4()) + '/websocket'
