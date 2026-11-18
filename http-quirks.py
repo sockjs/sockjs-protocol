@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Http quirks
 # ===========
@@ -10,30 +10,33 @@
 #
 # This tests aren't really a part of SockJS test suite, it's more
 # about verification http quirks.
-import unittest2 as unittest
+import unittest
 import uuid
-import urlparse
-import httplib_fork as httplib
+from urllib.parse import urlparse
+import http.client as httplib
 import os
 
 test_top_url = os.environ.get('SOCKJS_URL', 'http://localhost:8081')
 base_url = test_top_url + '/echo'
 
+
 def POST_empty(url):
-    u = urlparse.urlparse(url)
+    u = urlparse(url)
     if u.scheme == 'http':
         conn = httplib.HTTPConnection(u.netloc)
     elif u.scheme == 'https':
         conn = httplib.HTTPSConnection(u.netloc)
     else:
-        assert False, "Unsupported scheme " + u.scheme
+        raise AssertionError("Unsupported scheme " + u.scheme)
+
     path = u.path + ('?' + u.query if u.query else '')
     conn.request('POST', path)
     res = conn.getresponse()
-    headers = dict( (k.lower(), v) for k, v in res.getheaders() )
-    body = res.read()
+    headers = {key.lower(): value for key, value in res.getheaders()}
+    body = res.read().decode('utf-8', errors='replace')
     conn.close()
     return res.status, body, headers
+
 
 class HttpQuirks(unittest.TestCase):
     def test_emptyContentLengthForPost(self):
