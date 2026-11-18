@@ -1,3 +1,2 @@
-unittest2
 websocket-client
 ws4py
