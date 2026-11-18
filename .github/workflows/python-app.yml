@@ -29,4 +29,4 @@ jobs:
     
     - name: Test with unittest
       run: |
-       run: python -m unittest sockjs-protocol.py
+        python -m unittest sockjs-protocol.py
