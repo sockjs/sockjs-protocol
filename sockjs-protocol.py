@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 [**SockJS-protocol**](https://github.com/sockjs/sockjs-protocol) is an
 effort to define a protocol between in-browser
@@ -18,7 +18,7 @@ import random
 import time
 import json
 import re
-import unittest2 as unittest
+import unittest
 from utils import GET, GET_async, POST, POST_async, OPTIONS, old_POST_async
 from utils import WebSocket8Client
 from utils import RawHttpConnection
@@ -278,7 +278,7 @@ class InfoTest(Test):
         # List of allowed origins. Currently ignored.
         self.assertEqual(data['origins'], ['*:*'])
         # Source of entropy for random number generator.
-        self.assertTrue(type(data['entropy']) in [int, long])
+        self.assertIs(type(data['entropy']), int)
 
     # As browsers don't have a good entropy source, the server must
     # help with tht. Info url must supply a good, unpredictable random
@@ -288,8 +288,8 @@ class InfoTest(Test):
         data1 = json.loads(r1.body)
         r2 = GET(base_url + '/info')
         data2 = json.loads(r2.body)
-        self.assertTrue(type(data1['entropy']) in [int, long])
-        self.assertTrue(type(data2['entropy']) in [int, long])
+        self.assertIs(type(data1['entropy']), int)
+        self.assertIs(type(data2['entropy']), int)
         self.assertNotEqual(data1['entropy'], data2['entropy'])
 
     # Info url must support CORS.
@@ -648,9 +648,9 @@ class Websocket(Test):
         self.assertEqual(r.headers['sec-websocket-origin'], origin)
         self.assertFalse('Content-Length' in r.headers)
         # Later send token
-        c.send('aaaaaaaa')
-        self.assertEqual(c.read()[:16],
-                         '\xca4\x00\xd8\xa5\x08G\x97,\xd5qZ\xba\xbfC{')
+        c.send(b'aaaaaaaa')
+        self.assertEqual(c.read_bytes()[:16],
+                         b'\xca4\x00\xd8\xa5\x08G\x97,\xd5qZ\xba\xbfC{')
 
     # When user sends broken data - broken JSON for example, the
     # server must abruptly terminate the ws connection.
@@ -1272,10 +1272,10 @@ escapable_by_server = re.compile(u"[\x00-\x1f\u200c-\u200f\u2028-\u202f\u2060-\u
 
 client_killer_string_esc = '"' + ''.join([
         r'\u%04x' % (i) for i in range(65536)
-            if escapable_by_client.match(unichr(i))]) + '"'
+            if escapable_by_client.match(chr(i))]) + '"'
 server_killer_string_esc = '"' + ''.join([
         r'\u%04x'% (i) for i in range(255, 65536)
-            if escapable_by_server.match(unichr(i))]) + '"'
+            if escapable_by_server.match(chr(i))]) + '"'
 
 class JSONEncoding(Test):
     def test_xhr_server_encodes(self):
